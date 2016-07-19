@@ -1,0 +1,88 @@
+prediction_ORF_pyl_prodigal.py | prediction_ORF_pyl_prodigal_scaffolds.py 
+__________________________________________
+With a complete genome and its predicted CDS, predict all potential proteins with pyrrolysine. This proteins can then be treated (i.e with Blast) 
+prediction_ORF_pyl_prodigal.py when genome is fully assembled
+prediction_ORF_pyl_prodigal_scaffolds.py when genome is not fully assembled, there are scaffolds 
+
+#Inputs# : 
+- File .fasta complete genome (scaffolds or completely assembled)
+- File .fasta predicted CDS 
+ 
+#Outputs# : (1 file per strand) 
+- File .fasta with only CDS ending with TAG
+- File .txt with CDS TAG positions
+- File .txt with regions of interest positions
+- File .fasta with region of interest
+- File  .fasta with potential genes
+- File .fasta with potential proteins (TAG=*) 
+- File .fasta with potential pyl proteins (TAG=O when it's not in the and of sequence) 
+
+#Treatment# 
+
+1. Recovery CDS ending with TAG + creation position file 
+
+=> Scan predicted CDS file, select CDS ending with TAG, their position and their strand. Create CDS file and position file for each strand. 
+
+2. Recovery positions regions of interest 
+
+Regions of interest for each scaffold 
+- Strand + : regions from the start of a CDS to the end of next CDS non overlapping (for the last CDS : region=CDS+end of genome)
+- Strand - : we are in the 3'-5' strand, we need to keep regions in « opposite direction ». Region from the end of a CDS to the end of the next CDS non overlapping (for the first CDS : region = beginning of the genome until the end of the first CDS)
+
+=> With CDS TAG positions file, select good positions for the regions 
+
+3. Recovery regions of interest
+
+=> With complete genome, keep regions with position of regions to interest 
+=> Regions reverse transcription for strand - 
+
+4. Determination potential genes 
+
+=> Scan each region of interest 
+=> Search first stop codon (=TAG, all CDS ending with TAG) 
+=> Write genes in potential genes files 
+=> Search next codon stop and write gene (from CDS start to second codon stop) in potential genes file
+=> If second codon stop = TAG, search next stop codon, write gene in potential genes files...etc until stop codon will be no TAG 
+
+5. Traduction 
+
+=> « Normal » traduction (TAG=*) 
+=> With first traduction, replace * by O (except for the last codon wich stay stop) 
+
+
+
+blast.pyl 
+______________________________________________
+Launch Blast on potential pyl proteins. Sort results to keep a list of alignments and sequences for first alignment. 
+
+#Inputs# : 
+- File .fasta potential pyl proteins (for each strand)
+- Evalue max for blast
+- Database for blast 
+ 
+#Outputs# : (1 file per strand) 
+- Untreated blast outputs .out (legible) and .xml (for BioPython treatment)
+- Treated outputs (list of alignments + sequence first alignment)
+- List of proteins and length of their alignment 
+
+#Treatment# 
+
+1. Blast launch
+Blast launch locally with blastall command
+Parameters : blastp, evalue given in output, database given in output  
+
+2.  Results treatment 
+Write list of alignments for each query in an output file. Write first alignment sequences for each query in the same file. 
+Create a file with list of proteins and length of their alignment. 
+
+
+
+launch_pipeline.pyl 
+___________________________________________
+Launch pyl_protein_prediction and blast at a time 
+
+
+
+
+
+

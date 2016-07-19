@@ -1,0 +1,55 @@
+
+========================[ May 19, 2015 10:02 AM ]========================
+ERROR: [000.000] No database name was specified
+
+========================[ May 19, 2015 10:50 AM ]========================
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/archaea.nonredundant_protein.1.protein.faa"
+Formatted 207723 sequences in volume 0
+SUCCESS: formatted database /home/cidam/pyl_protein_prediction/Bdd/archaea.nonredundant_protein.1.protein.faa
+
+========================[ May 19, 2015  2:08 PM ]========================
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta with 2547221 sequences, 999,999,901 letters(.psq file = 1002547532 bytes; .phr file = 448853045 bytes)
+Formatted 2547221 sequences in volume 0
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.01 with 2438149 sequences, 999,999,909 letters(.psq file = 1002438491 bytes; .phr file = 406908264 bytes)
+Formatted 2438149 sequences in volume 1
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.02 with 2592546 sequences, 999,999,883 letters(.psq file = 1002592788 bytes; .phr file = 411064559 bytes)
+Formatted 2592546 sequences in volume 2
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.03 with 3519426 sequences, 999,999,867 letters(.psq file = 1003519966 bytes; .phr file = 572350272 bytes)
+Formatted 3519426 sequences in volume 3
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.04 with 3443058 sequences, 999,999,696 letters(.psq file = 1003443211 bytes; .phr file = 568314914 bytes)
+Formatted 3443058 sequences in volume 4
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.05 with 3286942 sequences, 999,999,630 letters(.psq file = 1003286973 bytes; .phr file = 559218933 bytes)
+Formatted 3286942 sequences in volume 5
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.06 with 3184705 sequences, 999,998,985 letters(.psq file = 1003185184 bytes; .phr file = 548821703 bytes)
+Formatted 3184705 sequences in volume 6
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.07 with 2892348 sequences, 999,999,751 letters(.psq file = 1002892522 bytes; .phr file = 490134773 bytes)
+Formatted 2892348 sequences in volume 7
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.08 with 2803647 sequences, 999,999,489 letters(.psq file = 1002803739 bytes; .phr file = 469902341 bytes)
+Formatted 2803647 sequences in volume 8
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Closing volume /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta.09 with 3018340 sequences, 999,999,733 letters(.psq file = 1003018539 bytes; .phr file = 508193629 bytes)
+Formatted 3018340 sequences in volume 9
+Version 2.2.26 [Sep-21-2011]
+Started database file "/home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta"
+Formatted 2441914 sequences in volume 10
+SUCCESS: formatted database /home/cidam/pyl_protein_prediction/Bdd/uniref90.fasta
