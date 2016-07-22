@@ -28,22 +28,26 @@ Here, we propose a solution to detect pyrrolysine proteins. It relies on :
 
 ```
 $ git clone git@gitlab.com:bebatut/pyl_protein_prediction.git
+```
+
+- Move into the directory
+
+```
 $ cd pyl_protein_prediction
 ```
 
-- Launch installation
+- Prepare environment (create `conda` environment, download database)
 
 ```
-$ scripts/install_pyl_protein_prediction_tool.sh
+$ ./src/prepare_environment.sh
 ```
 
 # Usage
 
-- Open a terminal
-- Type
-python ~/pyl_protein_prediction/Scripts/Interface/menu.py
-OR
-cd ~/pyl_protein_prediction/Scripts/Interface
-./menu.py
+- Launch program
+
+```
+$ ./src/launch_pyl_protein_prediction.sh
+```
 
 # Questions
