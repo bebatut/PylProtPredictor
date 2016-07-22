@@ -3,6 +3,10 @@
 # -*- coding: utf-8 -*-
 import os
 import wx
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+os.pardir))
+import launch_prodigal
 
 
 class simpleapp_wx(wx.Frame):
@@ -62,15 +66,7 @@ class simpleapp_wx(wx.Frame):
         self.Show(True)
 
     def launch_prodigal(self, event, genome_filepath, result_dirpath):
-        genome_filename = os.path.basename(genome_filepath)
-        genome_name = genome_filename.split(".")[0]
-        result_filepath = result_dirpath + "/" + genome_name
-        result_filepath += "_predicted_CDS.fasta"
-        cmd = "prodigal"
-        cmd += " -i " + genome_filepath
-        cmd += " -d " + result_filepath
-        print cmd
-        os.system(cmd)
+        launch_prodigal.launch_prodigal(genome_filepath, result_dirpath)
         self.Destroy()
 
 
