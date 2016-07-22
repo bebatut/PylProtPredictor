@@ -37,14 +37,14 @@ class simpleapp_wx(wx.Frame):
         sizer.Add(vertical_space_5, (3, 0), (1, 5), wx.EXPAND)
 
         genome_label = wx.StaticText(self, -1,
-            label="Genome sequence in fasta")
+            label="Genome sequence (fasta)")
         sizer.Add(genome_label, (4, 1), (1, 1), wx.EXPAND)
 
         genome_filepicker = wx.FilePickerCtrl(self, -1)
         sizer.Add(genome_filepicker, (5, 1), (1, 1), wx.EXPAND)
 
         result_label = wx.StaticText(self, -1,
-            label="Directory to store results")
+            label="Output directory")
         sizer.Add(result_label, (4, 3), (1, 1), wx.EXPAND)
         result_dirpicker = wx.DirPickerCtrl(self, -1)
         sizer.Add(result_dirpicker, (5, 3), (1, 1), wx.EXPAND)
