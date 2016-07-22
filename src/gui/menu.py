@@ -49,7 +49,7 @@ class simpleapp_wx(wx. Frame):
         self.Show(True)
 
     def open_pyl_protein_prediction_gui(self, event):
-        os.system("pythonw src/gui/pyl_prediction_interface.py")
+        os.system("pythonw src/gui/pyl_prediction_gui.py")
 
     def open_blast_gui(self, event):
         os.system("pythonw src/gui/blast_gui.py")
