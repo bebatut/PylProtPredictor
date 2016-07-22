@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 os.pardir))
 import launch_prodigal
-
+import misc_functions
 
 class simpleapp_wx(wx.Frame):
     def __init__(self, parent, id, title):
@@ -66,6 +66,21 @@ class simpleapp_wx(wx.Frame):
         self.Show(True)
 
     def launch_prodigal(self, event, genome_filepath, result_dirpath):
+        if genome_filepath == "":
+            wx.MessageBox('Missing file with genome',
+                'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            return
+
+        if not misc_functions.isFasta(genome_filepath):
+            wx.MessageBox('Wrong format for file with genome',
+                'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            return
+
+        if result_dirpath == "":
+            wx.MessageBox('Missing output directory',
+                'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            return
+
         launch_prodigal.launch_prodigal(genome_filepath, result_dirpath)
         self.Destroy()
 
