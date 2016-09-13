@@ -21,7 +21,9 @@ def extract_predicted_cds_position(predicted_cds_filepath):
     pred_cds_pos['reverse'] = {}
     pred_cds_pos['reverse']['details'] = {}
     pred_cds_pos['reverse']['order'] = []
+    pred_cds_nb = 0
     for record in SeqIO.parse(predicted_cds_filepath,"fasta"):
+        pred_cds_nb += 1
         split_description = record.description.split("#")
         seq_id = split_description[0][:-1]
         start = split_description[1].replace(" ","")
@@ -39,16 +41,18 @@ def extract_predicted_cds_position(predicted_cds_filepath):
             pred_cds_pos['forward']['details'][seq_id]['end'] = int(end)
             pred_cds_pos['forward']['details'][seq_id]['seq'] = record.seq
             pred_cds_pos['forward']['order'].append(seq_id)
-    return pred_cds_pos
+    return pred_cds_pos, pred_cds_nb
 
 def identify_tag_ending_protein(pred_cds_pos):
     tag_ending_protein = {}
     tag_ending_protein['forward'] = {}
     tag_ending_protein['reverse'] = {}
+    tag_ending_prot_nb = 0
     for strand in pred_cds_pos:
         for cds in pred_cds_pos[strand]['details']:
             seq = pred_cds_pos[strand]['details'][cds]['seq']
             if str(seq).endswith("TAG"):
+                tag_ending_prot_nb += 1
                 tag_ending_protein[strand].setdefault(cds, {})
                 start = pred_cds_pos[strand]['details'][cds]['start']
                 tag_ending_protein[strand][cds]["start"] = start
@@ -56,7 +60,7 @@ def identify_tag_ending_protein(pred_cds_pos):
                 tag_ending_protein[strand][cds]["ends"] = [end]
                 seq = pred_cds_pos[strand]['details'][cds]['seq']
                 tag_ending_protein[strand][cds]["seqs"] = [seq]
-    return tag_ending_protein
+    return tag_ending_protein, tag_ending_prot_nb
 
 def extend_to_next_stop_codon(current_end, genome):
     genome = str(genome.seq)
@@ -120,9 +124,15 @@ def predict_pyl_protein_on_scaffold_genome(genome_filepath,
 
 def predict_pyl_protein_on_assembled_genome(genome_filepath,
     predicted_cds_filepath, output_dirpath, log_file):
-    pred_cds_pos = extract_predicted_cds_position(predicted_cds_filepath)
-    print pred_cds_pos
-    tag_ending_protein = identify_tag_ending_protein(pred_cds_pos)
+    pred_cds_pos, pred_cds_nb = extract_predicted_cds_position(
+    predicted_cds_filepath)
+    log_file.write("Number of predicted CDS: ")
+    log_file.write(str(pred_cds_nb) + "\n")
+
+    tag_ending_protein, tag_ending_prot_nb = identify_tag_ending_protein(
+    pred_cds_pos)
+    log_file.write("Number of TAG-ending predicted CDS: ")
+    log_file.write(str(tag_ending_prot_nb) + "\n")
 
     tag_ending_protein = extend_tag_ending_proteins(tag_ending_protein,
     pred_cds_pos, genome_filepath)
