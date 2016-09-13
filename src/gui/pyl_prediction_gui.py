@@ -36,10 +36,6 @@ class simpleapp_wx(wx.Frame):
 
         sizer.Add(vertical_space_5, (3, 0), (1, 5), wx.EXPAND)
 
-        genome_type_button = wx.RadioBox(self, -1,
-            choices=['Fully assembled genome', 'Scaffolds'])
-        sizer.Add(genome_type_button, (4, 1), (1, 3), wx.EXPAND)
-
         # sizer.Add(vertical_space_5, (5, 0), (1, 5), wx.EXPAND)
 
         genome_label = wx.StaticText(self, -1, label="Complete genome (fasta)")
@@ -73,14 +69,13 @@ class simpleapp_wx(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda event: self.launch_prediction(event,
             genome_filepicker.GetPath(),
             predicted_cds_filepicker.GetPath(),
-            output_dirpicker.GetPath(),
-            genome_type_button.GetSelection()), validation_button)
+            output_dirpicker.GetPath(), validation_button)
 
         self.SetSizerAndFit(sizer)
         self.Show(True)
 
     def launch_prediction(self, event, genome_filepath, predicted_cds_filepath,
-        output_dirpath, genome_type):
+        output_dirpath):
         if genome_filepath == "":
             wx.MessageBox('Missing file with complete genome',
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
@@ -106,12 +101,8 @@ class simpleapp_wx(wx.Frame):
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             return
 
-        if genome_type == 0:
-            predict_pyl_proteins.predict_pyl_protein_with_assemble_genome(
-                genome_filepath, predicted_cds_filepath, output_dirpath)
-        else:
-            predict_pyl_proteins.predict_pyl_protein_with_scaffold_genome(
-                genome_filepath, predicted_cds_filepath, output_dirpath)
+        predict_pyl_proteins.predict_pyl_proteins(
+        genome_filepath, predicted_cds_filepath, output_dirpath)
 
 
 if __name__ == "__main__":
