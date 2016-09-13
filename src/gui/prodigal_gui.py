@@ -71,7 +71,7 @@ class simpleapp_wx(wx.Frame):
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             return
 
-        if not misc_functions.isFasta(genome_filepath):
+        if not misc_functions.isfasta(genome_filepath):
             wx.MessageBox('Wrong format for file with genome',
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             return
