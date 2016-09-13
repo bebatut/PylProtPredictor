@@ -11,6 +11,7 @@ import os
 import sys
 from Bio import SeqIO
 from Bio.Data import CodonTable
+import misc_functions
 
 def extract_predicted_cds_position(predicted_cds_filepath):
     pred_cds_pos = {}
@@ -112,22 +113,41 @@ def extend_tag_ending_proteins(tag_ending_protein, pred_cds_pos,
 
     return tag_ending_protein
 
-def predict_pyl_protein_with_scaffold_genome (genome_filepath,
-    predicted_cds_filepath, output_dirpath):
-  print "launch_pyl_protein_from_scaffold"
+def predict_pyl_protein_on_scaffold_genome(genome_filepath,
+    predicted_cds_filepath, output_dirpath, log_file):
+    print "launch_pyl_protein_from_scaffold"
 
 
-def predict_pyl_protein_with_assemble_genome (genome_filepath,
-    predicted_cds_filepath, output_dirpath):
-  pred_cds_pos = extract_predicted_cds_position(predicted_cds_filepath)
-  tag_ending_protein = identify_tag_ending_protein(pred_cds_pos)
+def predict_pyl_protein_on_assembled_genome(genome_filepath,
+    predicted_cds_filepath, output_dirpath, log_file):
+    pred_cds_pos = extract_predicted_cds_position(predicted_cds_filepath)
+    print pred_cds_pos
+    tag_ending_protein = identify_tag_ending_protein(pred_cds_pos)
 
-  tag_ending_protein = extend_tag_ending_proteins(tag_ending_protein,
+    tag_ending_protein = extend_tag_ending_proteins(tag_ending_protein,
     pred_cds_pos, genome_filepath)
 
+def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
+    output_dirpath):
+    genome_filename = os.path.basename(genome_filepath)
+    genome_name = genome_filename.split(".")[0]
 
+    log_filepath = output_dirpath + "/" + genome_name
+    log_filepath += "_Pyl_protein_prediction_log.txt"
+    log_file = open(log_filepath, 'w')
 
+    if misc_functions.isscaffold(genome_filepath):
+        log_file.write("Pyl prediction on scaffold genome\n")
+        log_file.write("---------------------------------\n")
+        predict_pyl_protein_on_scaffold_genome(genome_filepath,
+        predicted_cds_filepath, output_dirpath, log_file)
+    else:
+        log_file.write("Pyl prediction on assembled genome\n")
+        log_file.write("----------------------------------\n")
+        predict_pyl_protein_on_assembled_genome(genome_filepath,
+        predicted_cds_filepath, output_dirpath, log_file)
 
+    log_file.close()
 
 predict_pyl_protein_with_assemble_genome("../data/MalvusMx1201_GENOME_FASTA.fsa",
 "../data/MalvusMx1201_GENOME_FASTA_predicted_CDS.fasta", "../data")

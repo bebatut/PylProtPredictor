@@ -15,3 +15,11 @@ def isfasta(file):
 	for record in SeqIO.parse(file,"fasta"):
 		fasta = True
 	return fasta
+
+def isscaffold(filepath):
+    seq_nb = 0
+    for record in SeqIO.parse(filepath,"fasta"):
+        if seq_nb >= 1:
+            return True
+        seq_nb += 1
+    return False
