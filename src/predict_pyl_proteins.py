@@ -55,7 +55,7 @@ def identify_tag_ending_protein(pred_cds_pos):
                 tag_ending_prot_nb += 1
                 tag_ending_protein[strand].setdefault(cds, {})
                 start = pred_cds_pos[strand]['details'][cds]['start']
-                tag_ending_protein[strand][cds]["start"] = start
+                tag_ending_protein[strand][cds]["starts"] = [start]
                 end = pred_cds_pos[strand]['details'][cds]['end']
                 tag_ending_protein[strand][cds]["ends"] = [end]
                 seq = pred_cds_pos[strand]['details'][cds]['seq']
@@ -90,32 +90,37 @@ def extend_tag_ending_proteins(tag_ending_protein, pred_cds_pos,
     genome = SeqIO.read(genome_filepath, "fasta")
     genome_size = len(genome.seq)
 
-    strand = "forward"
-    cds_nb = len(pred_cds_pos[strand]['order'])
-    for cds in tag_ending_protein[strand]:
-        start = tag_ending_protein[strand][cds]['start']
-        end = tag_ending_protein[strand][cds]['ends'][0]
-        new_ends = extend_to_next_stop_codon(end, genome)
-        tag_ending_protein[strand][cds]['ends'] += new_ends
-        for new_end in new_ends:
-            new_seq = genome.seq[start:new_end]
-            tag_ending_protein[strand][cds]['seqs'].append(new_seq)
-
-    strand = "reverse"
     reverse_complement_genome = genome.reverse_complement()
-    cds_nb = len(pred_cds_pos[strand]['order'])
-    for cds in tag_ending_protein[strand]:
-        start = tag_ending_protein[strand][cds]['start']
-        end = tag_ending_protein[strand][cds]['ends'][0]
-        reverse_start = (genome_size-end)
-        reverse_end = (genome_size-start+1)
-        new_ends = extend_to_next_stop_codon(reverse_end,
-            reverse_complement_genome)
-        for new_end in new_ends:
-            new_seq = reverse_complement_genome.seq[reverse_start:new_end]
-            tag_ending_protein[strand][cds]['seqs'].append(new_seq)
 
-    return tag_ending_protein
+    new_predicted_prot_nb = 0
+    for strand in ["forward", "reverse"]:
+        cds_nb = len(pred_cds_pos[strand]['order'])
+        for cds in tag_ending_protein[strand]:
+            start = tag_ending_protein[strand][cds]['starts'][0]
+            end = tag_ending_protein[strand][cds]['ends'][0]
+
+            if strand == "reverse":
+                previous_start = start
+                start = (genome_size-end)
+                end = (genome_size-previous_start+1)
+                used_genome = reverse_complement_genome
+            else:
+                used_genome = genome
+
+            new_ends = extend_to_next_stop_codon(end, used_genome)
+
+            for new_end in new_ends:
+                new_predicted_prot_nb += 1
+                new_seq = used_genome.seq[start:new_end]
+                tag_ending_protein[strand][cds]['seqs'].append(new_seq)
+
+                if strand == "reverse":
+                    new_start = genome_size - new_end + 1
+                    tag_ending_protein[strand][cds]['starts'].append(new_start)
+                else:
+                    tag_ending_protein[strand][cds]['ends'].append(new_end)
+
+    return tag_ending_protein, new_predicted_prot_nb
 
 def predict_pyl_protein_on_scaffold_genome(genome_filepath,
     predicted_cds_filepath, output_dirpath, log_file):
@@ -134,8 +139,10 @@ def predict_pyl_protein_on_assembled_genome(genome_filepath,
     log_file.write("Number of TAG-ending predicted CDS: ")
     log_file.write(str(tag_ending_prot_nb) + "\n")
 
-    tag_ending_protein = extend_tag_ending_proteins(tag_ending_protein,
-    pred_cds_pos, genome_filepath)
+    tag_ending_protein, new_predicted_prot_nb =  extend_tag_ending_proteins(
+    tag_ending_protein, pred_cds_pos, genome_filepath)
+    log_file.write("Number of new potential Pyl proteins:")
+    log_file.write(" " + str(new_predicted_prot_nb) + "\n")
 
 def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     output_dirpath):
