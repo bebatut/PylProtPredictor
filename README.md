@@ -39,7 +39,7 @@ $ cd pyl_protein_prediction
 - Prepare environment (create `conda` environment, download database)
 
 ```
-$ ./bin/prepare_environment.sh
+$ ./bin/prepare_environment
 ```
 
 # Usage
@@ -47,7 +47,7 @@ $ ./bin/prepare_environment.sh
 - Launch program
 
 ```
-$ ./bin/launch_pyl_protein_prediction.sh
+$ ./bin/launch_pyl_protein_prediction
 ```
 
 # Questions
