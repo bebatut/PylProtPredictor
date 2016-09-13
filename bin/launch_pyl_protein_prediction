@@ -5,5 +5,5 @@ source activate pyl_protein_prediction
 echo ""
 
 echo "Launch"
-pythow src/gui/menu.py
+pythonw src/gui/menu.py
 echo ""
