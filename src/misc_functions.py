@@ -10,9 +10,9 @@ def isfloat(value):
     except ValueError:
         return False
 
-def isfasta(file):
+def isfasta(filepath):
 	fasta = False
-	for record in SeqIO.parse(file,"fasta"):
+	for record in SeqIO.parse(filepath,"fasta"):
 		fasta = True
 	return fasta
 
