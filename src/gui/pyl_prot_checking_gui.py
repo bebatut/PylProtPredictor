@@ -7,7 +7,7 @@ import re
 import wx
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 os.pardir))
-import check_pyl_proteins
+import check_pyl_protein
 import misc_functions
 
 
@@ -39,16 +39,16 @@ class simpleapp_wx(wx.Frame):
 
         sizer.Add(vertical_space_5, (3, 0), (1, 5), wx.EXPAND)
 
-        pot_pyl_prot_folder_label = wx.StaticText(self, -1,
-            label="Folder with potential PYL proteins (one fasta file per potential PYL protein)")
-        sizer.Add(pot_pyl_prot_folder_label, (6, 1), (1, 1), wx.EXPAND)
-        pot_pyl_prot_dirpicker = wx.DirPickerCtrl(self, -1)
-        sizer.Add(pot_pyl_prot_dirpicker, (7, 1), (1, 1), wx.EXPAND)
+        pot_pyl_prot_label = wx.StaticText(self, -1,
+            label="Potential PYL protein to check (fasta file)")
+        sizer.Add(pot_pyl_prot_label, (6, 1), (1, 1), wx.EXPAND)
+        pot_pyl_prot_filepicker = wx.FilePickerCtrl(self, -1)
+        sizer.Add(pot_pyl_prot_filepicker, (7, 1), (1, 1), wx.EXPAND)
 
         # sizer.Add(vertical_space_5, (9, 0), (1, 5), wx.EXPAND)
 
         ref_db_label = wx.StaticText(self, -1,
-            label="Reference database (fasta file)")
+            label="Reference protein database (fasta file)")
         sizer.Add(ref_db_label, (8, 1), (1, 1), wx.EXPAND)
         ref_db_filepicker = wx.FilePickerCtrl(self, -1)
         sizer.Add(ref_db_filepicker, (9, 1), (1, 1), wx.EXPAND)
@@ -77,7 +77,7 @@ class simpleapp_wx(wx.Frame):
 
         self.Bind(wx.EVT_BUTTON,
             lambda event: self.launch_pyl_protein_checking(event,
-            pot_pyl_prot_dirpicker.GetPath(),
+            pot_pyl_prot_filepicker.GetPath(),
             ref_db_filepicker.GetPath(),
             output_dirpicker.GetPath(),
             evalue.GetValue()), launch_button)
@@ -85,9 +85,14 @@ class simpleapp_wx(wx.Frame):
         self.SetSizerAndFit(sizer)
         self.Show(True)
 
-    def launch_pyl_protein_checking(self, event, pot_pyl_prot_dirpath, ref_db_filepath, output_dirpath, evalue):
-        if pot_pyl_prot_dirpath == "":
-            wx.MessageBox('Missing folder with potential PYL proteins',
+    def launch_pyl_protein_checking(self, event, pot_pyl_prot_filepath, ref_db_filepath, output_dirpath, evalue):
+        if pot_pyl_prot_filepath == "":
+            wx.MessageBox('Missing file with the potential Pyl protein',
+                'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            return
+
+        if not misc_functions.isfasta(pot_pyl_prot_filepath):
+            wx.MessageBox('Wrong format for file with the potential Pyl protein',
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             return
 
@@ -110,11 +115,11 @@ class simpleapp_wx(wx.Frame):
                 return
             evalue = float(evalue)
 
-        check_pyl_proteins.check_potential_pyl_proteins(pot_pyl_prot_dirpath,
+        check_pyl_protein.check_potential_pyl_protein(pot_pyl_prot_filepath,
          ref_db_filepath, output_dirpath, evalue)
 
 if __name__ == "__main__":
     app = wx.App()
     frame = simpleapp_wx(None, -1,
-        'Check potential Pyrrolysine proteins')
+        'Check a potential Pyrrolysine protein')
     app.MainLoop()

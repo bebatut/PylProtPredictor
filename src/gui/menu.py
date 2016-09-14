@@ -29,7 +29,7 @@ class simpleapp_wx(wx. Frame):
         self.Bind(wx.EVT_BUTTON, self.open_pyl_protein_prediction_gui,
             pyl_protein_prediction_button)
 
-        blast_button = wx.Button(self, -1, label="CHECK\nPYL\nPROTEINS", size=(100, 100))
+        blast_button = wx.Button(self, -1, label="CHECK\nA POTENTIAL\nPYL\nPROTEIN", size=(100, 100))
         blast_button.SetBackgroundColour("#CECECE")
         sizer.Add(blast_button, (1, 3), (1, 1), wx.EXPAND)
         self.Bind(wx.EVT_BUTTON, self.open_blast_gui, blast_button)
