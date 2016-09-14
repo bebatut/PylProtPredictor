@@ -17,7 +17,7 @@ class simpleapp_wx(wx. Frame):
         sizer.Add(panel, (1, 0), (1, 1), wx.EXPAND)
 
         prodigal_button = wx.Button(self, -1,
-            label="PREDICT\nCDS\nWITH\nPRODIGAL", size=(100, 100))
+            label="PREDICT\nCDS", size=(100, 100))
         prodigal_button.SetBackgroundColour("#CECECE")
         sizer.Add(prodigal_button, (1, 1), (1, 1), wx.EXPAND)
         self.Bind(wx.EVT_BUTTON, self.open_prodigal_gui, prodigal_button)
@@ -58,7 +58,7 @@ class simpleapp_wx(wx. Frame):
         os.system("pythonw src/gui/pipeline_gui.py")
 
     def open_prodigal_gui(self, event):
-        os.system("pythonw src/gui/prodigal_gui.py")
+        os.system("pythonw src/gui/cds_prediction_gui.py")
 
 
 if __name__ == "__main__":
