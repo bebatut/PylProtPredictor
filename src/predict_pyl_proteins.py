@@ -46,23 +46,26 @@ def extract_predicted_cds(predicted_cds_filepath):
         pred_cds[origin_seq][strand]['order'].append(seq_id)
     return pred_cds, pred_cds_nb
 
-def identify_tag_ending_protein(pred_cds):
-    tag_ending_protein = {}
+def identify_tag_ending_proteins(pred_cds):
+    tag_ending_prot = {}
     tag_ending_prot_nb = 0
-    for strand in strands:
-        tag_ending_protein[strand] = {}
-        for cds in pred_cds[strand]['details']:
-            seq = pred_cds[strand]['details'][cds]['seq']
-            if str(seq).endswith("TAG"):
-                tag_ending_prot_nb += 1
-                tag_ending_protein[strand].setdefault(cds, {})
-                start = pred_cds[strand]['details'][cds]['start']
-                tag_ending_protein[strand][cds]["starts"] = start
-                end = pred_cds[strand]['details'][cds]['end']
-                tag_ending_protein[strand][cds]["ends"] = [end]
-                seq = pred_cds[strand]['details'][cds]['seq']
-                tag_ending_protein[strand][cds]["seqs"] = [seq]
-    return tag_ending_protein, tag_ending_prot_nb
+    for origin_seq in pred_cds:
+        tag_ending_prot[origin_seq] = {}
+        for strand in pred_cds[origin_seq]:
+            tag_ending_prot[origin_seq][strand] = {}
+            for i in range(len(pred_cds[origin_seq][strand]['order'])):
+                cds_id = pred_cds[origin_seq][strand]['order'][i]
+                seq = pred_cds[origin_seq][strand]['details'][cds_id]['seq']
+                if str(seq).endswith("TAG"):
+                    tag_ending_prot_nb += 1
+                    start = pred_cds[origin_seq][strand]['details'][cds_id]['start']
+                    end = pred_cds[origin_seq][strand]['details'][cds_id]['end']
+
+                    tag_ending_prot[origin_seq][strand].setdefault(cds_id, {})
+                    tag_ending_prot[origin_seq][strand][cds_id]["start"] = start
+                    tag_ending_prot[origin_seq][strand][cds_id]["end"] = end
+                    tag_ending_prot[origin_seq][strand][cds_id]["seq"] = seq
+    return tag_ending_prot, tag_ending_prot_nb
 
 def extend_to_next_stop_codon(current_end, genome):
     genome = str(genome.seq)
@@ -158,6 +161,11 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     pred_cds, pred_cds_nb = extract_predicted_cds(predicted_cds_filepath)
     log_file.write("Number of predicted CDS: ")
     log_file.write(str(pred_cds_nb) + "\n")
+
+    tag_ending_prot, tag_ending_prot_nb = identify_tag_ending_proteins(
+    pred_cds)
+    log_file.write("Number of TAG-ending predicted CDS: ")
+    log_file.write(str(tag_ending_prot_nb) + "\n")
 
     #if misc_functions.isscaffold(genome_filepath):
     #    log_file.write("Pyl prediction on scaffold genome\n")
