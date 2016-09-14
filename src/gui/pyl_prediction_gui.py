@@ -39,22 +39,22 @@ class simpleapp_wx(wx.Frame):
         # sizer.Add(vertical_space_5, (5, 0), (1, 5), wx.EXPAND)
 
         genome_label = wx.StaticText(self, -1, label="Complete genome (fasta)")
-        sizer.Add(genome_label, (6, 1), (1, 1), wx.EXPAND)
+        sizer.Add(genome_label, (4, 1), (1, 1), wx.EXPAND)
         genome_filepicker = wx.FilePickerCtrl(self, -1)
-        sizer.Add(genome_filepicker, (7, 1), (1, 1), wx.EXPAND)
+        sizer.Add(genome_filepicker, (5, 1), (1, 1), wx.EXPAND)
 
         predicted_cds_label = wx.StaticText(self, -1,
             label="Predicted CDS (fasta)")
-        sizer.Add(predicted_cds_label, (6, 3), (1, 1), wx.EXPAND)
+        sizer.Add(predicted_cds_label, (4, 3), (1, 1), wx.EXPAND)
         predicted_cds_filepicker = wx.FilePickerCtrl(self, -1)
-        sizer.Add(predicted_cds_filepicker, (7, 3), (1, 1), wx.EXPAND)
+        sizer.Add(predicted_cds_filepicker, (5, 3), (1, 1), wx.EXPAND)
 
         # sizer.Add(vertical_space_5, (8, 0), (1, 5), wx.EXPAND)
 
         output_label = wx.StaticText(self, -1, label="Output directory")
-        sizer.Add(output_label, (9, 1), (1, 1), wx.EXPAND)
+        sizer.Add(output_label, (6, 1), (1, 1), wx.EXPAND)
         output_dirpicker = wx.DirPickerCtrl(self, -1)
-        sizer.Add(output_dirpicker, (10, 1), (1, 1), wx.EXPAND)
+        sizer.Add(output_dirpicker, (7, 1), (1, 1), wx.EXPAND)
 
         # sizer.Add(vertical_space_5, (11, 0), (1, 5), wx.EXPAND)
 
@@ -62,14 +62,14 @@ class simpleapp_wx(wx.Frame):
             label="Launch potential PYL protein prediction")
         validation_button.SetFont(validation_font)
         validation_button.SetBackgroundColour("lightgrey")
-        sizer.Add(validation_button, (12, 1), (1, 3), wx.EXPAND)
+        sizer.Add(validation_button, (8, 1), (1, 3), wx.EXPAND)
 
         # sizer.Add(vertical_space_20, (13, 0), (1, 5), wx.EXPAND)
 
         self.Bind(wx.EVT_BUTTON, lambda event: self.launch_prediction(event,
             genome_filepicker.GetPath(),
             predicted_cds_filepicker.GetPath(),
-            output_dirpicker.GetPath(), validation_button)
+            output_dirpicker.GetPath()), validation_button)
 
         self.SetSizerAndFit(sizer)
         self.Show(True)
