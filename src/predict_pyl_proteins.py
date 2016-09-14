@@ -10,6 +10,8 @@ import re
 import os
 import sys
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 from Bio.Data import CodonTable
 import misc_functions
 
@@ -44,6 +46,7 @@ def extract_predicted_cds(predicted_cds_filepath):
         pred_cds[origin_seq][strand]['details'][seq_id]['end'] = int(end)
         pred_cds[origin_seq][strand]['details'][seq_id]['seq'] = record.seq
         pred_cds[origin_seq][strand]['order'].append(seq_id)
+
     return pred_cds, pred_cds_nb
 
 def identify_tag_ending_proteins(pred_cds):
@@ -159,11 +162,33 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
 
     return pot_pyl_prot, pot_pyl_prot_nb
 
+def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
+    for prot_id in pot_pyl_prot:
+        sequences = []
+
+        count = 0
+        for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
+            count += 1
+            seq_id = prot_id + "_" + str(count)
+            description = "# origin_seq: " + pot_pyl_prot[prot_id]["origin_seq"]
+            description += " # strand: " + pot_pyl_prot[prot_id]["strand"]
+            description += " # start: " + str(potential_seq["start"])
+            description += " # end: " + str(potential_seq["end"])
+            sequences.append(SeqRecord(potential_seq["seq"], id=seq_id,
+             description=description))
+
+        output_file = open(pyl_protein_dir + "/" + prot_id + ".fasta" , "w")
+        SeqIO.write(sequences, output_file, "fasta")
+        output_file.close()
 
 def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     output_dirpath):
     genome_filename = os.path.basename(genome_filepath)
     genome_name = genome_filename.split(".")[0]
+
+    pyl_protein_dir = output_dirpath + "/" + genome_name + "_potential_pyl_prot"
+    if not os.path.exists(pyl_protein_dir):
+        os.mkdir(pyl_protein_dir)
 
     log_filepath = output_dirpath + "/" + genome_name
     log_filepath += "_Pyl_protein_prediction_log.txt"
@@ -183,7 +208,6 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     log_file.write("Number of potential Pyl proteins:")
     log_file.write(" " + str(pot_pyl_prot_nb) + "\n")
 
-    log_file.close()
+    save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir)
 
-predict_pyl_protein_with_assemble_genome("../data/MalvusMx1201_GENOME_FASTA.fsa",
-"../data/MalvusMx1201_GENOME_FASTA_predicted_CDS.fasta", "../data")
+    log_file.close()
