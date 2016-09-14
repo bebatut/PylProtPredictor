@@ -29,7 +29,7 @@ class simpleapp_wx(wx. Frame):
         self.Bind(wx.EVT_BUTTON, self.open_pyl_protein_prediction_gui,
             pyl_protein_prediction_button)
 
-        blast_button = wx.Button(self, -1, label="RUN\nBLAST", size=(100, 100))
+        blast_button = wx.Button(self, -1, label="CHECK\nPYL\nPROTEINS", size=(100, 100))
         blast_button.SetBackgroundColour("#CECECE")
         sizer.Add(blast_button, (1, 3), (1, 1), wx.EXPAND)
         self.Bind(wx.EVT_BUTTON, self.open_blast_gui, blast_button)
@@ -52,7 +52,7 @@ class simpleapp_wx(wx. Frame):
         os.system("pythonw src/gui/pyl_prediction_gui.py")
 
     def open_blast_gui(self, event):
-        os.system("pythonw src/gui/blast_gui.py")
+        os.system("pythonw src/gui/pyl_prot_checking_gui.py")
 
     def open_pipeline_gui(self, event):
         os.system("pythonw src/gui/pipeline_gui.py")
