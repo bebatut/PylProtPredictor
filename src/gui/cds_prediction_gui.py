@@ -6,7 +6,7 @@ import wx
 import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 os.pardir))
-import launch_prodigal
+import predict_cds
 import misc_functions
 
 class simpleapp_wx(wx.Frame):
@@ -81,7 +81,7 @@ class simpleapp_wx(wx.Frame):
                 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             return
 
-        launch_prodigal.launch_prodigal(genome_filepath, result_dirpath)
+        predict_cds.launch_prodigal(genome_filepath, result_dirpath)
         self.Destroy()
 
 
