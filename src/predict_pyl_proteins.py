@@ -13,52 +13,54 @@ from Bio import SeqIO
 from Bio.Data import CodonTable
 import misc_functions
 
-def extract_predicted_cds_position(predicted_cds_filepath):
-    pred_cds_pos = {}
-    pred_cds_pos['forward'] = {}
-    pred_cds_pos['forward']['details'] = {}
-    pred_cds_pos['forward']['order'] = []
-    pred_cds_pos['reverse'] = {}
-    pred_cds_pos['reverse']['details'] = {}
-    pred_cds_pos['reverse']['order'] = []
+
+strands = ['forward', 'reverse']
+
+def transform_strand(strand_id):
+    if strand_id == "-1":
+        return strands[-1]
+    else:
+        return strands[0]
+
+def extract_predicted_cds(predicted_cds_filepath):
+    pred_cds = {}
     pred_cds_nb = 0
     for record in SeqIO.parse(predicted_cds_filepath,"fasta"):
         pred_cds_nb += 1
         split_description = record.description.split("#")
         seq_id = split_description[0][:-1]
+        origin_seq = "_".join(seq_id.split("_")[:-1])
         start = split_description[1].replace(" ","")
         end = split_description[2].replace(" ","")
-        strand = split_description[3].replace(" ","")
-        if strand == "-1":
-            pred_cds_pos['reverse']['details'].setdefault(seq_id, {})
-            pred_cds_pos['reverse']['details'][seq_id]['start'] = int(start)
-            pred_cds_pos['reverse']['details'][seq_id]['end'] = int(end)
-            pred_cds_pos['reverse']['details'][seq_id]['seq'] = record.seq
-            pred_cds_pos['reverse']['order'].append(seq_id)
-        else:
-            pred_cds_pos['forward']['details'].setdefault(seq_id, {})
-            pred_cds_pos['forward']['details'][seq_id]['start'] = int(start)
-            pred_cds_pos['forward']['details'][seq_id]['end'] = int(end)
-            pred_cds_pos['forward']['details'][seq_id]['seq'] = record.seq
-            pred_cds_pos['forward']['order'].append(seq_id)
-    return pred_cds_pos, pred_cds_nb
+        strand = transform_strand(split_description[3].replace(" ",""))
 
-def identify_tag_ending_protein(pred_cds_pos):
+        pred_cds.setdefault(origin_seq, {})
+        pred_cds[origin_seq].setdefault(strand, {})
+        pred_cds[origin_seq][strand].setdefault('details', {})
+        pred_cds[origin_seq][strand].setdefault('order', [])
+
+        pred_cds[origin_seq][strand]['details'].setdefault(seq_id, {})
+        pred_cds[origin_seq][strand]['details'][seq_id]['start'] = int(start)
+        pred_cds[origin_seq][strand]['details'][seq_id]['end'] = int(end)
+        pred_cds[origin_seq][strand]['details'][seq_id]['seq'] = record.seq
+        pred_cds[origin_seq][strand]['order'].append(seq_id)
+    return pred_cds, pred_cds_nb
+
+def identify_tag_ending_protein(pred_cds):
     tag_ending_protein = {}
-    tag_ending_protein['forward'] = {}
-    tag_ending_protein['reverse'] = {}
     tag_ending_prot_nb = 0
-    for strand in pred_cds_pos:
-        for cds in pred_cds_pos[strand]['details']:
-            seq = pred_cds_pos[strand]['details'][cds]['seq']
+    for strand in strands:
+        tag_ending_protein[strand] = {}
+        for cds in pred_cds[strand]['details']:
+            seq = pred_cds[strand]['details'][cds]['seq']
             if str(seq).endswith("TAG"):
                 tag_ending_prot_nb += 1
                 tag_ending_protein[strand].setdefault(cds, {})
-                start = pred_cds_pos[strand]['details'][cds]['start']
-                tag_ending_protein[strand][cds]["starts"] = [start]
-                end = pred_cds_pos[strand]['details'][cds]['end']
+                start = pred_cds[strand]['details'][cds]['start']
+                tag_ending_protein[strand][cds]["starts"] = start
+                end = pred_cds[strand]['details'][cds]['end']
                 tag_ending_protein[strand][cds]["ends"] = [end]
-                seq = pred_cds_pos[strand]['details'][cds]['seq']
+                seq = pred_cds[strand]['details'][cds]['seq']
                 tag_ending_protein[strand][cds]["seqs"] = [seq]
     return tag_ending_protein, tag_ending_prot_nb
 
@@ -153,16 +155,20 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     log_filepath += "_Pyl_protein_prediction_log.txt"
     log_file = open(log_filepath, 'w')
 
-    if misc_functions.isscaffold(genome_filepath):
-        log_file.write("Pyl prediction on scaffold genome\n")
-        log_file.write("---------------------------------\n")
-        predict_pyl_protein_on_scaffold_genome(genome_filepath,
-        predicted_cds_filepath, output_dirpath, log_file)
-    else:
-        log_file.write("Pyl prediction on assembled genome\n")
-        log_file.write("----------------------------------\n")
-        predict_pyl_protein_on_assembled_genome(genome_filepath,
-        predicted_cds_filepath, output_dirpath, log_file)
+    pred_cds, pred_cds_nb = extract_predicted_cds(predicted_cds_filepath)
+    log_file.write("Number of predicted CDS: ")
+    log_file.write(str(pred_cds_nb) + "\n")
+
+    #if misc_functions.isscaffold(genome_filepath):
+    #    log_file.write("Pyl prediction on scaffold genome\n")
+    #    log_file.write("---------------------------------\n")
+    #    predict_pyl_protein_on_scaffold_genome(genome_filepath,
+    #    predicted_cds_filepath, output_dirpath, log_file)
+    #else:
+    #    log_file.write("Pyl prediction on assembled genome\n")
+    #    log_file.write("----------------------------------\n")
+    #    predict_pyl_protein_on_assembled_genome(genome_filepath,
+    #    predicted_cds_filepath, output_dirpath, log_file)
 
     log_file.close()
 
