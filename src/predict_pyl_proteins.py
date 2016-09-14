@@ -65,9 +65,19 @@ def identify_tag_ending_proteins(pred_cds):
                     tag_ending_prot[origin_seq][strand][cds_id]["start"] = start
                     tag_ending_prot[origin_seq][strand][cds_id]["end"] = end
                     tag_ending_prot[origin_seq][strand][cds_id]["seq"] = seq
+                    tag_ending_prot[origin_seq][strand][cds_id]["order_id"] = i
     return tag_ending_prot, tag_ending_prot_nb
 
-def extend_to_next_stop_codon(current_end, genome):
+def extract_origin_seq(genome_filepath):
+    origin_seqs = {}
+    for record in SeqIO.parse(genome_filepath,"fasta"):
+        origin_seqs.setdefault(record.id, {})
+        origin_seqs[record.id]["genome"] = record
+        origin_seqs[record.id]["length"] = len(record.seq)
+        origin_seqs[record.id]["rev_comp_genome"] = record.reverse_complement()
+    return origin_seqs
+
+def extend_to_next_stop_codon(current_end, genome, next_cds_end):
     genome = str(genome.seq)
     genome_size = len(genome)
     stop_codons = CodonTable.unambiguous_dna_by_id[1].stop_codons
@@ -75,79 +85,80 @@ def extend_to_next_stop_codon(current_end, genome):
     new_end = current_end
     to_continue = (new_end+3) < genome_size
     new_ends = []
-    #print 'last codon:'
-    #print genome[(new_end-3):new_end]
     while to_continue:
         codon = str(genome[new_end:(new_end + 3)])
-        #print "\t",codon
         if codon not in stop_codons :
             new_end += 3
             to_continue = (new_end+3) < genome_size
         else:
             new_end += 3
-            new_ends.append(new_end)
-            if codon != 'TAG':
+            if new_end >= next_cds_end:
                 to_continue = False
+            else:
+                new_ends.append(new_end)
+                if codon != 'TAG':
+                    to_continue = False
     return new_ends
 
-def extend_tag_ending_proteins(tag_ending_protein, pred_cds_pos,
-    genome_filepath):
-    genome = SeqIO.read(genome_filepath, "fasta")
-    genome_size = len(genome.seq)
+def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
+    origin_seqs = extract_origin_seq(genome_filepath)
 
-    reverse_complement_genome = genome.reverse_complement()
+    pot_pyl_prot_nb = 0
+    pot_pyl_prot = {}
+    for origin_seq in tag_ending_prot:
+        for strand in tag_ending_prot[origin_seq]:
+            pred_cds_nb = len(pred_cds[origin_seq][strand]['order'])
+            for cds in tag_ending_prot[origin_seq][strand]:
+                start = tag_ending_prot[origin_seq][strand][cds]['start']
+                end = tag_ending_prot[origin_seq][strand][cds]['end']
+                seq = tag_ending_prot[origin_seq][strand][cds]['seq']
+                order_id = tag_ending_prot[origin_seq][strand][cds]['order_id']
 
-    new_predicted_prot_nb = 0
-    for strand in ["forward", "reverse"]:
-        cds_nb = len(pred_cds_pos[strand]['order'])
-        for cds in tag_ending_protein[strand]:
-            start = tag_ending_protein[strand][cds]['starts'][0]
-            end = tag_ending_protein[strand][cds]['ends'][0]
-
-            if strand == "reverse":
-                previous_start = start
-                start = (genome_size-end)
-                end = (genome_size-previous_start+1)
-                used_genome = reverse_complement_genome
-            else:
-                used_genome = genome
-
-            new_ends = extend_to_next_stop_codon(end, used_genome)
-
-            for new_end in new_ends:
-                new_predicted_prot_nb += 1
-                new_seq = used_genome.seq[start:new_end]
-                tag_ending_protein[strand][cds]['seqs'].append(new_seq)
-
+                genome_size = origin_seqs[origin_seq]["length"]
                 if strand == "reverse":
-                    new_start = genome_size - new_end + 1
-                    tag_ending_protein[strand][cds]['starts'].append(new_start)
+                    previous_start = start
+                    start = (genome_size-end)
+                    end = (genome_size-previous_start+1)
+                    genome = origin_seqs[origin_seq]["rev_comp_genome"]
+                    next_id = order_id - 1
+                    if next_id >= 0:
+                        next_cds_id = pred_cds[origin_seq][strand]['order'][next_id]
+                        next_cds_end = pred_cds[origin_seq][strand]['details'][next_cds_id]['start']
+                    else:
+                        next_cds_end = genome_size
+                    next_cds_end = (genome_size-next_cds_end+1)
                 else:
-                    tag_ending_protein[strand][cds]['ends'].append(new_end)
+                    genome = origin_seqs[origin_seq]["genome"]
+                    next_id = order_id + 1
+                    if next_id < pred_cds_nb:
+                        next_cds_id = pred_cds[origin_seq][strand]['order'][next_id]
+                        next_cds_end = pred_cds[origin_seq][strand]['details'][next_cds_id]['end']
+                    else:
+                        next_cds_end = genome_size
 
-    return tag_ending_protein, new_predicted_prot_nb
+                new_ends = extend_to_next_stop_codon(end, genome, next_cds_end)
+                if len(new_ends) > 0:
+                    pot_pyl_prot_nb += 1
 
-def predict_pyl_protein_on_scaffold_genome(genome_filepath,
-    predicted_cds_filepath, output_dirpath, log_file):
-    print "launch_pyl_protein_from_scaffold"
+                    pot_pyl_prot.setdefault(cds, {})
+                    pot_pyl_prot[cds]["strand"] = strand
+                    pot_pyl_prot[cds]["origin_seq"] = origin_seq
+                    pot_pyl_prot[cds]["potential_seq"] = []
 
+                    pot_pyl_prot[cds]["potential_seq"].append({"start": start, "end": end, "seq": seq})
 
-def predict_pyl_protein_on_assembled_genome(genome_filepath,
-    predicted_cds_filepath, output_dirpath, log_file):
-    pred_cds_pos, pred_cds_nb = extract_predicted_cds_position(
-    predicted_cds_filepath)
-    log_file.write("Number of predicted CDS: ")
-    log_file.write(str(pred_cds_nb) + "\n")
+                    for new_end in new_ends:
+                        new_start = start
+                        new_seq = genome.seq[start:new_end]
 
-    tag_ending_protein, tag_ending_prot_nb = identify_tag_ending_protein(
-    pred_cds_pos)
-    log_file.write("Number of TAG-ending predicted CDS: ")
-    log_file.write(str(tag_ending_prot_nb) + "\n")
+                        if strand == "reverse":
+                            new_start = genome_size - new_end + 1
+                            new_end = genome_size - start
 
-    tag_ending_protein, new_predicted_prot_nb =  extend_tag_ending_proteins(
-    tag_ending_protein, pred_cds_pos, genome_filepath)
-    log_file.write("Number of new potential Pyl proteins:")
-    log_file.write(" " + str(new_predicted_prot_nb) + "\n")
+                        pot_pyl_prot[cds]["potential_seq"].append({"start": new_start, "end": new_end, "seq": new_seq})
+
+    return pot_pyl_prot, pot_pyl_prot_nb
+
 
 def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     output_dirpath):
@@ -167,16 +178,10 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     log_file.write("Number of TAG-ending predicted CDS: ")
     log_file.write(str(tag_ending_prot_nb) + "\n")
 
-    #if misc_functions.isscaffold(genome_filepath):
-    #    log_file.write("Pyl prediction on scaffold genome\n")
-    #    log_file.write("---------------------------------\n")
-    #    predict_pyl_protein_on_scaffold_genome(genome_filepath,
-    #    predicted_cds_filepath, output_dirpath, log_file)
-    #else:
-    #    log_file.write("Pyl prediction on assembled genome\n")
-    #    log_file.write("----------------------------------\n")
-    #    predict_pyl_protein_on_assembled_genome(genome_filepath,
-    #    predicted_cds_filepath, output_dirpath, log_file)
+    pot_pyl_prot, pot_pyl_prot_nb = extract_potential_pyl_proteins(
+    tag_ending_prot, pred_cds, genome_filepath)
+    log_file.write("Number of potential Pyl proteins:")
+    log_file.write(" " + str(pot_pyl_prot_nb) + "\n")
 
     log_file.close()
 
