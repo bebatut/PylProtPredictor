@@ -120,7 +120,7 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
                 genome_size = origin_seqs[origin_seq]["length"]
                 if strand == "reverse":
                     previous_start = start
-                    start = (genome_size-end)
+                    start = (genome_size-end)+1
                     end = (genome_size-previous_start+1)
                     genome = origin_seqs[origin_seq]["rev_comp_genome"]
                     next_id = order_id - 1
@@ -148,25 +148,53 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
                     pot_pyl_prot[cds]["origin_seq"] = origin_seq
                     pot_pyl_prot[cds]["potential_seq"] = []
 
-                    pot_pyl_prot[cds]["potential_seq"].append({"start": start, "end": end, "seq": seq})
+                    if strand == "reverse":
+                        pot_pyl_prot[cds]["potential_seq"].append(
+                        {"start": genome_size - end + 1,
+                        "end": genome_size - start + 1, "seq": seq})
+                    else:
+                        pot_pyl_prot[cds]["potential_seq"].append(
+                        {"start": start, "end": end, "seq": seq})
 
                     for new_end in new_ends:
                         new_start = start
-                        new_seq = genome.seq[start:new_end]
+                        new_seq = genome.seq[(start-1):new_end]
 
                         if strand == "reverse":
                             new_start = genome_size - new_end + 1
-                            new_end = genome_size - start
+                            new_end = genome_size - start + 1
 
                         pot_pyl_prot[cds]["potential_seq"].append({"start": new_start, "end": new_end, "seq": new_seq})
 
     return pot_pyl_prot, pot_pyl_prot_nb
+
+def find_stop_codon_pos_in_seq(string):
+    stop_codon_pos = []
+    for i in range(len(string)-1):
+        if string.startswith('*', i):
+            stop_codon_pos.append(i)
+    return stop_codon_pos
+
+def translate(seq):
+    translated_seq = seq.translate()
+    str_seq = str(seq)
+    n = 3
+    codons = [str_seq[i:i+n] for i in range(0, len(str_seq), n)]
+    for i in find_stop_codon_pos_in_seq(str(translated_seq)):
+        if codons[i] != "TAG":
+            raise ValueError("Stop codon found inside a sequence")
+        mutable_seq = translated_seq.tomutable()
+        mutable_seq[i] = "O"
+        translated_seq = mutable_seq.toseq()
+    return translated_seq
+
 
 def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
     for prot_id in pot_pyl_prot:
         sequences = []
 
         count = 0
+
         for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
             count += 1
             seq_id = prot_id + "_" + str(count)
@@ -174,12 +202,16 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
             description += " # strand: " + pot_pyl_prot[prot_id]["strand"]
             description += " # start: " + str(potential_seq["start"])
             description += " # end: " + str(potential_seq["end"])
-            sequences.append(SeqRecord(potential_seq["seq"], id=seq_id,
+
+            translated_seq = translate(potential_seq["seq"])
+
+            sequences.append(SeqRecord(translated_seq, id=seq_id,
              description=description))
 
         output_file = open(pyl_protein_dir + "/" + prot_id + ".fasta" , "w")
         SeqIO.write(sequences, output_file, "fasta")
         output_file.close()
+        #print
 
 def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     output_dirpath):
@@ -211,3 +243,7 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir)
 
     log_file.close()
+
+predict_pyl_proteins("../data/138T0_sorted-out_29-scaf.fna",
+"../results/138T0/138T0_sorted-out_29-scaf_predicted_CDS.fasta",
+"../results/138T0/")
