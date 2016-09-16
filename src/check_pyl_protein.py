@@ -104,7 +104,7 @@ log_file):
             if record.id == smallest_evalue["id"]:
                 new_prot_description = record.description
 
-        msg = "\talternative protein:" + new_prot_description
+        msg = "\talternative protein: " + new_prot_description + "\n"
         print "\t", msg
         log_file.write(msg + "\n")
 
