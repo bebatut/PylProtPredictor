@@ -215,35 +215,24 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
 
 def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
     output_dirpath):
-    genome_filename = os.path.basename(genome_filepath)
-    genome_name = genome_filename.split(".")[0]
+    log_filepath = output_dirpath + "/pyl_protein_prediction_log.txt"
 
-    pyl_protein_dir = output_dirpath + "/" + genome_name + "_potential_pyl_prot"
-    if not os.path.exists(pyl_protein_dir):
-        os.mkdir(pyl_protein_dir)
+    with open(log_filepath, 'w') as log_file:
+        pred_cds, pred_cds_nb = extract_predicted_cds(predicted_cds_filepath)
+        msg = "Number of predicted CDS: " + str(pred_cds_nb)
+        log_file.write(msg  + "\n")
+        print "\t", msg
 
-    log_filepath = output_dirpath + "/" + genome_name
-    log_filepath += "_Pyl_protein_prediction_log.txt"
-    log_file = open(log_filepath, 'w')
+        tag_ending_prot, tag_ending_prot_nb = identify_tag_ending_proteins(
+        pred_cds)
+        msg = "Number of TAG-ending predicted CDS: " + str(tag_ending_prot_nb)
+        log_file.write(msg + "\n")
+        print "\t", msg
 
-    pred_cds, pred_cds_nb = extract_predicted_cds(predicted_cds_filepath)
-    log_file.write("Number of predicted CDS: ")
-    log_file.write(str(pred_cds_nb) + "\n")
+        pot_pyl_prot, pot_pyl_prot_nb = extract_potential_pyl_proteins(
+        tag_ending_prot, pred_cds, genome_filepath)
+        msg = "Number of potential Pyl proteins: " + str(pot_pyl_prot_nb)
+        log_file.write(msg + "\n")
+        print "\t", msg
 
-    tag_ending_prot, tag_ending_prot_nb = identify_tag_ending_proteins(
-    pred_cds)
-    log_file.write("Number of TAG-ending predicted CDS: ")
-    log_file.write(str(tag_ending_prot_nb) + "\n")
-
-    pot_pyl_prot, pot_pyl_prot_nb = extract_potential_pyl_proteins(
-    tag_ending_prot, pred_cds, genome_filepath)
-    log_file.write("Number of potential Pyl proteins:")
-    log_file.write(" " + str(pot_pyl_prot_nb) + "\n")
-
-    save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir)
-
-    log_file.close()
-
-predict_pyl_proteins("../data/138T0_sorted-out_29-scaf.fna",
-"../results/138T0/138T0_sorted-out_29-scaf_predicted_CDS.fasta",
-"../results/138T0/")
+        save_potential_pyl_proteins(pot_pyl_prot, output_dirpath)
