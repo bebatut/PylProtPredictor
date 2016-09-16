@@ -22,8 +22,6 @@ Here, we propose a solution to detect pyrrolysine proteins. It relies on:
 
 # Installation
 
-## Get the source code
-
 - Install the requirements
   - `git`
   - `conda`
@@ -53,4 +51,11 @@ $ ./bin/prepare_environment
 $ ./bin/launch_pyl_protein_prediction
 ```
 
-# Questions
+# Contributers
+
+- Cécile Hilpert
+- Bérénice Batut
+
+# Support & Bug Reports
+
+You can file an GitHub issue.
