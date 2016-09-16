@@ -5,8 +5,73 @@
 from gooey import Gooey, GooeyParser
 import message
 import os
+import misc_functions
+import predict_cds
+import predict_pyl_proteins
+import check_pyl_protein
 
-@Gooey(program_name="PYL protein prediction",required_cols=1)
+def launch_cds_prediction(genome_filepath, output_dir):
+    print "Predict CDS..."
+    if not misc_functions.isfasta(genome_filepath):
+        raise ValueError("The file with the genome is not a FASTA file")
+
+    predicted_cds_filepath = output_dir + "/predicted_cds.fasta"
+    predict_cds.predict_cds(genome_filepath, predicted_cds_filepath,
+    "prodigal")
+    return predicted_cds_filepath
+
+def launch_pyl_protein_prediction(genome_filepath, predicted_cds_filepath,
+output_dir):
+    print "Predict PYL protein..."
+    if not misc_functions.isfasta(genome_filepath):
+        raise ValueError("The file with the genome is not a FASTA file")
+    if not misc_functions.isfasta(predicted_cds_filepath):
+        raise ValueError("The file with the predicted CDS is not a FASTA file")
+
+    predict_pyl_proteins.predict_pyl_proteins(genome_filepath,
+    predicted_cds_filepath, output_dir)
+
+def launch_pyl_protein_checking(pot_pyl_prot_filepath, ref_db_filepath,
+similarity_search_tool, output_dir):
+    if not misc_functions.isfasta(pot_pyl_prot_filepath):
+        raise ValueError("The file with the genome is not a FASTA file")
+
+    pot_pyl_prot_filebase = os.path.basename(pot_pyl_prot_filepath)
+    prot_name = pot_pyl_prot_filebase.split(".")[0]
+    print "Checking if " + prot_name + " is a PYL protein (it can take more than 1 hour)..."
+
+    check_pyl_protein.check_potential_pyl_protein(pot_pyl_prot_filepath, ref_db_filepath, output_dir, similarity_search_tool)
+
+def run_whole_pipeline(genome_filepath, output_dir, ref_db_filepath):
+    predicted_cds_filepath = launch_cds_prediction(genome_filepath, output_dir)
+
+    pyl_protein_dir = output_dir + "/potential_pyl_prot"
+    if not os.path.exists(pyl_protein_dir):
+        os.mkdir(pyl_protein_dir)
+    launch_pyl_protein_prediction(genome_filepath, predicted_cds_filepath,
+    pyl_protein_dir)
+
+    listing = os.listdir(pyl_protein_dir)
+    for file_name in listing:
+        if file_name.endswith('.fasta'):
+            pot_pyl_prot_filepath = pyl_protein_dir + "/" + file_name
+            launch_pyl_protein_checking(pot_pyl_prot_filepath, ref_db_filepath,
+            "diamond", pyl_protein_dir)
+
+def launch_pipeline(args):
+    if args.subparser_name == "run-whole-pipeline":
+        run_whole_pipeline(args.genome, args.output, args.ref_db)
+    elif args.subparser_name == "predict-cds":
+        predict_cds(args.genome, args.output)
+    elif args.subparser_name == "predict-pyl-proteins":
+        predict_pyl_proteins(args.genome, args.predicted_cds, args.output)
+    elif args.subparser_name == "check-pyl-protein":
+        check_pyl_protein(args.pot_pyl_prot, args.ref_db,
+        args.similarity_search_tool, args.output)
+    else:
+        raise ValueError("Wrong command")
+
+@Gooey(optional_cols=2, program_name="PYL protein prediction")
 def main():
     desc = "Predict PYL proteins from an assembled or scaffold genome"
     file_help_msg = "Name of the file you want to process"
@@ -25,9 +90,9 @@ def main():
         metavar="Output directory",
         help="For all generated files (results and logs)",
         widget="DirChooser")
-    whole_pipeline_parser.add_argument("--ref_db",
+    whole_pipeline_parser.add_argument("ref_db",
         metavar="Reference database",
-        help="FASTA file with an reference database used to confirm potential PYL proteins", default= os.getcwd() + "data/uniref90.fasta",
+        help="FASTA file with an reference database used to confirm potential PYL proteins", default= os.getcwd() + "/data/uniref90.fasta",
         widget="FileChooser")
 
     cds_prediction_parser = subs.add_parser("predict-cds",
@@ -62,15 +127,20 @@ def main():
         metavar="Sequences of a predicted PYL protein",
         help="FASTA file with sequences of a PYL protein predicted using the current tool",
         widget="FileChooser")
-    pyl_checking_parser.add_argument("output",
-        metavar="Output directory",
-        help="For all generated files (results and logs)",
-        widget="DirChooser")
-    pyl_checking_parser.add_argument('--similarity_search_tool',
+    pyl_checking_parser.add_argument('similarity_search_tool',
         metavar="Similarity search tool to use",
         default="Diamond",
         choices=['Diamond', 'BLAST'],
         help='')
+    pyl_checking_parser.add_argument("ref_db",
+        metavar="Reference database",
+        help="FASTA file with an reference database used to confirm potential PYL proteins", default= os.getcwd() + "/data/uniref90.fasta",
+        widget="FileChooser")
+    pyl_checking_parser.add_argument("output",
+        metavar="Output directory",
+        help="For all generated files (results and logs)",
+        widget="DirChooser")
+
 
     args = parser.parse_args()
     launch_pipeline(args)
