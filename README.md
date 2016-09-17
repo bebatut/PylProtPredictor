@@ -11,7 +11,8 @@ These proteins are difficult to identify. Indeed, in CDS prediction, UAG codons 
 
 Here, we propose a solution to detect proteins using Pyrrolisine amino acid
 
-![](doc/img/main_scheme.png)
+<img src="doc/img/main_scheme.png" width="400">
+
 
 # Installation
 
