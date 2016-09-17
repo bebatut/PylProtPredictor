@@ -9,9 +9,8 @@ Some methanogenic archaea and bacterium have the pylT gene, which encodes an unu
 
 These proteins are difficult to identify. Indeed, in CDS prediction, UAG codons are seen as stop codons. The predicted CDS are then cut when the first UAG codon is found.
 
-Here, we propose a solution to detect proteins using Pyrrolisine amino acid
-
-<img src="doc/img/main_scheme.png" width="400">
+Here, we propose a solution to detect proteins using Pyrrolisine amino acid.
+Have a look to [the scheme explaining how the tool is working](doc/img/main_scheme.png).
 
 
 # Installation
