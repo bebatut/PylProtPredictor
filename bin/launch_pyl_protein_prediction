@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 echo "Activate conda environment"
+echo "=========================="
 source activate pyl_protein_prediction
 echo ""
 
 echo "Launch"
+echo "======"
 pythonw src/launch_pipeline.py
 echo ""

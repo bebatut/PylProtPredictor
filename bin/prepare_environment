@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 
 echo "Create conda environment"
+echo "========================"
+echo ""
 conda config --add channels bioconda
 conda config --add channels biocore
 conda env create -f pyl_protein_prediction.yml
 #source activate pyl_protein_prediction
 #pip install gooey
 #source deactivate
+echo ""
 
 echo "Download UniRef90 database (it can take several hours)"
+echo "======================================================"
+echo ""
 curl ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz -o data/uniref90.fasta.gz
+echo ""
