@@ -92,7 +92,9 @@ log_file):
 
     if smallest_evalue["id"] == 0:
         msg = "-- None of the possible sequences match the reference database --\n"
-        msg += "    We can not say if the protein is able to use PYL amino acid\n"
+        print "\t", msg
+        log_file.write(msg + "\n")
+        msg = "    We can not say if the protein is able to use PYL amino acid\n"
         print "\t", msg
         log_file.write(msg + "\n")
     elif smallest_evalue["id"].endswith("_1"):
