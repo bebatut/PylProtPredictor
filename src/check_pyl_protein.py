@@ -33,7 +33,6 @@ def format_ref_db(ref_db_filepath, log_file, similarity_search_tool):
             cmd = "diamond makedb"
             cmd += " --in " + ref_db_filepath
             cmd += " --db " + ref_db_path
-            cmd += " -b 0.5"
             cmd += " --quiet"
 
             msg = "Building Diamond db for reference database...\n"
