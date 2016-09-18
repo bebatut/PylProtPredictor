@@ -31,7 +31,12 @@ def extract_predicted_cds(predicted_cds_filepath):
         pred_cds_nb += 1
         split_description = record.description.split("#")
         seq_id = split_description[0][:-1]
+
         origin_seq = "_".join(seq_id.split("_")[:-1])
+
+        if seq_id.find("|") != -1:
+            seq_id = "cds_" + str(pred_cds_nb) + "_" + seq_id.split("_")[-1]
+
         start = split_description[1].replace(" ","")
         end = split_description[2].replace(" ","")
         strand = transform_strand(split_description[3].replace(" ",""))
