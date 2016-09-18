@@ -68,7 +68,7 @@ def run_similarity_search(pot_pyl_prot_filepath, ref_db_filepath,
         cmd += " -q " + pot_pyl_prot_filepath
         cmd += " -o " + output_filepath
         cmd += " -k 1"
-        cmd += " -e 1e-10"
+        cmd += " -e 0.01"
         cmd += " -f 6"
         cmd += " -b 0.5"
         cmd += " --quiet"
@@ -82,8 +82,8 @@ def run_similarity_search(pot_pyl_prot_filepath, ref_db_filepath,
 
 def check_similarity_results(sim_search_output_filepath, pot_pyl_prot_filepath,
 log_file):
+    smallest_evalue = {"value":10, "id":0}
     with open(sim_search_output_filepath, "r") as sim_search_output_file:
-        smallest_evalue = {"value":10, "id":0}
         for line in sim_search_output_file.readlines():
             split_line = line[:-1].split("\t")
             evalue = float(split_line[10])
@@ -91,7 +91,12 @@ log_file):
                 smallest_evalue["value"] = evalue
                 smallest_evalue["id"] = split_line[0]
 
-    if smallest_evalue["id"].endswith("_1"):
+    if smallest_evalue["id"] == 0:
+        msg = "-- None of the possible sequences match the reference database --\n"
+        msg += "    We can not say if the protein is able to use PYL amino acid\n"
+        print "\t", msg
+        log_file.write(msg + "\n")
+    elif smallest_evalue["id"].endswith("_1"):
         msg = "-- This protein does not use PYL as amino acid --\n"
         print "\t", msg
         log_file.write(msg + "\n")
