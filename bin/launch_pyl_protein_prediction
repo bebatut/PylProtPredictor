@@ -7,5 +7,22 @@ echo ""
 
 echo "Launch"
 echo "======"
-pythonw src/launch_pipeline.py
+
+( command -v pythonw && pythonw src/launch_pipeline.py ) \
+  || python src/launch_pipeline.py
+
+# case "$(uname -s)" in
+#    Darwin)
+#      echo 'Mac OS X'
+#      pythonw src/launch_pipeline.py
+#      ;;
+#    Linux)
+#      echo 'Linux'
+#      python src/launch_pipeline.py
+#      ;;
+#    *)
+#      echo 'Error: must be Linux or OSX'
+#      ;;
+# esac
+
 echo ""
