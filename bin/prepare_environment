@@ -13,7 +13,6 @@ echo "Create conda environment"
 echo "========================"
 echo ""
 conda config --add channels bioconda
-conda config --add channels biocore
 conda env create -f pyl_protein_prediction.yml
 #source activate pyl_protein_prediction
 #pip install gooey
