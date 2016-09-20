@@ -28,4 +28,4 @@ dependencies:
   - gooey==0.9.2.3
   - message==0.2.1
   - wxpython-common==3.0.0.0
-prefix: /Users/bebatut/anaconda/envs/pyl_protein_prediction
+# prefix: /Users/bebatut/anaconda/envs/pyl_protein_prediction
