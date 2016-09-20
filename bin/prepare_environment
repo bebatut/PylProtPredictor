@@ -20,9 +20,15 @@ conda env create -f pyl_protein_prediction.yml
 #source deactivate
 echo ""
 
-echo "Download UniRef90 database (it can take several hours)"
-echo "======================================================"
+echo "Download UniRef90 database"
+echo "=========================="
 echo ""
-curl ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz -o data/uniref90.fasta.gz
-gunzip data/uniref90.fasta.gz
+
+if [ -f data/uniref90.fasta ] ; then
+	echo "UniRef90 already exists at 'data/uniref90.fasta'. Skipping."
+else
+	echo "This may take several hours"
+	curl ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz -o data/uniref90.fasta.gz
+	gunzip data/uniref90.fasta.gz
+fi;
 echo ""
