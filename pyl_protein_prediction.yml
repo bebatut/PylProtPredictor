@@ -1,12 +1,11 @@
 name: pyl_protein_prediction
 channels:
-- biocore
 - bioconda
 - defaults
 dependencies:
 - blast=2.2.31=boost1.60_2
 - diamond=0.8.22=boost1.60_1
-- prodigal=2.6.2=0
+- prodigal=2.6.2=3
 - biopython=1.67=np111py27_0
 - boost=1.60.0=py27_0
 - icu=54.1=0
