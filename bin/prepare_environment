@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+echo "Check required software"
+echo "========================"
+command -v curl > /dev/null || ( echo "curl is not installed"; exit 1)
+command -v git > /dev/null || ( echo "git is not installed"; exit 1)
+command -v conda > /dev/null || ( echo "conda is not installed"; exit 1)
+# make sure we have ~20GB available for uniref90
+echo "ok"
+echo ""
+
 echo "Create conda environment"
 echo "========================"
 echo ""
