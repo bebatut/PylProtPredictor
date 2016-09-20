@@ -71,7 +71,11 @@ def launch_pipeline(args):
     else:
         raise ValueError("Wrong command")
 
-@Gooey(optional_cols=2, program_name="PYL protein prediction")
+@Gooey(
+    optional_cols=2,
+    program_name="PYL protein prediction",
+    default_size=(900, 600)
+)
 def main():
     desc = "Predict PYL proteins from an assembled or scaffold genome"
     file_help_msg = "Name of the file you want to process"
