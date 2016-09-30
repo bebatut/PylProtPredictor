@@ -100,12 +100,9 @@ def extend_to_next_stop_codon(current_end, genome, next_cds_end):
             to_continue = (new_end+3) < genome_size
         else:
             new_end += 3
-            if new_end >= next_cds_end:
+            new_ends.append(new_end)
+            if codon != 'TAG':
                 to_continue = False
-            else:
-                new_ends.append(new_end)
-                if codon != 'TAG':
-                    to_continue = False
     return new_ends
 
 def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
