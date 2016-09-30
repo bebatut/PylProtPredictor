@@ -142,6 +142,7 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
                         next_cds_end = genome_size
 
                 new_ends = extend_to_next_stop_codon(end, genome, next_cds_end)
+
                 if len(new_ends) > 0:
                     pot_pyl_prot_nb += 1
 
@@ -191,12 +192,13 @@ def translate(seq):
     return translated_seq
 
 
-def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
+def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir, log_file):
     for prot_id in pot_pyl_prot:
         sequences = []
 
         count = 0
 
+        log_file.write("\t" + prot_id + "\n")
         for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
             count += 1
             seq_id = prot_id + "_" + str(count)
@@ -209,6 +211,10 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir):
 
             sequences.append(SeqRecord(translated_seq, id=seq_id,
              description=description))
+
+            log_file.write("\t\t" + pot_pyl_prot[prot_id]["strand"] + "\t")
+            log_file.write(str(potential_seq["start"]) + "\t")
+            log_file.write(str(potential_seq["end"]) + "\n")
 
         output_file = open(pyl_protein_dir + "/" + prot_id + ".fasta" , "w")
         SeqIO.write(sequences, output_file, "fasta")
@@ -237,4 +243,4 @@ def predict_pyl_proteins(genome_filepath, predicted_cds_filepath,
         log_file.write(msg + "\n")
         print "\t", msg
 
-        save_potential_pyl_proteins(pot_pyl_prot, output_dirpath)
+        save_potential_pyl_proteins(pot_pyl_prot, output_dirpath, log_file)
