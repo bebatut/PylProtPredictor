@@ -12,7 +12,9 @@ def launch_prodigal(genome_filepath, predicted_cds_filepath):
     cmd = "prodigal"
     cmd += " -i " + genome_filepath
     cmd += " -d " + predicted_cds_filepath
-    cmd += " > " + info_filepath
+    cmd += " -f gbk"
+    cmd += " -g 11"
+    cmd += " -o " + info_filepath
     cmd += " 2> " + log_filepath
     os.system(cmd)
 
