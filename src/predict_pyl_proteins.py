@@ -216,7 +216,11 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_dir, log_file):
             log_file.write(str(potential_seq["start"]) + "\t")
             log_file.write(str(potential_seq["end"]) + "\n")
 
-        output_file = open(pyl_protein_dir + "/" + prot_id + ".fasta" , "w")
+        output_dirpath = pyl_protein_dir + "/" + prot_id
+        if not os.path.exists(output_dirpath):
+            os.makedirs(output_dirpath)
+
+        output_file = open(output_dirpath + "/potential_sequences.fasta" , "w")
         SeqIO.write(sequences, output_file, "fasta")
         output_file.close()
         #print
