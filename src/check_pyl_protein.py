@@ -80,53 +80,64 @@ def run_similarity_search(pot_pyl_prot_filepath, ref_db_filepath,
         os.system(cmd)
 
 def check_similarity_results(sim_search_output_filepath, pot_pyl_prot_filepath,
-log_file):
-    smallest_evalue = {"value":10, "id":0}
+log_file, output_dirpath):
+    pot_pyl_prot = {}
+    for record in SeqIO.parse(pot_pyl_prot_filepath, "fasta"):
+        pot_pyl_prot[record.id] = record.id
+
+    conserved_seq_info = {"evalue":10, "id":0}
     with open(sim_search_output_filepath, "r") as sim_search_output_file:
         for line in sim_search_output_file.readlines():
             split_line = line[:-1].split("\t")
             evalue = float(split_line[10])
-            if evalue < smallest_evalue["value"]:
-                smallest_evalue["value"] = evalue
-                smallest_evalue["id"] = split_line[0]
+            if evalue < conserved_seq_info["evalue"]:
+                conserved_seq_info["evalue"] = evalue
+                conserved_seq_info["id"] = split_line[0]
+
+    rejected_seq = []
+    conserved_seq = []
+    for seq_id in pot_pyl_prot:
+        if seq_id == conserved_seq_info["id"]:
+            conserved_seq.append(pot_pyl_prot[seq_id])
+        else:
+            rejected_seq(pot_pyl_prot[seq_id])
+    rejected_seq_file = open(output_dirpath + "rejected_protein_sequences.fasta" , "w")
+    SeqIO.write(rejected_seq, rejected_seq_file, "fasta")
+    rejected_seq_file.close()
+
+    conserved_seq_file = open(output_dirpath + "protein_sequence.fasta" , "w")
+    SeqIO.write(conserved_seq, conserved_seq_file, "fasta")
+    conserved_seq_file.close()
 
     if smallest_evalue["id"] == 0:
         msg = "-- None of the possible sequences match the reference database --\n"
         msg += "    We can not say if the protein is able to use PYL amino acid\n"
         print "\t", msg
         log_file.write(msg + "\n")
-    elif smallest_evalue["id"].endswith("_1"):
-        msg = "-- This protein does not use PYL as amino acid --\n"
+    elif conserved_seq_info["id"].endswith("_1"):
+        msg = "-- This protein does not use PYL amino acid --\n"
         print "\t", msg
         log_file.write(msg + "\n")
     else:
-        msg = ">>>> This protein seems to use PYL as amino acid <<<<"
+        msg = ">>>> This protein contain PYL amino acid <<<<"
         print "\t", msg
         log_file.write(msg + "\n")
 
-        for record in SeqIO.parse(pot_pyl_prot_filepath, "fasta"):
-            if record.id == smallest_evalue["id"]:
-                new_prot_description = record.description
-
+        new_prot_description = pot_pyl_prot[smallest_evalue["id"]].description
         msg = "\talternative protein: " + new_prot_description + "\n"
         print "\t", msg
         log_file.write(msg + "\n")
 
 def check_potential_pyl_protein(pot_pyl_prot_filepath, ref_db_filepath,
     output_dirpath, similarity_search_tool = "diamond"):
-
-    pot_pyl_prot_filebase = os.path.basename(pot_pyl_prot_filepath)
-    prot_name = pot_pyl_prot_filebase.split(".")[0]
-
-    log_filepath = output_dirpath + "/" +  prot_name + "_pyl_checking_log.txt"
+    log_filepath = output_dirpath + "/pyl_checking_log.txt"
 
     with open(log_filepath, 'w') as log_file:
         format_ref_db(ref_db_filepath, log_file, similarity_search_tool)
 
-        sim_search_output_filepath = output_dirpath + "/"
-        sim_search_output_filepath += prot_name + "_similarity_search.txt"
+        sim_search_output_filepath = output_dirpath + "/similarity_search.txt"
         run_similarity_search(pot_pyl_prot_filepath, ref_db_filepath,
         sim_search_output_filepath, log_file, similarity_search_tool)
 
         check_similarity_results(sim_search_output_filepath,
-        pot_pyl_prot_filepath, log_file)
+        pot_pyl_prot_filepath, log_file, output_dirpath)
