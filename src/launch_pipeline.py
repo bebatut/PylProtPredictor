@@ -36,8 +36,7 @@ similarity_search_tool, output_dir):
     if not misc_functions.isfasta(pot_pyl_prot_filepath):
         raise ValueError("The file with the genome is not a FASTA file")
 
-    pot_pyl_prot_filebase = os.path.basename(pot_pyl_prot_filepath)
-    prot_name = pot_pyl_prot_filebase.split(".")[0]
+    prot_name = os.path.basename(output_dir)
     print "Checking if " + prot_name + " is a PYL protein (it can take more than 1 hour)..."
 
     check_pyl_protein.check_potential_pyl_protein(pot_pyl_prot_filepath, ref_db_filepath, output_dir, similarity_search_tool)
@@ -51,12 +50,12 @@ def run_whole_pipeline(genome_filepath, output_dir, ref_db_filepath):
     launch_pyl_protein_prediction(genome_filepath, predicted_cds_filepath,
     pyl_protein_dir)
 
-    listing = os.listdir(pyl_protein_dir)
-    for file_name in listing:
-        if file_name.endswith('.fasta'):
-            pot_pyl_prot_filepath = pyl_protein_dir + "/" + file_name
-            launch_pyl_protein_checking(pot_pyl_prot_filepath, ref_db_filepath,
-            "diamond", pyl_protein_dir)
+    listing = next(os.walk(pyl_protein_dir))[1]
+    for subdir in listing:
+        subdirpath = pyl_protein_dir + "/" + subdir
+        pot_pyl_prot_filepath = subdirpath + "/potential_sequences.fasta"
+        launch_pyl_protein_checking(pot_pyl_prot_filepath, ref_db_filepath,
+            "diamond", subdirpath)
 
 def launch_pipeline(args):
     if args.subparser_name == "run-whole-pipeline":
