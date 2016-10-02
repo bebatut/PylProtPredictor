@@ -83,7 +83,7 @@ def check_similarity_results(sim_search_output_filepath, pot_pyl_prot_filepath,
 log_file, output_dirpath):
     pot_pyl_prot = {}
     for record in SeqIO.parse(pot_pyl_prot_filepath, "fasta"):
-        pot_pyl_prot[record.id] = record.id
+        pot_pyl_prot[record.id] = record
 
     conserved_seq_info = {"evalue":10, "id":0}
     with open(sim_search_output_filepath, "r") as sim_search_output_file:
@@ -100,7 +100,7 @@ log_file, output_dirpath):
         if seq_id == conserved_seq_info["id"]:
             conserved_seq.append(pot_pyl_prot[seq_id])
         else:
-            rejected_seq(pot_pyl_prot[seq_id])
+            rejected_seq.append(pot_pyl_prot[seq_id])
     rejected_seq_file = open(output_dirpath + "rejected_protein_sequences.fasta" , "w")
     SeqIO.write(rejected_seq, rejected_seq_file, "fasta")
     rejected_seq_file.close()
@@ -109,7 +109,7 @@ log_file, output_dirpath):
     SeqIO.write(conserved_seq, conserved_seq_file, "fasta")
     conserved_seq_file.close()
 
-    if smallest_evalue["id"] == 0:
+    if conserved_seq_info["id"] == 0:
         msg = "-- None of the possible sequences match the reference database --\n"
         msg += "    We can not say if the protein is able to use PYL amino acid\n"
         print "\t", msg
@@ -123,7 +123,7 @@ log_file, output_dirpath):
         print "\t", msg
         log_file.write(msg + "\n")
 
-        new_prot_description = pot_pyl_prot[smallest_evalue["id"]].description
+        new_prot_description = pot_pyl_prot[conserved_seq_info["id"]].description
         msg = "\talternative protein: " + new_prot_description + "\n"
         print "\t", msg
         log_file.write(msg + "\n")
