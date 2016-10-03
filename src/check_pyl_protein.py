@@ -101,7 +101,7 @@ log_file, output_dirpath):
             conserved_seq.append(pot_pyl_prot[seq_id])
         else:
             rejected_seq.append(pot_pyl_prot[seq_id])
-    rejected_seq_file = open(output_dirpath + "/rejected_protein_sequences.fasta" , "w")
+    rejected_seq_file = open(output_dirpath + "/rejected_protein_sequences.fasta", "w")
     SeqIO.write(rejected_seq, rejected_seq_file, "fasta")
     rejected_seq_file.close()
 
