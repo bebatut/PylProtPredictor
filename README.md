@@ -16,6 +16,7 @@ Have a look to [the scheme explaining how the tool is working](doc/img/main_sche
 # Installation
 
 - Install the requirements
+	- `curl`
   - `git`
   - `conda`
 - Clone this repository (or get the release)
