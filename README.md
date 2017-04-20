@@ -49,6 +49,8 @@ $ ./bin/launch_pyl_protein_prediction
 
 - Cécile Hilpert
 - Bérénice Batut
+- Ylana Sauvaget
+- Kévin Gravouil
 
 # Support & Bug Reports
 
