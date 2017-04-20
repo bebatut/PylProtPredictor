@@ -45,7 +45,7 @@ $ ./bin/prepare_environment
 $ ./bin/launch_pyl_protein_prediction
 ```
 
-# Contributers
+# Contributors
 
 - Cécile Hilpert
 - Bérénice Batut
