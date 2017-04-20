@@ -1,4 +1,6 @@
 .DS_Store
+*~
 *.pyc
 results
 data/uniref90.fasta*
+
