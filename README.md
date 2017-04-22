@@ -50,10 +50,10 @@ $ source activate PylProtPredictor
 > ```
 > But don't do that before running the analysis.
 
-- Download the reference database
+- Download and prepare the reference database
 
 ```
-$ snakemake data/uniref90.fasta
+$ snakemake data/uniref90.dmnd
 ``` 
 
 # Usage
@@ -62,7 +62,7 @@ $ snakemake data/uniref90.fasta
 - Launch the workflow
 
 ```
-$ ./bin/launch_pyl_protein_prediction
+$ snakemake
 ```
 
 # Contributors
