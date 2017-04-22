@@ -91,6 +91,59 @@ rule predict_potential_pyl_proteins:
         "src/predict_pyl_proteins.py"
 
 
+rule search_similarity:
+    input:
+        potential_pyl_seq=expand(
+            "{output_dir}/{pot_pyl_seq}",
+            output_dir=config["output_dir"],
+            pot_pyl_seq="potential_pyl_sequences.fasta"),
+        ref_db=expand(
+            "{data_dir}/{ref_database}.dmnd",
+            data_dir=config["data_dir"],
+            ref_database=config["ref_database"])
+    output:
+        expand(
+            "{output_dir}/{search_output}",
+            output_dir=config["output_dir"],
+            search_output="potential_pyl_similarity_search.txt")
+    shell:
+        "diamond blastp"
+        " -d {input.ref_db}"
+        " -q {input.potential_pyl_seq}"
+        " -o {output}"
+        " -k 1"
+        " -e 0.01"
+        " -f 6"
+        " -b 0.5"
+        " --quiet"
+
+rule check_pyl_proteins:
+    input:
+        expand(
+            "{output_dir}/{search_output}",
+            output_dir=config["output_dir"],
+            search_output="potential_pyl_similarity_search.txt"),
+        expand(
+            "{output_dir}/{pot_pyl_seq}",
+            output_dir=config["output_dir"],
+            pot_pyl_seq="potential_pyl_sequences.fasta")
+    output:
+        expand(
+            "{output_dir}/{log}",
+            output_dir=config["output_dir"],
+            log="conserved_potential_pyl_sequences.fasta"),
+        expand(
+            "{output_dir}/{log}",
+            output_dir=config["output_dir"],
+            log="conserved_potential_pyl_sequences.csv"),
+        expand(
+            "{output_dir}/{log}",
+            output_dir=config["output_dir"],
+            log="rejected_potential_pyl_sequences.csv")
+    script:
+        "src/check_pyl_proteins.py"
+
+
 rule report:
     input:
         ""
