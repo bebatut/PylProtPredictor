@@ -299,7 +299,6 @@ def predict_pyl_proteins(genome, predicted_cds, pot_pyl_seq, log):
 
 
 if __name__ == '__main__':
-    print(snakemake.input)
     predict_pyl_proteins(
         genome=snakemake.input[0],
         predicted_cds=snakemake.input[1],
