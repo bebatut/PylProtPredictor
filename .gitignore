@@ -3,4 +3,5 @@
 *.pyc
 results
 data/uniref90.fasta*
-
+.snakemake
+src/.snakemake*
