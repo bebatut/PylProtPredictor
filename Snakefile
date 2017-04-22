@@ -73,17 +73,17 @@ rule predict_cds:
 
 rule predict_potential_pyl_proteins:
     input:
-        config["genome"],
-        expand(
+        genome=config["genome"],
+        predicted_cds=expand(
             "{output_dir}/{cds}",
             output_dir=config["output_dir"],
             cds="predicted_cds.fasta")
     output:
-        expand(
+        potential_pyl_seq=expand(
             "{output_dir}/{pot_pyl_seq}",
             output_dir=config["output_dir"],
             pot_pyl_seq="potential_pyl_sequences.fasta"),
-        expand(
+        log=expand(
             "{output_dir}/{log}",
             output_dir=config["output_dir"],
             log="pyl_protein_prediction_log.txt")

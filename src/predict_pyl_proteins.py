@@ -35,7 +35,7 @@ def extract_predicted_cds(predicted_cds_filepath):
         origin_seq = "_".join(seq_id.split("_")[:-1])
         nb += 1
         if seq_id.find("|") != -1:
-            seq_id = "cds_%s_%s" % (nb, seq_id.split("_")[-1])
+            seq_id = "cds_%s" % (seq_id.split("_")[-1])
         start = split_description[1].replace(" ","")
         end = split_description[2].replace(" ","")
         strand = transform_strand(split_description[3].replace(" ",""))
@@ -98,27 +98,7 @@ full_origin_seq, pred_cds_nb):
     """
     Extract the end of the following CDS
     """
-    genome_size = full_origin_seq["length"]
-    if strand == "reverse":
-        previous_start = start
-        start = (genome_size-end)+1
-        end = (genome_size-previous_start+1)
-        genome = full_origin_seq["rev_comp_genome"]
-        next_id = order_id - 1
-        if next_id >= 0:
-            next_cds_id = strand_pred_cds['order'][next_id]
-            next_cds_end = strand_pred_cds['details'][next_cds_id]['start']
-        else:
-            next_cds_end = genome_size
-        next_cds_end = (genome_size-next_cds_end+1)
-    else:
-        genome = full_origin_seq["genome"]
-        next_id = order_id + 1
-        if next_id < pred_cds_nb:
-            next_cds_id = strand_pred_cds['order'][next_id]
-            next_cds_end = strand_pred_cds['details'][next_cds_id]['end']
-        else:
-            next_cds_end = genome_size
+    
     return next_cds_end, genome
 
 
@@ -167,7 +147,6 @@ genome, genome_size):
             "start": start,
             "end": end,
             "seq": seq})
-
     for new_end in new_ends:
         new_start = start
         new_seq = genome.seq[(start-1):new_end]
@@ -203,17 +182,28 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
                 end = tag_cds['end']
                 seq = tag_cds['seq']
                 order_id = tag_cds['order_id']
-
-                next_cds_end, genome = extract_next_cds_end(
-                    start,
-                    end,
-                    strand,
-                    order_id,
-                    strand_pred_cds,
-                    full_origin_seq,
-                    pred_cds_nb)
+                genome_size = full_origin_seq["length"]
+                if strand == "reverse":
+                    previous_start = start
+                    start = (genome_size-end)+1
+                    end = (genome_size-previous_start+1)
+                    genome = full_origin_seq["rev_comp_genome"]
+                    next_id = order_id - 1
+                    if next_id >= 0:
+                        next_cds_id = strand_pred_cds['order'][next_id]
+                        next_cds_end = strand_pred_cds['details'][next_cds_id]['start']
+                    else:
+                        next_cds_end = genome_size
+                    next_cds_end = (genome_size-next_cds_end+1)
+                else:
+                    genome = full_origin_seq["genome"]
+                    next_id = order_id + 1
+                    if next_id < pred_cds_nb:
+                        next_cds_id = strand_pred_cds['order'][next_id]
+                        next_cds_end = strand_pred_cds['details'][next_cds_id]['end']
+                    else:
+                        next_cds_end = genome_size
                 new_ends = extend_to_next_stop_codon(end, genome, next_cds_end)
-
                 if len(new_ends) > 0:
                     pot_pyl_prot[cds] = extract_possible_seq(
                         start,
@@ -265,12 +255,11 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_filepath, log_file):
         log_file.write("\t%s\n" % (prot_id))
         for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
             count += 1
-            seq_id = prot_id + "%s_%s" % (prot_id, count)
+            seq_id = "%s_%s" % (prot_id, count)
             desc = "# origin_seq: %s" % (pot_pyl_prot[prot_id]["origin_seq"])
             desc += " # strand: %s" % (pot_pyl_prot[prot_id]["strand"])
             desc += " # start: %s" % (potential_seq["start"])
             desc += " # end: %s" % (potential_seq["end"])
-            print(desc)
             translated_seq = translate(potential_seq["seq"])
             sequences.append(SeqRecord(
                 translated_seq,
