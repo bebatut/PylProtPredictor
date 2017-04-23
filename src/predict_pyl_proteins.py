@@ -1,14 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-import re
-import os
-import sys
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Data import CodonTable
-import misc_functions
+import pandas as pd
 
 
 strands = ['forward', 'reverse']
@@ -23,17 +19,24 @@ def transform_strand(strand_id):
         return strands[0]
 
 
-def extract_predicted_cds(predicted_cds_filepath):
+def export_csv(dictionary, csv_filepath, col):
+    """
+    """
+    dict_df = pd.DataFrame(data=dictionary).transpose()
+    dict_df = dict_df[col]
+    dict_df.to_csv(csv_filepath)
+
+
+def extract_predicted_cds(predicted_cds_filepath, predicted_cds_info_path):
     """
     Extract the predicted CDS
     """
     pred_cds = {}
-    nb = 0
+    predicted_cds_info = {}
     for record in SeqIO.parse(predicted_cds_filepath,"fasta"):
         split_description = record.description.split("#")
         seq_id = split_description[0][:-1]
         origin_seq = "_".join(seq_id.split("_")[:-1])
-        nb += 1
         if seq_id.find("|") != -1:
             seq_id = "cds_%s" % (seq_id.split("_")[-1])
         start = split_description[1].replace(" ","")
@@ -50,15 +53,25 @@ def extract_predicted_cds(predicted_cds_filepath):
             'seq': record.seq
         }
         pred_cds[origin_seq][strand]['order'].append(seq_id)
-    return pred_cds, nb
+        predicted_cds_info[seq_id] = {
+            "start": start,
+            "end": end,
+            "strand": strand,
+            "origin_seq": origin_seq}
+
+    export_csv(
+        predicted_cds_info,
+        predicted_cds_info_path,
+        ["start", "end", "strand", "origin_seq"])
+    return pred_cds, len(predicted_cds_info.keys())
 
 
-def identify_tag_ending_proteins(pred_cds):
+def identify_tag_ending_proteins(pred_cds, tag_ending_cds_info_path):
     """
     Identify CDS ending with TAG STOP codon
     """
     tag_ending_prot = {}
-    tag_ending_prot_nb = 0
+    tag_ending_cds_info = {}
     for origin_seq in pred_cds:
         tag_ending_prot[origin_seq] = {}
         origin_cds = pred_cds[origin_seq]
@@ -69,7 +82,6 @@ def identify_tag_ending_proteins(pred_cds):
                 cds_id = strand_cds['order'][i]
                 seq = strand_cds['details'][cds_id]['seq']
                 if str(seq).endswith("TAG"):
-                    tag_ending_prot_nb += 1
                     start = strand_cds['details'][cds_id]['start']
                     end = strand_cds['details'][cds_id]['end']
                     tag_ending_prot[origin_seq][strand][cds_id] = {
@@ -77,7 +89,17 @@ def identify_tag_ending_proteins(pred_cds):
                         "end": end,
                         "seq": seq,
                         "order_id": i}
-    return tag_ending_prot, tag_ending_prot_nb
+                    tag_ending_cds_info[cds_id] = {
+                        "start": start,
+                        "end": end,
+                        "strand": strand,
+                        "origin_seq": origin_seq}
+
+    export_csv(
+        tag_ending_cds_info,
+        tag_ending_cds_info_path,
+        ["start", "end", "strand", "origin_seq"])
+    return tag_ending_prot, len(tag_ending_cds_info.keys())
 
 
 def extract_origin_seq(genome_filepath):
@@ -91,15 +113,6 @@ def extract_origin_seq(genome_filepath):
             "length": len(record.seq),
             "rev_comp_genome": record.reverse_complement()}
     return origin_seqs
-
-
-def extract_next_cds_end(start, end, strand, order_id, strand_pred_cds, 
-full_origin_seq, pred_cds_nb):
-    """
-    Extract the end of the following CDS
-    """
-    
-    return next_cds_end, genome
 
 
 def extend_to_next_stop_codon(current_end, genome, next_cds_end):
@@ -165,7 +178,6 @@ def extract_potential_pyl_proteins(tag_ending_prot, pred_cds, genome_filepath):
     Extract potential PYL proteins
     """
     origin_seqs = extract_origin_seq(genome_filepath)
-
     pot_pyl_prot_nb = 0
     pot_pyl_prot = {}
     for origin_seq in tag_ending_prot:
@@ -245,14 +257,23 @@ def translate(seq):
     return translated_seq
 
 
-def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_filepath, log_file):
+def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_filepath, log_file, 
+potential_pyl_seq_info):
     """
     Save potential PYL proteins in a fasta file
     """
     sequences = []
+    info = {}
     for prot_id in pot_pyl_prot:
         count = 0
         log_file.write("\t%s\n" % (prot_id))
+        info[prot_id] = {
+            "start": pot_pyl_prot[prot_id]["potential_seq"][0]["start"],
+            "end": pot_pyl_prot[prot_id]["potential_seq"][0]["end"],
+            "strand": pot_pyl_prot[prot_id]["strand"],
+            "origin_seq": pot_pyl_prot[prot_id]["origin_seq"],
+            "alternative_start": "",
+            "alternative_end": ""}
         for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
             count += 1
             seq_id = "%s_%s" % (prot_id, count)
@@ -268,24 +289,44 @@ def save_potential_pyl_proteins(pot_pyl_prot, pyl_protein_filepath, log_file):
             log_file.write("\t\t%s\t" % (pot_pyl_prot[prot_id]["strand"]))
             log_file.write("%s\t" % (potential_seq["start"]))
             log_file.write("%s\n" % (potential_seq["end"]))
+            if count > 1:
+                if count > 2:
+                    info[prot_id]["alternative_start"] = ",".join([
+                        info[prot_id]["alternative_start"],
+                        str(potential_seq["start"])])
+                    info[prot_id]["alternative_end"] = ",".join([
+                        info[prot_id]["alternative_end"],
+                        str(potential_seq["end"])])
+                else:
+                    info[prot_id]["alternative_start"] = str(
+                        potential_seq["start"])
+                    info[prot_id]["alternative_end"] = str(
+                        potential_seq["end"])
+
     with open(pyl_protein_filepath, "w") as output_file:
         SeqIO.write(sequences, output_file, "fasta")
+    export_csv(
+        info,
+        potential_pyl_seq_info,
+        ["start", "end", "strand", "origin_seq", "alternative_start", "alternative_end"])
 
 
-def predict_pyl_proteins(genome, predicted_cds, pot_pyl_seq, log):
+def predict_pyl_proteins(genome, predicted_cds, pot_pyl_seq, log,
+predicted_cds_info, tag_ending_cds_info, potential_pyl_seq_info):
     """
     """
     with open(log, 'w') as log_file:
-        pred_cds, pred_cds_nb = extract_predicted_cds(predicted_cds)
+        pred_cds, pred_cds_nb = extract_predicted_cds(
+            predicted_cds,
+            predicted_cds_info)
         msg = "Number of predicted CDS: %s\n"  % (pred_cds_nb)
         log_file.write(msg)
-        print(msg)
 
         tag_ending_prot, tag_ending_prot_nb = identify_tag_ending_proteins(
-            pred_cds)
+            pred_cds,
+            tag_ending_cds_info)
         msg = "Number of TAG-ending predicted CDS: %s\n" % (tag_ending_prot_nb)
         log_file.write(msg)
-        print(msg)
 
         pot_pyl_prot = extract_potential_pyl_proteins(
             tag_ending_prot,
@@ -294,13 +335,19 @@ def predict_pyl_proteins(genome, predicted_cds, pot_pyl_seq, log):
         pot_pyl_prot_nb = len(pot_pyl_prot.keys())
         msg = "Number of potential Pyl proteins: %s\n"  % (pot_pyl_prot_nb)
         log_file.write(msg)
-        print(msg)
-        save_potential_pyl_proteins(pot_pyl_prot, pot_pyl_seq, log_file)
+        save_potential_pyl_proteins(
+            pot_pyl_prot,
+            pot_pyl_seq,
+            log_file,
+            potential_pyl_seq_info)
 
 
 if __name__ == '__main__':
     predict_pyl_proteins(
-        genome=snakemake.input[0],
-        predicted_cds=snakemake.input[1],
-        pot_pyl_seq=snakemake.output[0],
-        log=snakemake.output[1])
+        genome=str(snakemake.genome),
+        predicted_cds=str(snakemake.predicted_cds),
+        pot_pyl_seq=str(snakemake.potential_pyl_sequences),
+        log=str(snakemake.pyl_protein_prediction_log),
+        predicted_cds_info=str(snakemake.predicted_cds_info),
+        tag_ending_cds_info=str(snakemake.tag_ending_cds_info),
+        potential_pyl_seq_info=str(snakemake.potential_pyl_protein_info))
