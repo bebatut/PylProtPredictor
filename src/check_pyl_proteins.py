@@ -16,12 +16,11 @@ def parse_similarity_search_report(potential_pyl_similarity_search):
     for row in similarity_search_report.itertuples():
         seq_id = row[1]
         cds_id = "_".join(seq_id.split("_")[:-1])
-        evalue = row[11]
+        evalue = float(row[11])
         cds_report.setdefault(cds_id, {
             "conserved_seq": "",
             "rejected_seq": [],
             "evalue":10})
-
         if evalue < cds_report[cds_id]["evalue"]:
             if cds_report[cds_id]["conserved_seq"] != "":
                 cds_report[cds_id]["rejected_seq"].append(
@@ -56,7 +55,7 @@ def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
         seq_nb = seq_id.split("_")[-1]
         start, end, strand = extract_seq_info(record.description)
         if cds_id in cds_report:
-            if seq_nb != "1" :
+            if seq_nb == "1" :
                 if seq_id in cds_report[cds_id]["conserved_seq"]:
                     rej_seq_info.setdefault(cds_id, {
                         "start": "",
