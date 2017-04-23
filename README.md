@@ -50,7 +50,7 @@ $ source activate PylProtPredictor
 > ```
 > But don't do that before running the analysis.
 
-- Download and prepare the reference database
+- Download and prepare the reference database (it can take several hours, depending of your connection)
 
 ```
 $ snakemake data/uniref90.dmnd
