@@ -175,12 +175,12 @@ rejected_potential_pyl_sequences_info):
 if __name__ == '__main__':
     check_pyl_proteins(
         potential_pyl_similarity_search=str(
-            snakemake.potential_pyl_similarity_search),
+            snakemake.input.potential_pyl_similarity_search),
         potential_pyl_seq=str(
-            snakemake.potential_pyl_sequences),
+            snakemake.input.potential_pyl_sequences),
         conserved_potential_pyl_sequences=str(
-            snakemake.conserved_potential_pyl_seq),
+            snakemake.output.conserved_potential_pyl_seq),
         conserved_potential_pyl_sequences_info=str(
-            snakemake.conserved_potential_pyl_seq_info),
+            snakemake.output.conserved_potential_pyl_seq_info),
         rejected_potential_pyl_sequences_info=str(
-            snakemake.rejected_potential_pyl_seq_info))
+            snakemake.output.rejected_potential_pyl_seq_info))

@@ -344,10 +344,10 @@ predicted_cds_info, tag_ending_cds_info, potential_pyl_seq_info):
 
 if __name__ == '__main__':
     predict_pyl_proteins(
-        genome=str(snakemake.genome),
-        predicted_cds=str(snakemake.predicted_cds),
-        pot_pyl_seq=str(snakemake.potential_pyl_sequences),
-        log=str(snakemake.pyl_protein_prediction_log),
-        predicted_cds_info=str(snakemake.predicted_cds_info),
-        tag_ending_cds_info=str(snakemake.tag_ending_cds_info),
-        potential_pyl_seq_info=str(snakemake.potential_pyl_protein_info))
+        genome=str(snakemake.input.genome),
+        predicted_cds=str(snakemake.input.predicted_cds),
+        pot_pyl_seq=str(snakemake.output.potential_pyl_sequences),
+        log=str(snakemake.output.pyl_protein_prediction_log),
+        predicted_cds_info=str(snakemake.output.predicted_cds_info),
+        tag_ending_cds_info=str(snakemake.output.tag_ending_cds_info),
+        potential_pyl_seq_info=str(snakemake.output.potential_pyl_protein_info))
