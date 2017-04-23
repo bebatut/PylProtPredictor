@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
-# -*- coding: utf-8 -*-
 
-import os
-import sys
 from Bio import SeqIO
 import pandas as pd
 
@@ -178,8 +174,13 @@ rejected_potential_pyl_sequences_info):
 
 if __name__ == '__main__':
     check_pyl_proteins(
-        potential_pyl_similarity_search=snakemake.input[0],
-        potential_pyl_seq=snakemake.input[1],
-        conserved_potential_pyl_sequences=snakemake.output[0],
-        conserved_potential_pyl_sequences_info=snakemake.output[1],
-        rejected_potential_pyl_sequences_info=snakemake.output[2])
+        potential_pyl_similarity_search=str(
+            snakemake.potential_pyl_similarity_search),
+        potential_pyl_seq=str(
+            snakemake.potential_pyl_sequences),
+        conserved_potential_pyl_sequences=str(
+            snakemake.conserved_potential_pyl_seq),
+        conserved_potential_pyl_sequences_info=str(
+            snakemake.conserved_potential_pyl_seq_info),
+        rejected_potential_pyl_sequences_info=str(
+            snakemake.rejected_potential_pyl_seq_info))
