@@ -12,37 +12,37 @@ rule all:
             file="report.html")
 
 
-#rule download_uniref90:
-#    input:
-#        # only keeping the file so we can move it out to the cwd
-#        FTP.remote(
-#            config["ref_database_url"],
-#            keep_local=True)
-#    output:
-#        expand(
-#            "{data_dir}/{ref_database}.fasta",
-#            data_dir=config["data_dir"],
-#            ref_database=config["ref_database"])
-#    shell:
-#        "gunzip {input} | mv {output}"
-#
-#
-#rule prepare_uniref90:
-#    input:
-#        expand(
-#            "{data_dir}/{ref_database}.fasta",
-#            data_dir=config["data_dir"],
-#            ref_database=config["ref_database"])
-#    output:
-#        expand(
-#            "{data_dir}/{ref_database}.dmnd",
-#            data_dir=config["data_dir"],
-#            ref_database=config["ref_database"])
-#    shell:
-#        "diamond makedb"
-#        " --in {input}"
-#        " --db {output}"
-#        " --quiet"
+rule download_uniref90:
+    input:
+        # only keeping the file so we can move it out to the cwd
+        FTP.remote(
+            config["ref_database_url"],
+            keep_local=True)
+    output:
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=config["data_dir"],
+            ref_database=config["ref_database"])
+    shell:
+        "gunzip {input} | mv {output}"
+
+
+rule prepare_uniref90:
+    input:
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=config["data_dir"],
+            ref_database=config["ref_database"])
+    output:
+        expand(
+            "{data_dir}/{ref_database}.dmnd",
+            data_dir=config["data_dir"],
+            ref_database=config["ref_database"])
+    shell:
+        "diamond makedb"
+        " --in {input}"
+        " --db {output}"
+        " --quiet"
 
 
 rule predict_cds:
