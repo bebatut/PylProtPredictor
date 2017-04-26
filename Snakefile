@@ -144,6 +144,7 @@ rule predict_potential_pyl_proteins:
 
 
 rule search_similarity:
+    threads: get_max_cpu()
     input:
         potential_pyl_seq=expand(
             "{output_dir}/{file}",
@@ -167,6 +168,7 @@ rule search_similarity:
         " -e 0.01"
         " -f 6"
         " -b 0.5"
+        " -p {threads} "
         " --quiet"
 
 
@@ -222,5 +224,3 @@ rule report:
             file="report.html")
     script:
         "src/write_report.py"
-
-        
