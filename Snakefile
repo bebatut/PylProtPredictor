@@ -1,6 +1,11 @@
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 FTP = FTPRemoteProvider()
 
+def get_max_cpu():
+    import multiprocessing
+    return multiprocessing.cpu_count()
+
+
 configfile: "config.yaml"
 
 
