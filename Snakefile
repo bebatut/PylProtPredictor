@@ -17,12 +17,56 @@ def get_max_cpu():
 configfile: "config.yaml"
 
 
+rule help:
+    threads: get_max_cpu()
+    message:
+      "------------------------------------------------" +"\n"
+      "    Welcome to the PylProtPredictor pipeline    " +"\n"
+      "------------------------------------------------" +"\n"
+      # "" +"\n"
+      "  version:            0.2" +"\n"
+      "  max_threads:        {threads}" +"\n"
+      "  database location:  "+config["data_dir"]+"/"+config["ref_database"]+".dmnd" +"\n"
+      "  input genome        "+config["genome"] +"\n"
+      "  output directory:   "+config["output_dir"]+"/" +"\n"
+      "" +"\n"
+      "Usage:" +"\n"
+      " - Print this help message:" +"\n"
+      "      snakemake help" +"\n"
+      " - List available rules:" +"\n"
+      "      snakemake --list" +"\n"
+      " - Run the complete pipeline:" +"\n"
+      "      snakemake --cores -p all" +"\n"
+      " - Only prepare the database:" +"\n"
+      "      snakemake --cores -p prepare_database" +"\n"
+      " - Predict potential Pyl proteins (does not check predictions):" +"\n"
+      "      snakemake --cores -p predict_potential_pyl_proteins" +"\n"
+      "------------------------------------------------" +"\n"
+
+
+rule version:
+    shell: "echo 0.2"
+
+
+rule purge:
+    input:
+        expand(
+            "{output_dir}",
+            output_dir=config["output_dir"])
+    message: "!!! DELETING THE OUTPUT DIRECTORY '{input}' !!!"
+    shell: "rm -rf {input}"
+
+
 rule all:
     input:
         expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="report.html")
+
+rule PylProtPredictor:
+    """alias for 'all' rule"""
+    input: rules.all.input
 
 rule prepare_database:
     input:
