@@ -24,6 +24,7 @@ dependencies:
 - idna=2.2=py35_0
 - jbig=2.1=0
 - jpeg=9b=0
+- libffi=3.2.1=1
 - libgcc=4.8.5=1
 - libpng=1.6.27=0
 - libtiff=4.0.6=3
@@ -53,5 +54,7 @@ dependencies:
 - xz=5.2.2=1
 - yaml=0.1.6=0
 - zlib=1.2.8=3
-#prefix: /Users/bebatut/miniconda3/envs/PylProtPredictor
-
+- pip:
+  - pandas==0.19.2
+  - python-dateutil==2.6.0
+  - pytz==2017.2
