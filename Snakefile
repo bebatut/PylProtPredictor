@@ -5,7 +5,9 @@ FTP = FTPRemoteProvider()
 
 configfile: "config.yaml"
 
+
 rule help:
+    '''Print the help message'''
     threads: available_cpu_count()
     message:
       "------------------------------------------------" +"\n"
@@ -33,10 +35,12 @@ rule help:
 
 
 rule version:
+    '''Print the help message'''
     shell: "echo 0.2"
 
 
 rule purge:
+    '''Delete the output directory'''
     input:
         expand(
             "{output_dir}",
@@ -46,6 +50,7 @@ rule purge:
 
 
 rule all:
+    '''Run the complete pipeline'''
     input:
         expand(
             "{output_dir}/{file}",
@@ -54,11 +59,12 @@ rule all:
 
 
 rule PylProtPredictor:
-    """alias for 'all' rule"""
+    '''Run the complete pipeline'''
     input: rules.all.input
 
 
 rule prepare_database:
+    '''Download and format the Uniref90 database for Diamond'''
     input:
         FTP.remote(
             config["ref_database_url"],
@@ -76,6 +82,7 @@ rule prepare_database:
 
 
 rule predict_cds:
+    '''Predict CDS from the input genome using Prodigal'''
     input:
         config["genome"]
     output:
@@ -102,6 +109,7 @@ rule predict_cds:
 
 
 rule predict_potential_pyl_proteins:
+    '''Predict potential PYL-contrainin proteins from predicted CDS'''
     input:
         genome=config["genome"],
         predicted_cds=expand(
@@ -134,6 +142,7 @@ rule predict_potential_pyl_proteins:
 
 
 rule search_similarity:
+    '''Align predicted Pyl proteins on Uniref90 using Diamond'''
     threads: available_cpu_count()
     input:
         potential_pyl_seq=expand(
@@ -163,6 +172,7 @@ rule search_similarity:
 
 
 rule check_pyl_proteins:
+    '''Validate potential Pyl protein by analysing the alignments'''
     input:
         potential_pyl_similarity_search=expand(
             "{output_dir}/{file}",
@@ -190,6 +200,7 @@ rule check_pyl_proteins:
 
 
 rule report:
+    '''Print a quick HTML report'''
     input:
         predicted_cds_info=expand(
             "{output_dir}/{file}",
