@@ -1,24 +1,12 @@
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from snakemake.utils import available_cpu_count
+
 FTP = FTPRemoteProvider()
-
-def get_max_cpu():
-    '''
-    Get the maximum number of CPU to use.
-    User-defined value in configfile has more priority.
-    Don't forget to use 'snakemake --cores'.
-    '''
-    if 'max_threads' in config:
-        return config["max_threads"]
-    else:
-        import multiprocessing
-        return multiprocessing.cpu_count()
-
 
 configfile: "config.yaml"
 
-
 rule help:
-    threads: get_max_cpu()
+    threads: available_cpu_count()
     message:
       "------------------------------------------------" +"\n"
       "    Welcome to the PylProtPredictor pipeline    " +"\n"
@@ -64,9 +52,11 @@ rule all:
             output_dir=config["output_dir"],
             file="report.html")
 
+
 rule PylProtPredictor:
     """alias for 'all' rule"""
     input: rules.all.input
+
 
 rule prepare_database:
     input:
@@ -144,7 +134,7 @@ rule predict_potential_pyl_proteins:
 
 
 rule search_similarity:
-    threads: get_max_cpu()
+    threads: available_cpu_count()
     input:
         potential_pyl_seq=expand(
             "{output_dir}/{file}",
