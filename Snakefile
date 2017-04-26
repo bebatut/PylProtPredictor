@@ -16,28 +16,11 @@ rule all:
             output_dir=config["output_dir"],
             file="report.html")
 
-
-rule download_uniref90:
+rule prepare_database:
     input:
-        # only keeping the file so we can move it out to the cwd
         FTP.remote(
             config["ref_database_url"],
-            keep_local=True)
-    output:
-        expand(
-            "{data_dir}/{ref_database}.fasta",
-            data_dir=config["data_dir"],
-            ref_database=config["ref_database"])
-    shell:
-        "gunzip {input} | mv {output}"
-
-
-rule prepare_uniref90:
-    input:
-        expand(
-            "{data_dir}/{ref_database}.fasta",
-            data_dir=config["data_dir"],
-            ref_database=config["ref_database"])
+            keep_local=False)
     output:
         expand(
             "{data_dir}/{ref_database}.dmnd",
