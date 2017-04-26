@@ -2,8 +2,16 @@ from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 FTP = FTPRemoteProvider()
 
 def get_max_cpu():
-    import multiprocessing
-    return multiprocessing.cpu_count()
+    '''
+    Get the maximum number of CPU to use.
+    User-defined value in configfile has more priority.
+    Don't forget to use 'snakemake --cores'.
+    '''
+    if 'max_threads' in config:
+        return config["max_threads"]
+    else:
+        import multiprocessing
+        return multiprocessing.cpu_count()
 
 
 configfile: "config.yaml"
