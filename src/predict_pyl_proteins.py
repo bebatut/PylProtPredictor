@@ -65,6 +65,34 @@ def extract_predicted_cds(predicted_cds_filepath, predicted_cds_info_path):
         ["start", "end", "strand", "origin_seq"])
     return pred_cds, len(predicted_cds_info.keys())
 
+def number_stop_start(predicted_cds_filepath):
+    """
+    Number and percentage of START and STOP codon
+    """
+    i = 0
+    nb_stop ={"TAG":0, "TAA":0, "TGA":0} 
+    nb_start={"ATG":0}
+    for seq_record in SeqIO.parse("predicted_cds.fasta", "fasta"): 
+        print(seq_record.id)
+        i+=1
+        codon_stop=seq_record.seq[-3:]
+        codon_start=seq_record.seq[:3]
+        print(codon_stop)
+        print(codon_start)
+    try: 
+        nb_stop[codon_stop]+=1
+        nb_start[codon_start]+=1 
+    except KeyError: # Key is not present 
+        pass 
+print(nb_stop)
+print(nb_start)
+print("le fichier compte", i, "séquences.")   	
+for cle, valeur in nb_stop.items():
+    print("\nLe motif {} représente {}% des séquences.".format(cle, (valeur/i)*100))
+
+for cle, valeur in nb_start.items():
+    print("\nLe motif {} représente {}% des séquences.".format(cle, (valeur/i)*100))
+
 
 def identify_tag_ending_proteins(pred_cds, tag_ending_cds_info_path):
     """
