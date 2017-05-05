@@ -125,6 +125,10 @@ rule predict_potential_pyl_proteins:
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="pyl_protein_prediction_log.txt"),
+        percentage_info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="percentage_info.csv"),
         predicted_cds_info=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
