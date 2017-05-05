@@ -22,6 +22,7 @@ def transform_strand(strand_id):
 def export_csv(dictionary, csv_filepath, col):
     """
     """
+    print(dictionary)
     dict_df = pd.DataFrame(data=dictionary).transpose()
     dict_df = dict_df[col]
     dict_df.to_csv(csv_filepath)
@@ -65,33 +66,46 @@ def extract_predicted_cds(predicted_cds_filepath, predicted_cds_info_path):
         ["start", "end", "strand", "origin_seq"])
     return pred_cds, len(predicted_cds_info.keys())
 
-def number_stop_start(predicted_cds_filepath):
+def number_stop_start(predicted_cds_filepath, percentage_info_path):
     """
     Number and percentage of START and STOP codon
     """
-    i = 0
-    nb_stop ={"TAG":0, "TAA":0, "TGA":0} 
-    nb_start={"ATG":0}
-    for seq_record in SeqIO.parse("predicted_cds.fasta", "fasta"): 
-        print(seq_record.id)
-        i+=1
+    nb_codons = {"nb_ATG":{"value":0}, "nb_TAG":{"value":0}, "nb_TAA":{"value":0}, "nb_TGA":{"value":0}, "total_seq":{"value":0}, 
+                "perc_ATG":{"value":0}, "perc_TAG":{"value":0}, "perc_TAA":{"value":0}, "perc_TGA":{"value":0}}
+    for seq_record in SeqIO.parse(predicted_cds_filepath, "fasta"): 
+        d0=nb_codons["total_seq"]
+        d0["value"]+=1
         codon_stop=seq_record.seq[-3:]
         codon_start=seq_record.seq[:3]
-        print(codon_stop)
-        print(codon_start)
-    try: 
-        nb_stop[codon_stop]+=1
-        nb_start[codon_start]+=1 
-    except KeyError: # Key is not present 
-        pass 
-print(nb_stop)
-print(nb_start)
-print("le fichier compte", i, "séquences.")   	
-for cle, valeur in nb_stop.items():
-    print("\nLe motif {} représente {}% des séquences.".format(cle, (valeur/i)*100))
-
-for cle, valeur in nb_start.items():
-    print("\nLe motif {} représente {}% des séquences.".format(cle, (valeur/i)*100))
+        try: 
+            d1=nb_codons["nb_"+codon_stop]
+            d1["value"]+=1
+            d1_1=nb_codons["nb_"+codon_start]
+            d1_1["value"]+=1
+        except KeyError: # Key is not present 
+            pass 
+    print("le fichier compte", nb_codons["total_seq"], "séquences.")     
+    dtot = nb_codons["total_seq"]
+    tot= dtot["value"]
+    d2=nb_codons["nb_TAG"]
+    a= d2["value"]
+    d3=nb_codons["nb_TAA"]
+    b= d3["value"]
+    d4=nb_codons["nb_TGA"]
+    c= d4["value"]
+    d5=nb_codons["nb_ATG"]
+    d= d5["value"]
+    nb_codons["perc_TAG"]["value"]=a/tot
+    nb_codons["perc_TAA"]["value"]=b/tot
+    nb_codons["perc_TGA"]["value"]=c/tot
+    nb_codons["perc_ATG"]["value"]=d/tot
+    for cle, valeur in nb_codons.items():
+        print("\n {} représente {} des séquences.".format(cle, (valeur)))
+    print(percentage_info_path)
+    export_csv(
+        nb_codons,
+        percentage_info_path, #csv file
+        ["value"])
 
 
 def identify_tag_ending_proteins(pred_cds, tag_ending_cds_info_path):
@@ -171,7 +185,7 @@ def extract_possible_seq(start, end, seq, new_ends, strand, origin_seq,
 genome, genome_size):
     """
     Extract the start and ends of possible sequences for a CDS identified as
-    potential PYL cds
+    potential PYL cdspython et  export csv
     """
     pot_pyl_prot_def = {
         "strand": strand,
@@ -340,7 +354,7 @@ potential_pyl_seq_info):
 
 
 def predict_pyl_proteins(genome, predicted_cds, pot_pyl_seq, log,
-predicted_cds_info, tag_ending_cds_info, potential_pyl_seq_info):
+predicted_cds_info, tag_ending_cds_info, potential_pyl_seq_info, percentage_info):
     """
     """
     with open(log, 'w') as log_file:
@@ -350,6 +364,13 @@ predicted_cds_info, tag_ending_cds_info, potential_pyl_seq_info):
         msg = "Number of predicted CDS: %s\n"  % (pred_cds_nb)
         log_file.write(msg)
 
+        #count start & stops
+        number_stop_start(
+        predicted_cds,
+        percentage_info)
+        msg = "Percentage of STOP and START codon: %s\n" % ({})
+        log_file.write(msg)
+        
         tag_ending_prot, tag_ending_prot_nb = identify_tag_ending_proteins(
             pred_cds,
             tag_ending_cds_info)
@@ -378,4 +399,6 @@ if __name__ == '__main__':
         log=str(snakemake.output.pyl_protein_prediction_log),
         predicted_cds_info=str(snakemake.output.predicted_cds_info),
         tag_ending_cds_info=str(snakemake.output.tag_ending_cds_info),
-        potential_pyl_seq_info=str(snakemake.output.potential_pyl_protein_info))
+        potential_pyl_seq_info=str(snakemake.output.potential_pyl_protein_info),
+        percentage_info=str(snakemake.output.percentage_info))
+
