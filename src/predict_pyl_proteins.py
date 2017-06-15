@@ -22,7 +22,6 @@ def transform_strand(strand_id):
 def export_csv(dictionary, csv_filepath, col):
     """
     """
-    print(dictionary)
     dict_df = pd.DataFrame(data=dictionary).transpose()
     dict_df = dict_df[col]
     dict_df.to_csv(csv_filepath)
