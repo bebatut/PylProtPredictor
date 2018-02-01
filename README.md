@@ -79,3 +79,17 @@ Otherwise, the pipeline will download and format it. Make sure you have at least
 # Support & Bug Reports
 
 You can file a [GitHub issue](https://github.com/bebatut/PylProtPredictor/issues).
+
+# Contributing
+
+First off, thanks for taking the time to contribute!
+
+## Tests
+
+The code is covered by tests. They are run automatically on Travis but we also recommend to run them locally before pushing to GitHub with:
+
+```
+pytest
+```
+
+Any added code should be covered by new tests.
