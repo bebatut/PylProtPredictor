@@ -299,57 +299,59 @@ def extract_potential_pyl_cds(tag_ending_cds, pred_cds, genome_filepath):
     return pot_pyl_cds
 
 
-def save_potential_pyl_cds(pot_pyl_cds, pyl_cds_filepath, log_file,
-potential_pyl_seq_info):
-    """Save potential PYL proteins in a fasta file
+def save_potential_pyl_cds(pot_pyl_cds, pot_pyl_cds_filepath, log_file, pot_pyl_cds_info_filepath):
+    """Save protein sequence of the potential PYL CDS in a fasta file
 
-    :param pot_pyl_prot:
-    :param pyl_protein_filepath:
-    :param log_file:
-    :param potential_pyl_seq_info:
-
-    :return:
+    :param pot_pyl_cds: dictionary with for each potential PYL CDS (keys) a dictionary with several information and the description of the possible sequences for the CDS
+    :param pot_pyl_cds_filepath: path to fasta file in which the protein sequences of the potential PYL CDS are saved
+    :param log_file: open stream on a log file
+    :param pot_pyl_cds_info_filepath: path to a cvs file to get information about potential PYL CDS
     """
     sequences = []
     info = {}
-    for prot_id in pot_pyl_prot:
+    
+    for cds_id in pot_pyl_cds:
         count = 0
-        log_file.write("\t%s\n" % (prot_id))
-        info[prot_id] = {
-            "start": pot_pyl_prot[prot_id]["potential_seq"][0]["start"],
-            "end": pot_pyl_prot[prot_id]["potential_seq"][0]["end"],
-            "strand": pot_pyl_prot[prot_id]["strand"],
-            "origin_seq": pot_pyl_prot[prot_id]["origin_seq"],
+        log_file.write("\t%s\n" % (cds_id))
+        info[cds_id] = {
+            "start": pot_pyl_cds[cds_id]["potential_seq"][0]["start"],
+            "end": pot_pyl_cds[cds_id]["potential_seq"][0]["end"],
+            "strand": pot_pyl_cds[cds_id]["strand"],
+            "origin_seq": pot_pyl_cds[cds_id]["origin_seq"],
             "alternative_start": "",
             "alternative_end": ""}
-        for potential_seq in pot_pyl_prot[prot_id]["potential_seq"]:
+        
+        for potential_seq in pot_pyl_cds[cds_id]["potential_seq"]:
             count += 1
-            seq_id = "%s_%s" % (prot_id, count)
-            desc = "# origin_seq: %s" % (pot_pyl_prot[prot_id]["origin_seq"])
-            desc += " # strand: %s" % (pot_pyl_prot[prot_id]["strand"])
-            desc += " # start: %s" % (potential_seq["start"])
-            desc += " # end: %s" % (potential_seq["end"])
-            translated_seq = translate(potential_seq["seq"])
-            sequences.append(SeqRecord(translated_seq, id=seq_id, description=desc))
-            log_file.write("\t\t%s\t" % (pot_pyl_prot[prot_id]["strand"]))
+            desc = "%s_%s # origin_seq: %s # strand: %s # start: %s # end: %s" % (
+                cds_id, 
+                count,
+                pot_pyl_cds[cds_id]["origin_seq"],
+                pot_pyl_cds[cds_id]["strand"],
+                potential_seq["start"],
+                potential_seq["end"])
+            translated_seq = translate(Seq(potential_seq["seq"]))
+            sequences.append(SeqRecord(translated_seq, id=cds_id, description=desc))
+            log_file.write("\t\t%s\t" % (pot_pyl_cds[cds_id]["strand"]))
             log_file.write("%s\t" % (potential_seq["start"]))
             log_file.write("%s\n" % (potential_seq["end"]))
-            if count > 1:
-                if count > 2:
-                    info[prot_id]["alternative_start"] = ",".join([
-                        info[prot_id]["alternative_start"],
-                        str(potential_seq["start"])])
-                    info[prot_id]["alternative_end"] = ",".join([
-                        info[prot_id]["alternative_end"],
-                        str(potential_seq["end"])])
-                else:
-                    info[prot_id]["alternative_start"] = str(potential_seq["start"])
-                    info[prot_id]["alternative_end"] = str(potential_seq["end"])
-    with open(pyl_protein_filepath, "w") as output_file:
+            
+            if count == 1:
+                info[cds_id]["alternative_start"] = str(potential_seq["start"])
+                info[cds_id]["alternative_end"] = str(potential_seq["end"])
+            else:
+                info[cds_id]["alternative_start"] = ",".join([
+                    info[cds_id]["alternative_start"],
+                    str(potential_seq["start"])])
+                info[cds_id]["alternative_end"] = ",".join([
+                    info[cds_id]["alternative_end"],
+                    str(potential_seq["end"])])
+
+    with open(pot_pyl_cds_filepath, "w") as output_file:
         SeqIO.write(sequences, output_file, "fasta")
     export_csv(
         info,
-        potential_pyl_seq_info,
+        pot_pyl_cds_info_filepath,
         ["start", "end", "strand", "origin_seq", "alternative_start", "alternative_end"])
 
 

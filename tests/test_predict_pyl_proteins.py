@@ -8,11 +8,14 @@ from Bio.SeqRecord import SeqRecord
 import filecmp
 
 
-input_cds_filepath = os.path.join("tests","test_cds.fasta")
-input_genome_filepath = os.path.join("tests","test_genome.fasta")
-input_scaffold_genome_filepath = os.path.join("tests","test_scaffold_genome.fasta")
-output_cds_filepath = os.path.join("tests","test_cds.csv")
-output_tag_ending_cds_filepath = os.path.join("tests","test_tag_ending_cds.csv")
+input_cds_filepath = os.path.join("tests","data","cds.fasta")
+input_genome_filepath = os.path.join("tests","data","genome.fasta")
+input_scaffold_genome_filepath = os.path.join("tests","data","scaffold_genome.fasta")
+output_cds_filepath = os.path.join("tests","data","cds.csv")
+output_tag_ending_cds_filepath = os.path.join("tests","data","tag_ending_cds.csv")
+output_log_filepath = os.path.join("tests","data","log")
+output_pot_pyl_cds_filepath = os.path.join("tests","data","pot_pyl_cds")
+output_pot_pyl_cds_fasta_filepath = os.path.join("tests","data","pot_pyl_cds.fasta")
 descs = []
 seqs = []
 for record in SeqIO.parse(input_cds_filepath,"fasta"):
@@ -21,6 +24,11 @@ for record in SeqIO.parse(input_cds_filepath,"fasta"):
 genome = []
 for record in SeqIO.parse(input_genome_filepath,"fasta"):
     genome.append(record)
+
+pred_cds, cds_nb = predict_pyl_proteins.extract_predicted_cds(input_cds_filepath, "pred_cds")
+tag_ending_cds, tag_ending_cds_nb = predict_pyl_proteins.identify_tag_ending_cds(pred_cds, "tag_ending_cds")
+pot_pyl_cds = predict_pyl_proteins.extract_potential_pyl_cds(tag_ending_cds, pred_cds, input_scaffold_genome_filepath)
+
 
 def test_transform_strand():
     """Test transform_strand function"""
@@ -85,8 +93,7 @@ def test_export_csv():
 
 def test_extract_predicted_cds():
     """Test extract_predicted_cds"""
-    pred_cds, nb = predict_pyl_proteins.extract_predicted_cds(input_cds_filepath, "tmp")
-    assert filecmp.cmp("tmp", output_cds_filepath)
+    assert filecmp.cmp("pred_cds", output_cds_filepath)
     assert 'gi|477554117|gb|CP004049.1|' in pred_cds
     assert 'forward' in pred_cds['gi|477554117|gb|CP004049.1|']
     assert 'reverse' not in pred_cds['gi|477554117|gb|CP004049.1|']
@@ -99,8 +106,8 @@ def test_extract_predicted_cds():
     assert 'scaffold_1220' in pred_cds
     assert 'forward' in pred_cds['scaffold_1220']
     assert 'reverse' not in pred_cds['scaffold_1220']
-    assert nb == 5
-    os.remove('tmp')
+    assert cds_nb == 5
+    os.remove('pred_cds')
 
 
 def test_extract_seqs():
@@ -122,10 +129,7 @@ def test_find_alternative_ends():
 
 def test_identify_tag_ending_cds():
     """Test identify_tag_ending_proteins"""
-    pred_cds, cds_nb = predict_pyl_proteins.extract_predicted_cds(input_cds_filepath, "tmp")
-    os.remove('tmp')
-    tag_ending_cds, tag_ending_cds_nb = predict_pyl_proteins.identify_tag_ending_cds(pred_cds, "tmp")
-    assert filecmp.cmp("tmp", output_tag_ending_cds_filepath)
+    assert filecmp.cmp("tag_ending_cds", output_tag_ending_cds_filepath)
     assert 'scaffold_117' in tag_ending_cds
     assert 'forward' not in tag_ending_cds['scaffold_117']
     assert 'reverse' in tag_ending_cds['scaffold_117']
@@ -135,7 +139,7 @@ def test_identify_tag_ending_cds():
     assert 'reverse' not in tag_ending_cds['scaffold_1220']
     assert 'scaffold_1220_19' in tag_ending_cds['scaffold_1220']['forward']
     assert tag_ending_cds_nb == 2
-    os.remove('tmp')
+    os.remove('tag_ending_cds')
 
 
 def test_extract_possible_seq():
@@ -147,7 +151,6 @@ def test_extract_possible_seq():
         "forward",
         genome[0].id,
         predict_pyl_proteins.get_string_seq(genome[0]))
-    print(pot_pyl_prot_def)
     assert pot_pyl_prot_def['strand'] == 'forward'
     assert pot_pyl_prot_def['origin_seq'] == 'test'
     assert len(pot_pyl_prot_def['potential_seq']) == 3
@@ -155,18 +158,19 @@ def test_extract_possible_seq():
 
 def test_extract_potential_pyl_cds():
     """Test extract_potential_pyl_cds"""
-    pred_cds, cds_nb = predict_pyl_proteins.extract_predicted_cds(input_cds_filepath, "tmp")
-    os.remove('tmp')
-    tag_ending_cds, tag_ending_cds_nb = predict_pyl_proteins.identify_tag_ending_cds(pred_cds, "tmp")
-    os.remove('tmp')
-    pot_pyl_cds = predict_pyl_proteins.extract_potential_pyl_cds(
-        tag_ending_cds,
-        pred_cds,
-        input_scaffold_genome_filepath)
-    print(pot_pyl_cds)
     assert "scaffold_117_243" in pot_pyl_cds
     assert len(pot_pyl_cds["scaffold_117_243"]["potential_seq"]) == 2
     assert "scaffold_1220_19" in pot_pyl_cds
     assert len(pot_pyl_cds["scaffold_1220_19"]["potential_seq"]) == 2
 
 
+def test_save_potential_pyl_cds():
+    """Test save_potential_pyl_cds"""
+    with open("log", 'w') as log_file:
+        predict_pyl_proteins.save_potential_pyl_cds(pot_pyl_cds, "pot_pyl_cds.fasta", log_file, "pot_pyl_cds")
+    assert filecmp.cmp("log", output_log_filepath)
+    assert filecmp.cmp("pot_pyl_cds.fasta", output_pot_pyl_cds_fasta_filepath)
+    assert filecmp.cmp("pot_pyl_cds", output_pot_pyl_cds_filepath)
+    os.remove('log')
+    os.remove('pot_pyl_cds.fasta')
+    os.remove('pot_pyl_cds')
