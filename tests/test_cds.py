@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 
-import os
+import pytest
+
+from pathlib import Path
+
 from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from src import cds
+
+from pylprotpredictor import cds
 
 
-input_cds_filepath = os.path.join("tests","data","cds.fasta")
-input_scaffold_genome_filepath = os.path.join("tests","data","scaffold_genome.fasta")
+data_dir = Path("tests/data")
+input_cds_filepath = str(data_dir / Path("cds.fasta"))
+input_scaffold_genome_filepath = str(data_dir / Path("scaffold_genome.fasta"))
 records = []
+seqs = {}
 cds_list = []
-for record in SeqIO.parse(input_cds_filepath,"fasta"):
-    records.append(record)seqs = {}
-for record in SeqIO.parse(input_scaffold_genome_filepath,"fasta"):
+for record in SeqIO.parse(input_cds_filepath, "fasta"):
+    records.append(record)
+for record in SeqIO.parse(input_scaffold_genome_filepath, "fasta"):
     seqs[record.id] = record
 
 
@@ -44,10 +48,25 @@ def test_transform_strand():
     assert res == "forward"
 
 
+def test_find_stop_codon_pos_in_seq():
+    """Test find_stop_codon_pos_in_seq"""
+    seq = "OTGCAT*OTAAT*OO"
+    c = cds.find_stop_codon_pos_in_seq(seq)
+    assert len(c) == 2
+    assert c[0] == 6
+    assert c[1] == 12
+
+
+def test_translate():
+    """Test translate"""
+    aa = cds.translate(records[1].seq)
+    assert aa == "MOKO*"
+
+
 def test_init_from_record():
     """Test init_from_record function"""
-    for record in SeqIO.parse(input_cds_filepath,"fasta"):
-        cds_obj = cds()
+    for record in SeqIO.parse(input_cds_filepath, "fasta"):
+        cds_obj = cds.CDS()
         cds_obj.init_from_record(record)
         cds_list.append(cds_obj)
     assert cds_list[0].id == "cds_1"
@@ -107,6 +126,73 @@ def test_get_seq():
     assert cds_list[4].get_seq().startswith("GTGGCAAATGAA")
 
 
+def test_get_translated_seq():
+    """Test get_translated_seq from CDS class"""
+    transl_seq = cds_list[0].get_translated_seq()
+    assert transl_seq.id == cds_list[0].get_id()
+    assert transl_seq.seq.startswith("VADSIFKRYLEKKNNL")
+
+
+def test_set_id():
+    """Test set_id from CDS class"""
+    previous_id = cds_list[0].get_id()
+    new_id = "test"
+    cds_list[0].set_id(new_id)
+    assert cds_list[0].get_id() == new_id
+    cds_list[0].set_id(previous_id)
+    assert cds_list[0].get_id() == previous_id
+
+
+def test_set_origin_seq_id():
+    """Test set_origin_seq_id from CDS class"""
+    previous_id = cds_list[0].get_origin_seq_id()
+    new_id = "test"
+    cds_list[0].set_origin_seq_id(new_id)
+    assert cds_list[0].get_origin_seq_id() == new_id
+    cds_list[0].set_origin_seq_id(previous_id)
+    assert cds_list[0].get_origin_seq_id() == previous_id
+
+
+def test_set_start():
+    """Test set_start from CDS class"""
+    previous_start = cds_list[0].get_start()
+    new_start = 10
+    cds_list[0].set_start(new_start)
+    assert cds_list[0].get_start() == new_start
+    cds_list[0].set_start(previous_start)
+    assert cds_list[0].get_start() == previous_start
+
+
+def test_set_end():
+    """Test set_end from CDS class"""
+    previous_start = cds_list[0].get_end()
+    new_start = 10
+    cds_list[0].set_end(new_start)
+    assert cds_list[0].get_end() == new_start
+    cds_list[0].set_end(previous_start)
+    assert cds_list[0].get_end() == previous_start
+
+
+def test_set_strand():
+    """Test set_strand from CDS class"""
+    previous_strand = cds_list[0].get_strand()
+    new_strand = "reverse"
+    cds_list[0].set_strand(new_strand)
+    assert cds_list[0].get_strand() == new_strand
+    cds_list[0].set_strand(previous_strand)
+    assert cds_list[0].get_strand() == previous_strand
+
+
+def test_set_seq():
+    """Test set_seq from CDS class"""
+    previous_seq = cds_list[0].get_seq()
+    new_seq = "ATTGGCGGATGAC"
+    cds_list[0].set_seq(new_seq)
+    assert cds_list[0].get_seq() == new_seq
+    cds_list[0].set_seq(previous_seq)
+    assert cds_list[0].get_seq() == previous_seq
+
+
 def test_is_tag_ending_seq():
     """Test is_tag_ending from CDS class"""
     assert not cds_list[0].is_tag_ending_seq()
@@ -148,6 +234,26 @@ def test_get_origin_seq():
     assert origin_seq.seq.startswith("GATCAGAATT")
     origin_seq = cds_list[0].get_origin_seq()
     assert origin_seq is None
+
+
+def test_get_origin_seq_size():
+    """Test get_origin_seq_size from CDS class"""
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[0].get_origin_seq_size()
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[1].get_origin_seq_size() == 1
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[2].get_origin_seq_size() == 1
+    assert cds_list[3].get_origin_seq_size() == 245464
+    assert cds_list[4].get_origin_seq_size() == 39692
+
+
+def test_get_origin_seq_string():
+    """Test get_origin_seq_string from CDS class"""
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[0].get_origin_seq_string()
+    assert cds_list[3].get_origin_seq_string().startswith("GTTTTGAGGT")
+    assert cds_list[4].get_origin_seq_string().startswith("GATCAGAATT")
 
 
 def test_is_reverse_strand():
@@ -213,7 +319,13 @@ def test_has_alternative_ends():
 
 
 def test_find_alternative_ends():
-    """Test find_alternation_ends"""
+    """Test find_alternation_ends from CDS class"""
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[0].find_alternative_ends()
+    cds_list[1].set_origin_seq(seqs[cds_list[3].get_origin_seq_id()])
+    cds_list[1].set_next_cds_limit(-1)
+    with pytest.raises(ValueError, match=r'No next CDS limit provided'):
+        cds_list[1].find_alternative_ends()
     cds_list[2].find_alternative_ends()
     alt_end = cds_list[2].get_alternative_ends()
     assert len(alt_end) == 1
@@ -228,3 +340,74 @@ def test_find_alternative_ends():
     assert alt_end[0] == 15957
 
 
+def test_add_alternative_cds():
+    """Test get_alternative_cds from CDS class"""
+    cds_list[0].add_alternative_cds(cds_list[1])
+    assert len(cds_list[0].alternative_cds) == 1
+
+
+def test_get_alternative_cds():
+    """Test get_alternative_cds from CDS class"""
+    alt_cds = cds_list[0].get_alternative_cds()
+    assert len(alt_cds) == 1
+    assert alt_cds[0].get_id() == cds_list[1].get_id()
+
+
+def test_reset_alternative_cds():
+    """Test reset_alternative_cds from CDS class"""
+    cds_list[0].reset_alternative_cds()
+    assert len(cds_list[0].get_alternative_cds()) == 0
+
+
+def test_extract_possible_alternative_seq():
+    """Test extract_possible_alternative_seq from CDS class"""
+    with pytest.raises(ValueError, match=r'No origin sequence provided'):
+        cds_list[0].extract_possible_alternative_seq()
+    cds_list[3].extract_possible_alternative_seq()
+    alt_cds = cds_list[3].get_alternative_cds()
+    assert alt_cds[0].get_start() == 228199
+    assert alt_cds[0].get_end() == 228441
+    cds_list[4].extract_possible_alternative_seq()
+    alt_cds = cds_list[4].get_alternative_cds()
+    assert alt_cds[0].get_start() == 15451
+    assert alt_cds[0].get_end() == 15957
+
+
+def test_get_alternative_start():
+    """Test get_alternative_start from CDS class"""
+    alt_start = cds_list[3].get_alternative_start()
+    assert alt_start[0] == 228199
+    alt_start = cds_list[4].get_alternative_start()
+    assert alt_start[0] == 15451
+
+
+def test_get_alternative_end():
+    """Test get_alternative_end from CDS class"""
+    alt_start = cds_list[3].get_alternative_end()
+    assert alt_start[0] == 228441
+    alt_start = cds_list[4].get_alternative_end()
+    assert alt_start[0] == 15957
+
+
+def test_get_translated_alternative_seq():
+    """Test get_translated_alternative_seq from CDS class"""
+    trans_alt_cds = cds_list[3].get_translated_alternative_seq()
+    assert trans_alt_cds[0].seq.startswith("MKEIPFDDFINNISKAETP")
+    print(trans_alt_cds[0].seq)
+    assert trans_alt_cds[0].seq.count("O") == 1
+    trans_alt_cds = cds_list[4].get_translated_alternative_seq()
+    assert trans_alt_cds[0].seq.startswith("VANEEKKDFNAML")
+    assert trans_alt_cds[0].seq.count("O") == 1
+
+
+def test_export_description():
+    """Test export_description from CDS class"""
+    desc = cds_list[1].export_description()
+    assert desc == "# origin_seq: scaffold_0 # strand: reverse # start: 1581 # end: 2864"
+
+
+def test_is_potential_pyl_cds():
+    """Test is_potential_pyl_cds from CDS class"""
+    assert not cds_list[0].is_potential_pyl_cds()
+    assert cds_list[3].is_potential_pyl_cds()
+    assert cds_list[4].is_potential_pyl_cds()

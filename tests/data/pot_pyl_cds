@@ -1,3 +1,3 @@
 ,start,end,strand,origin_seq,alternative_start,alternative_end
-scaffold_117_243,228271,228441,reverse,scaffold_117,"228271,228199","228441,228441"
-scaffold_1220_19,15451,15930,forward,scaffold_1220,"15451,15451","15930,15957"
+scaffold_117_243,228271,228441,reverse,scaffold_117,228199,228441
+scaffold_1220_19,15451,15930,forward,scaffold_1220,15451,15957

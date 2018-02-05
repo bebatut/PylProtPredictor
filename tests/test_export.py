@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 
-from src import export
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
 import filecmp
 import os
+
+from pathlib import Path
+
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
+from pylprotpredictor import export
+
+
+data_dir = Path("tests/data")
 
 
 def test_export_csv():
@@ -18,11 +25,11 @@ def test_export_csv():
     }
     # Export all columns
     export.export_csv(info, "tmp", ["start", "end", "strand", "origin_seq"])
-    assert filecmp.cmp("tmp", os.path.join("tests", "data", "cds.csv"))
+    assert filecmp.cmp("tmp", str(data_dir / Path("cds.csv")))
     os.remove('tmp')
     # Export only two columns
     export.export_csv(info, "tmp", ["start", "end"])
-    assert filecmp.cmp("tmp", os.path.join("tests", "data", "light_cds.csv"))
+    assert filecmp.cmp("tmp", str(data_dir / Path("light_cds.csv")))
     os.remove('tmp')
 
 
@@ -31,19 +38,19 @@ def test_export_fasta():
     seq = [
         SeqRecord(
             Seq("MKEIPFDDFINNISKAETPFAVKIDNMLLQGNCLREIKEGASGYSVRMKRHESISW*"),
-            id="scaffold_117_243_1",
+            id="scaffold_117_243",
             description="# origin_seq: scaffold_117 # strand: reverse # start: 228271 # end: 228441"),
         SeqRecord(
             Seq("MKEIPFDDFINNISKAETPFAVKIDNMLLQGNCLREIKEGASGYSVRMKRHESISWOLPDYKSNKGVFKSELISVLIFQV*"),
-            id="scaffold_117_243_2",
+            id="scaffold_117_243_1",
             description="# origin_seq: scaffold_117 # strand: reverse # start: 228199 # end: 228441"),
         SeqRecord(
             Seq("VANEEKKDFNAMLRKNTDMPKTQIVTDESIIKRYGGERMFFAPPLAYDELMKKVPHGKVVTAEKIREYLAEKNCADFTDPMTAGLFISIAAWASHQREEDITPYWRTLKTDGELNAKYPGGIEAQKKMLEEEGHVIIQKGRKNIRFFVKDYENVLFDLH*"),
-            id="scaffold_1220_19_1",
+            id="scaffold_1220_19",
             description="# origin_seq: scaffold_1220 # strand: forward # start: 15451 # end: 15930"),
         SeqRecord(
             Seq("VANEEKKDFNAMLRKNTDMPKTQIVTDESIIKRYGGERMFFAPPLAYDELMKKVPHGKVVTAEKIREYLAEKNCADFTDPMTAGLFISIAAWASHQREEDITPYWRTLKTDGELNAKYPGGIEAQKKMLEEEGHVIIQKGRKNIRFFVKDYENVLFDLHOSDLVKLFL*"),
-            id="scaffold_1220_19_2",
+            id="scaffold_1220_19_1",
             description="# origin_seq: scaffold_1220 # strand: forward # start: 15451 # end: 15957")]
     export.export_fasta(seq, "tmp")
-    assert filecmp.cmp("tmp", os.path.join("tests", "data", "pot_pyl_cds.fasta"))
+    assert filecmp.cmp("tmp", str(data_dir / Path("pot_pyl_cds.fasta")))
