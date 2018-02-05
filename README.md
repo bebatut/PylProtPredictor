@@ -53,7 +53,7 @@ $ source activate PylProtPredictor
 # Usage
 
 ```
-$ PylProtPredictor --genome FILE --output PATH [options]
+$ ./bin/PylProtPredictor --genome FILE --output PATH [options]
 ```
 
 The first run will be long: the reference database should be downloaded and prepare for the similarity search.

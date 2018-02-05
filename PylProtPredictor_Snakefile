@@ -105,7 +105,7 @@ rule predict_potential_pyl_proteins:
             output_dir=config["output_dir"],
             file="potential_pyl_proteins.csv")
     script:
-        "src/predict_pyl_proteins.py"
+        "bin/predict_pyl_proteins"
 
 
 rule search_similarity:
@@ -163,7 +163,7 @@ rule check_pyl_proteins:
             output_dir=config["output_dir"],
             file="rejected_potential_pyl_sequences.csv")
     script:
-        "src/check_pyl_proteins.py"
+        "bin/check_pyl_proteins"
 
 
 rule report:
@@ -191,4 +191,4 @@ rule report:
             output_dir=config["output_dir"],
             file="report.html")
     script:
-        "src/write_report.py"
+        "bin/write_report"
