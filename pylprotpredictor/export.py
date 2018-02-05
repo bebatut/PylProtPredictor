@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import pandas as pd
 from Bio import SeqIO
 
@@ -18,7 +16,7 @@ def export_csv(dictionary, csv_filepath, col):
 
 def export_fasta(sequences, output_filepath):
     """Export a list of SeqRecord into a fasta file
-    
+
     :param sequences: list of SeqRecord
     :param output_filepath: path to a fasta file
     """

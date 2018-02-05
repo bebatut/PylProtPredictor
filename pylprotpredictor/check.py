@@ -1,7 +1,6 @@
-#!/usr/bin/env python
+import pandas as pd
 
 from Bio import SeqIO
-import pandas as pd
 
 
 def parse_similarity_search_report(potential_pyl_similarity_search):
@@ -20,7 +19,7 @@ def parse_similarity_search_report(potential_pyl_similarity_search):
         cds_report.setdefault(cds_id, {
             "conserved_seq": "",
             "rejected_seq": [],
-            "evalue":10})
+            "evalue": 10})
         if evalue < cds_report[cds_id]["evalue"]:
             if cds_report[cds_id]["conserved_seq"] != "":
                 cds_report[cds_id]["rejected_seq"].append(
@@ -44,7 +43,6 @@ def extract_seq_info(description):
 
 def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
     """
-    
     """
     conserved_seq = []
     cons_seq_info = {}
@@ -55,7 +53,7 @@ def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
         seq_nb = seq_id.split("_")[-1]
         start, end, strand = extract_seq_info(record.description)
         if cds_id in cds_report:
-            if seq_nb == "1" :
+            if seq_nb == "1":
                 if seq_id in cds_report[cds_id]["conserved_seq"]:
                     rej_seq_info.setdefault(cds_id, {
                         "start": "",
@@ -116,7 +114,7 @@ def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
                 "comment": ""})
             rej_seq_info[cds_id]["comment"] = "None of the possible sequences \
             match the reference database"
-            if seq_nb != "1" :
+            if seq_nb != "1":
                 if rej_seq_info[cds_id]["rejected_alternative_start"] != "":
                     rej_seq_info[cds_id]["rejected_alternative_start"] = ",".join([
                         rej_seq_info[cds_id]["rejected_alternative_start"],
@@ -134,9 +132,10 @@ def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
     return conserved_seq, cons_seq_info, rej_seq_info
 
 
-def check_pyl_proteins(potential_pyl_similarity_search,potential_pyl_seq,
-conserved_potential_pyl_sequences, conserved_potential_pyl_sequences_info, 
-rejected_potential_pyl_sequences_info):
+def check_pyl_proteins(
+        potential_pyl_similarity_search, potential_pyl_seq,
+        conserved_potential_pyl_sequences, conserved_potential_pyl_sequences_info,
+        rejected_potential_pyl_sequences_info):
     """
 
     """
@@ -167,19 +166,5 @@ rejected_potential_pyl_sequences_info):
         "rejected_alternative_start",
         "rejected_alternative_end",
         "comment"]
-    rej_seq_info_df = rej_seq_info_df[col] 
+    rej_seq_info_df = rej_seq_info_df[col]
     rej_seq_info_df.to_csv(rejected_potential_pyl_sequences_info)
-
-
-if __name__ == '__main__':
-    check_pyl_proteins(
-        potential_pyl_similarity_search=str(
-            snakemake.input.potential_pyl_similarity_search),
-        potential_pyl_seq=str(
-            snakemake.input.potential_pyl_sequences),
-        conserved_potential_pyl_sequences=str(
-            snakemake.output.conserved_potential_pyl_seq),
-        conserved_potential_pyl_sequences_info=str(
-            snakemake.output.conserved_potential_pyl_seq_info),
-        rejected_potential_pyl_sequences_info=str(
-            snakemake.output.rejected_potential_pyl_seq_info))

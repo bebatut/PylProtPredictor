@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-
 import pandas as pd
 from snakemake.utils import report
+
 
 def extract_row_number(csv_filepath):
     """
@@ -25,15 +24,15 @@ if __name__ == '__main__':
     Prediction of PYL proteins
     ==========================
 
-    {predicted_cds_nb} sequences are predicted as CDS (see Table 
+    {predicted_cds_nb} sequences are predicted as CDS (see Table
     predicted_cds_info_).
 
     From these {predicted_cds_nb} prediced CDS, {tag_ending_cds_nb} are ending
-    with a TAG STOP codon (see Table tag_ending_cds_). 
+    with a TAG STOP codon (see Table tag_ending_cds_).
     {potential_pyl_protein_nb} are predicted as potential PYL sequences (see
     Table potential_pyl_proteins_).
 
-    After similarity search, {cons_pot_pyl_seq_nb} sequences (of 
-    {potential_pyl_protein_nb} predicted PYL sequences) are conserved as 
+    After similarity search, {cons_pot_pyl_seq_nb} sequences (of
+    {potential_pyl_protein_nb} predicted PYL sequences) are conserved as
     potential PYL proteins (see Table conserved_potential_pyl_sequences_).
     """, str(snakemake.output.report), **snakemake.input)
