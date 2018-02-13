@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import pytest
 
 from pathlib import Path
@@ -276,6 +274,12 @@ def test_get_next_cds_limit():
     assert cds_list[0].get_next_cds_limit() == 2
 
 
+def test_has_next_cds_limit():
+    """Test has_next_cds_limit from CDS class"""
+    assert cds_list[0].has_next_cds_limit()
+    assert not cds_list[1].has_next_cds_limit()
+
+
 def test_find_next_cds_limit():
     """Test find_next_cds_limit from CDS class"""
     ordered_pred_cds = ['cds_1', 'scaffold_0_3', 'scaffold_0_1', 'scaffold_117_243', 'scaffold_1220_19']
@@ -411,3 +415,57 @@ def test_is_potential_pyl_cds():
     assert not cds_list[0].is_potential_pyl_cds()
     assert cds_list[3].is_potential_pyl_cds()
     assert cds_list[4].is_potential_pyl_cds()
+
+
+def test_export_to_dict():
+    """Test export_to_dict from CDS class"""
+    d = cds_list[0].export_to_dict()
+    cds_id = cds_list[0].get_id()
+    assert cds_id in d
+    assert d[cds_id]['id'] == cds_id
+    assert d[cds_id]['origin_seq_id'] == cds_list[0].get_origin_seq_id()
+    assert d[cds_id]['start'] == cds_list[0].get_start()
+    assert d[cds_id]['end'] == cds_list[0].get_end()
+    assert d[cds_id]['strand'] == cds_list[0].get_strand()
+    assert d[cds_id]['seq'] == str(cds_list[0].get_seq())
+    assert d[cds_id]['order'] == cds_list[0].get_order()
+    assert d[cds_id]['next_cds_limit'] == cds_list[0].get_next_cds_limit()
+    assert d[cds_id]['alternative_ends'] == cds_list[0].get_alternative_ends()
+    assert d[cds_id]['alternative_cds'] == {}
+
+    d = cds_list[4].export_to_dict()
+    cds_id = cds_list[4].get_id()
+    assert cds_id in d
+    assert d[cds_id]['id'] == cds_id
+    assert d[cds_id]['alternative_ends'] == cds_list[4].get_alternative_ends()
+    assert 'scaffold_1220_19_1' in d[cds_id]['alternative_cds']
+    assert d[cds_id]['alternative_cds']['scaffold_1220_19_1']['id'] == 'scaffold_1220_19_1'
+    assert d[cds_id]['alternative_cds']['scaffold_1220_19_1']['alternative_ends'] == []
+
+
+def test_init_from_dict():
+    """Test init_from_dict from CDS class"""
+    d = cds_list[0].export_to_dict()
+    for k in d:
+        new_cds = cds.CDS()
+        new_cds.init_from_dict(d[k])
+        assert new_cds.get_id() == cds_list[0].get_id()
+        assert new_cds.get_origin_seq_id() == cds_list[0].get_origin_seq_id()
+        assert new_cds.get_start() == cds_list[0].get_start()
+        assert new_cds.get_end() == cds_list[0].get_end()
+        assert new_cds.get_strand() == cds_list[0].get_strand()
+        assert str(new_cds.get_seq()) == str(cds_list[0].get_seq())
+        assert new_cds.get_order() == cds_list[0].get_order()
+        assert new_cds.get_next_cds_limit() == cds_list[0].get_next_cds_limit()
+        assert new_cds.has_alternative_ends()
+        assert new_cds.get_alternative_ends() == cds_list[0].get_alternative_ends()
+        assert not new_cds.is_potential_pyl_cds()
+
+    d = cds_list[4].export_to_dict()
+    for k in d:
+        new_cds = cds.CDS()
+        new_cds.init_from_dict(d[k])
+        assert new_cds.get_id() == cds_list[4].get_id()
+        assert new_cds.has_alternative_ends()
+        assert new_cds.get_alternative_ends() == cds_list[4].get_alternative_ends()
+        assert new_cds.is_potential_pyl_cds()

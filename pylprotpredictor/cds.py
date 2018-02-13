@@ -110,7 +110,10 @@ class CDS:
         self.alternative_cds = alternative_cds
 
     def init_from_record(self, record):
-        """Initiate a CDS instance with a SeqRecord object"""
+        """Initiate a CDS instance with a SeqRecord object
+
+        :param record:
+        """
         seq_id, origin_seq_id, start, end, strand = extract_seq_desc(record.description)
         self.set_id(seq_id)
         self.set_origin_seq_id(origin_seq_id)
@@ -118,6 +121,28 @@ class CDS:
         self.set_end(end)
         self.set_strand(strand)
         self.set_seq(record.seq)
+
+    def init_from_dict(self, in_dict):
+        """Initiate a CDS instance with a dictionary
+
+        :param in_dict: dictionary with attribute for a CDS object
+        """
+        self.set_id(in_dict["id"])
+        self.set_origin_seq_id(in_dict["origin_seq_id"])
+        self.set_start(in_dict["start"])
+        self.set_end(in_dict["end"])
+        self.set_strand(in_dict["strand"])
+        self.set_seq(Seq(in_dict["seq"]))
+        self.set_order(in_dict["order"])
+        self.set_next_cds_limit(in_dict["next_cds_limit"])
+        self.set_alternative_ends(in_dict["alternative_ends"])
+
+        self.reset_alternative_cds()
+        for cds_id in in_dict["alternative_cds"]:
+            print(cds_id)
+            new_cds = CDS()
+            new_cds.init_from_dict(in_dict["alternative_cds"][cds_id])
+            self.add_alternative_cds(new_cds)
 
     def get_id(self):
         """Return the id of the CDS
@@ -358,6 +383,13 @@ class CDS:
         """
         return self.get_seq().endswith("TAG")
 
+    def has_next_cds_limit(self):
+        """Test if the limit of next CDS is set
+
+        :return: boolean
+        """
+        return self.get_next_cds_limit() != -1
+
     def has_alternative_ends(self):
         """Test if the list of alternative ends is not empty
 
@@ -419,7 +451,7 @@ class CDS:
         if not self.has_origin_seq():
             raise ValueError("No origin sequence provided")
 
-        if self.get_next_cds_limit() == -1:
+        if not self.has_next_cds_limit():
             raise ValueError("No next CDS limit provided")
 
         origin_seq = self.get_origin_seq_string()
@@ -497,3 +529,30 @@ class CDS:
             self.get_start(),
             self.get_end())
         return desc
+
+    def export_to_dict(self):
+        """
+        Export the object to CDS
+
+        :return: dict corresponding to CDS object
+        """
+        cds_id = self.get_id()
+        d = {cds_id : {
+            'id': self.get_id(),
+            'origin_seq_id': self.get_origin_seq_id(),
+            'start': self.get_start(),
+            'end': self.get_end(),
+            'strand': self.get_strand(),
+            'seq': str(self.get_seq()),
+            'order': self.get_order(),
+            'next_cds_limit': self.get_next_cds_limit(),
+            'alternative_ends': self.get_alternative_ends(),
+            'alternative_cds': {}}
+        }    
+        
+        if self.has_alternative_ends():
+            for alt_cds in self.get_alternative_cds():
+                d[cds_id]['alternative_cds'].update(alt_cds.export_to_dict())
+
+        return d
+

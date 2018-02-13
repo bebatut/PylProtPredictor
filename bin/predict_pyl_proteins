@@ -15,4 +15,5 @@ predict_pyl_proteins(
     log=str(snakemake.output.pyl_protein_prediction_log),
     predicted_cds_info=str(snakemake.output.predicted_cds_info),
     tag_ending_cds_info=str(snakemake.output.tag_ending_cds_info),
-    potential_pyl_seq_info=str(snakemake.output.potential_pyl_protein_info))
+    potential_pyl_seq_info=str(snakemake.output.potential_pyl_protein_info),
+    pot_pyl_cds_obj=str(snakemake.output.pot_pyl_cds_obj))

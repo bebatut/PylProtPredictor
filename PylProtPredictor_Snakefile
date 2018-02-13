@@ -103,7 +103,11 @@ rule predict_potential_pyl_proteins:
         potential_pyl_protein_info=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="potential_pyl_proteins.csv")
+            file="potential_pyl_proteins.csv"),
+        pot_pyl_cds_obj=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_cds_objects")
     script:
         "bin/predict_pyl_proteins"
 

@@ -17,6 +17,7 @@ output_cds_filepath = str(data_dir / Path("cds.csv"))
 output_log_filepath = str(data_dir / Path("log"))
 output_pot_pyl_cds_filepath = str(data_dir / Path("pot_pyl_cds"))
 output_pot_pyl_cds_fasta_filepath = str(data_dir / Path("pot_pyl_cds.fasta"))
+output_pot_pyl_obj_filepath = str(data_dir / Path("pot_pyl_obj.json"))
 descs = []
 seqs = []
 for record in SeqIO.parse(input_cds_filepath, "fasta"):
@@ -76,11 +77,14 @@ def test_extract_potential_pyl_cds():
         pred_cds,
         ordered_pred_cds,
         "pot_pyl_cds.fasta",
-        "pot_pyl_cds")
+        "pot_pyl_cds",
+        "pot_pyl_obj")
     assert filecmp.cmp("pot_pyl_cds.fasta", output_pot_pyl_cds_fasta_filepath)
     assert filecmp.cmp("pot_pyl_cds", output_pot_pyl_cds_filepath)
+    assert os.stat("pot_pyl_obj").st_size == os.stat(output_pot_pyl_obj_filepath).st_size
     os.remove('pot_pyl_cds.fasta')
     os.remove('pot_pyl_cds')
+    os.remove('pot_pyl_obj')
 
 
 def test_predict_pyl_proteins():
@@ -92,12 +96,15 @@ def test_predict_pyl_proteins():
         "log",
         "pred_cds",
         "tag_ending_cds",
-        "pot_pyl_cds")
+        "pot_pyl_cds",
+        "pot_pyl_obj")
     assert filecmp.cmp("pred_cds", output_cds_filepath)
     assert filecmp.cmp("tag_ending_cds", output_tag_ending_cds_filepath)
     assert filecmp.cmp("pot_pyl_cds.fasta", output_pot_pyl_cds_fasta_filepath)
     assert filecmp.cmp("pot_pyl_cds", output_pot_pyl_cds_filepath)
+    assert os.stat("pot_pyl_obj").st_size == os.stat(output_pot_pyl_obj_filepath).st_size
     os.remove('pred_cds')
     os.remove('tag_ending_cds')
     os.remove('pot_pyl_cds.fasta')
     os.remove('pot_pyl_cds')
+    os.remove('pot_pyl_obj')

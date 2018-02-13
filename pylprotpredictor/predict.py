@@ -76,7 +76,7 @@ def extract_predicted_cds(
 
 def extract_potential_pyl_cds(
         tag_ending_cds, pred_cds, ordered_pred_cds, pot_pyl_cds_filepath,
-        pot_pyl_cds_info_filepath):
+        pot_pyl_cds_info_filepath, pot_pyl_cds_obj_filepath):
     """Extract potential PYL CDS from TAG-ending CDS
 
     :param tag_ending_cds: a list of the ids of the TAG-ending CDS
@@ -84,8 +84,10 @@ def extract_potential_pyl_cds(
     :param ordered_pred_cds: a dictionary with per origin seq, per strand the list of the predicted CDS represented by CDS object
     :param pot_pyl_cds_filepath: path to fasta file in which the protein sequences of the potential PYL CDS are saved
     :param pot_pyl_cds_info_filepath: path to a cvs file to get information about potential PYL CDS
+    :param pot_pyl_cds_obj_filepath: path to a JSON file to store the list of potential PYL CDS object
     """
     pot_pyl_cds_nb = 0
+    pot_pyl_cds = {}
     info = {}
     sequences = []
     for cds_id in tag_ending_cds:
@@ -99,7 +101,6 @@ def extract_potential_pyl_cds(
         cds_obj.extract_possible_alternative_seq()
 
         if cds_obj.is_potential_pyl_cds():
-            pot_pyl_cds_nb += 1
             info[cds_id] = {
                 "start": cds_obj.get_start(),
                 "end": cds_obj.get_end(),
@@ -109,21 +110,23 @@ def extract_potential_pyl_cds(
                 "alternative_end": ",".join([str(s) for s in cds_obj.get_alternative_end()])}
             sequences.append(cds_obj.get_translated_seq())
             sequences += cds_obj.get_translated_alternative_seq()
+            pot_pyl_cds.update(cds_obj.export_to_dict())
 
-    logging.info("Number of potential Pyl proteins: %s\n" % (pot_pyl_cds_nb))
+    logging.info("Number of potential Pyl proteins: %s\n" % (len(pot_pyl_cds.keys())))
     export.export_fasta(sequences, pot_pyl_cds_filepath)
     export.export_csv(
         info,
         pot_pyl_cds_info_filepath,
         ["start", "end", "strand", "origin_seq", "alternative_start", "alternative_end"])
+    export.export_json(pot_pyl_cds, pot_pyl_cds_obj_filepath)
 
 
 def predict_pyl_proteins(
         genome_filepath, pred_cds_filepath, pot_pyl_seq_filepath, log_filepath,
         pred_cds_info_filepath, tag_ending_cds_info_filepath,
-        pot_pyl_seq_info_filepath):
+        pot_pyl_seq_info_filepath, pot_pyl_cds_obj_filepath):
     """
-    Run prediction of PYL proteins:
+    Run prediction of potentila PYL CDS:
 
     - Extraction of predicted CDS into a dictionary
     - Identification of TAG-ending proteins
@@ -136,6 +139,7 @@ def predict_pyl_proteins(
     :param pred_cds_info_filepath: path to CSV file with predicted CDS info
     :param tag_ending_cds_info_filepath: path to CSV file with TAG-ending CDS info
     :param pot_pyl_seq_info_filepath: path to CSV file with potential PYL CDS info
+    :param pot_pyl_cds_obj_filepath: path to a JSON file to store the list of potential PYL CDS object
     """
     logging.basicConfig(filename=log_filepath, level=logging.INFO, filemode="w")
     pred_cds, ordered_pred_cds, tag_ending_cds = extract_predicted_cds(
@@ -148,4 +152,5 @@ def predict_pyl_proteins(
         pred_cds,
         ordered_pred_cds,
         pot_pyl_seq_filepath,
-        pot_pyl_seq_info_filepath)
+        pot_pyl_seq_info_filepath,
+        pot_pyl_cds_obj_filepath)
