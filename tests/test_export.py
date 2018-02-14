@@ -41,7 +41,7 @@ def test_export_fasta():
             description="# origin_seq: scaffold_117 # strand: reverse # start: 228271 # end: 228441"),
         SeqRecord(
             Seq("MKEIPFDDFINNISKAETPFAVKIDNMLLQGNCLREIKEGASGYSVRMKRHESISWOLPDYKSNKGVFKSELISVLIFQV*"),
-            id="scaffold_117_243_1",
+            id="scaffold_117_243-1",
             description="# origin_seq: scaffold_117 # strand: reverse # start: 228199 # end: 228441"),
         SeqRecord(
             Seq("VANEEKKDFNAMLRKNTDMPKTQIVTDESIIKRYGGERMFFAPPLAYDELMKKVPHGKVVTAEKIREYLAEKNCADFTDPMTAGLFISIAAWASHQREEDITPYWRTLKTDGELNAKYPGGIEAQKKMLEEEGHVIIQKGRKNIRFFVKDYENVLFDLH*"),
@@ -49,7 +49,7 @@ def test_export_fasta():
             description="# origin_seq: scaffold_1220 # strand: forward # start: 15451 # end: 15930"),
         SeqRecord(
             Seq("VANEEKKDFNAMLRKNTDMPKTQIVTDESIIKRYGGERMFFAPPLAYDELMKKVPHGKVVTAEKIREYLAEKNCADFTDPMTAGLFISIAAWASHQREEDITPYWRTLKTDGELNAKYPGGIEAQKKMLEEEGHVIIQKGRKNIRFFVKDYENVLFDLHOSDLVKLFL*"),
-            id="scaffold_1220_19_1",
+            id="scaffold_1220_19-1",
             description="# origin_seq: scaffold_1220 # strand: forward # start: 15451 # end: 15957")]
     export.export_fasta(seq, "tmp")
     assert filecmp.cmp("tmp", str(data_dir / Path("pot_pyl_cds.fasta")))

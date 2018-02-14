@@ -95,7 +95,8 @@ class CDS:
     def __init__(
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
             end=-1, strand="forward", seq=None, order=-1, next_cds_limit=-1,
-            alternative_ends=[], alternative_cds=[]):
+            alternative_ends=[], alternative_cds=[], evalue=10, 
+            conserved_cds=None, rejected_cds=[]):
         """Initiate a CDS instance"""
         self.id = seq_id
         self.origin_seq = origin_seq
@@ -108,6 +109,9 @@ class CDS:
         self.next_cds_limit = next_cds_limit
         self.alternative_ends = alternative_ends
         self.alternative_cds = alternative_cds
+        self.evalue = evalue
+        self.conserved_cds = conserved_cds
+        self.rejected_cds = rejected_cds
 
     def init_from_record(self, record):
         """Initiate a CDS instance with a SeqRecord object
@@ -221,6 +225,27 @@ class CDS:
         """
         return self.alternative_cds
 
+    def get_evalue(self):
+        """Return the evalue
+
+        :return: evalue of the CDS object
+        """
+        return self.evalue
+
+    def get_conserved_cds(self):
+        """Return the CDS object of the conserved CDS as correct CDS (start, end, sequence)
+
+        :return: CDS object of the conserved CDS
+        """
+        return self.conserved_cds
+
+    def get_rejected_cds(self):
+        """Return a list of the rejected CDS objects as correct CDS (start, end, sequence)
+
+        :return: list of CDS objects
+        """
+        return self.rejected_cds
+
     def get_origin_seq_size(self):
         """Return the length of the origin sequence
 
@@ -279,6 +304,18 @@ class CDS:
         for alt_cds in self.get_alternative_cds():
             transl_alt_seq.append(alt_cds.get_translated_seq())
         return transl_alt_seq
+
+    def get_seqrecord(self):
+        """Return a SeqRecord of the CDS
+
+        :return: SeqRecord
+        """
+        seq = SeqRecord(
+            self.get_seq(),
+            id=self.get_id(),
+            description=self.export_description())
+        return seq 
+
 
     def set_id(self, seq_id):
         """Change the id of the CDS
@@ -358,6 +395,20 @@ class CDS:
         """
         self.alternative_ends = alternative_ends
 
+    def set_evalue(self, evalue):
+        """Change the evalue
+
+        :param evalue: new evalue
+        """
+        self.evalue = evalue
+
+    def set_conserved_cds(self, conserved_cds):
+        """Change the conserved CDS
+
+        :param conserved_cds: CDS object of the conserved CDS
+        """
+        self.conserved_cds = conserved_cds
+
     def reset_alternative_cds(self):
         """Reset the list of alternative cds"""
         self.alternative_cds = []
@@ -368,6 +419,17 @@ class CDS:
         :param alternative_cds: a CDS object
         """
         self.alternative_cds.append(alternative_cds)
+
+    def reset_rejected_cds(self):
+        """Reset the list of rejected cds"""
+        self.rejected_cds = []
+
+    def add_rejected_cds(self, rejected_cds):
+        """Add a rejected CDS to the list of rejected CDS
+
+        :param rejected_cds: a CDS object
+        """
+        self.rejected_cds.append(rejected_cds)
 
     def is_reverse_strand(self):
         """Test if the strand is reverse
@@ -508,7 +570,7 @@ class CDS:
                 new_end = alt_end
                 new_seq = origin_seq[(start - 1):new_end]
             new_cds = CDS(
-                seq_id="%s_%s" % (seq_id, count),
+                seq_id="%s-%s" % (seq_id, count),
                 start=new_start,
                 end=new_end,
                 strand=self.get_strand(),
@@ -517,9 +579,39 @@ class CDS:
             count += 1
             self.add_alternative_cds(new_cds)
 
-    def export_description(self):
+    def add_evalue(self, seq_id, evalue):
+        """Add evalue to the correct CDS object
+
+        :param seq_id: id of the CDS
+        :param evalue: evalue to add
+        :param origin_cds_obj: original CDS object
         """
-        Export the description of the CDS
+        if seq_id == self.get_id():
+            self.set_evalue(evalue)
+        else:
+            for alt_cds in self.get_alternative_cds():
+                if alt_cds.get_id() == seq_id:
+                    alt_cds.set_evalue(evalue)
+
+    def identify_cons_rej_cds(self):
+        """
+        Identify which alternative CDS has conversed or rejected based on the 
+        evalue
+        """
+        ref_evalue = self.get_evalue()
+        self.reset_rejected_cds()
+        self.set_conserved_cds(self)
+        for alt_cds in self.get_alternative_cds():
+            evalue = alt_cds.get_evalue()
+            if evalue < ref_evalue:
+                ref_evalue = evalue
+                self.add_rejected_cds(self.get_conserved_cds())
+                self.set_conserved_cds(alt_cds)
+            else:
+                self.add_rejected_cds(alt_cds)
+
+    def export_description(self):
+        """Export the description of the CDS
 
         :return: string with the description
         """
@@ -531,8 +623,7 @@ class CDS:
         return desc
 
     def export_to_dict(self):
-        """
-        Export the object to CDS
+        """Export the object to CDS
 
         :return: dict corresponding to CDS object
         """

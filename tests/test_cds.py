@@ -124,6 +124,13 @@ def test_get_seq():
     assert cds_list[4].get_seq().startswith("GTGGCAAATGAA")
 
 
+def test_get_seqrecord():
+    """Test get_seqrecord from CDS class"""
+    seqrecord = cds_list[0].get_seqrecord()
+    assert seqrecord.id == cds_list[0].get_id()
+    assert seqrecord.seq.startswith("GTGGCGGATTCTATATTCAAA")
+
+
 def test_get_translated_seq():
     """Test get_translated_seq from CDS class"""
     transl_seq = cds_list[0].get_translated_seq()
@@ -438,9 +445,9 @@ def test_export_to_dict():
     assert cds_id in d
     assert d[cds_id]['id'] == cds_id
     assert d[cds_id]['alternative_ends'] == cds_list[4].get_alternative_ends()
-    assert 'scaffold_1220_19_1' in d[cds_id]['alternative_cds']
-    assert d[cds_id]['alternative_cds']['scaffold_1220_19_1']['id'] == 'scaffold_1220_19_1'
-    assert d[cds_id]['alternative_cds']['scaffold_1220_19_1']['alternative_ends'] == []
+    assert 'scaffold_1220_19-1' in d[cds_id]['alternative_cds']
+    assert d[cds_id]['alternative_cds']['scaffold_1220_19-1']['id'] == 'scaffold_1220_19-1'
+    assert d[cds_id]['alternative_cds']['scaffold_1220_19-1']['alternative_ends'] == []
 
 
 def test_init_from_dict():
@@ -469,3 +476,65 @@ def test_init_from_dict():
         assert new_cds.has_alternative_ends()
         assert new_cds.get_alternative_ends() == cds_list[4].get_alternative_ends()
         assert new_cds.is_potential_pyl_cds()
+
+
+def test_set_evalue():
+    """Test set_evalue from CDS class"""
+    cds_list[0].set_evalue(0.1)
+    assert cds_list[0].evalue == 0.1
+
+
+def test_get_evalue():
+    """Test get_evalue from CDS class"""
+    assert cds_list[0].get_evalue() == 0.1
+    assert cds_list[2].get_evalue() == 10
+
+
+def test_set_conserved_cds():
+    """Test set_conserved_cds from CDS class"""
+    cds_list[0].set_conserved_cds(cds_list[1])
+    assert cds_list[0].conserved_cds == cds_list[1]
+
+
+def test_get_conserved_cds():
+    """Test get_conserved_cds from CDS class"""
+    assert cds_list[0].get_conserved_cds() == cds_list[1]
+    assert cds_list[2].get_conserved_cds() is None
+
+
+def test_add_rejected_cds():
+    """Test get_rejected_cds from CDS class"""
+    cds_list[0].add_rejected_cds(cds_list[1])
+    assert len(cds_list[0].rejected_cds) == 1
+
+
+def test_get_rejected_cds():
+    """Test get_rejected_cds from CDS class"""
+    alt_cds = cds_list[0].get_rejected_cds()
+    assert len(alt_cds) == 1
+    assert alt_cds[0].get_id() == cds_list[1].get_id()
+
+
+def test_reset_rejected_cds():
+    """Test reset_alternative_cds from CDS class"""
+    cds_list[0].reset_rejected_cds()
+    assert len(cds_list[0].get_rejected_cds()) == 0
+
+
+def test_add_evalue():
+    """Test add_evalue from CDS class"""
+    cds_list[0].add_evalue(cds_list[0].get_id(), 0.02)
+    assert cds_list[0].get_evalue() == 0.02
+    cds_list[4].add_evalue("scaffold_1220_19-1", 0.02)
+    for alt_cds in cds_list[4].get_alternative_cds():
+        assert alt_cds.get_evalue() == 0.02
+
+
+def test_identify_cons_rej_cds():
+    """Test identify_cons_rej_cds from CDS class"""
+    cds_list[3].identify_cons_rej_cds()
+    assert cds_list[3].get_conserved_cds().get_id() == cds_list[3].get_id()
+    assert len(cds_list[3].get_rejected_cds()) == 1
+    cds_list[4].identify_cons_rej_cds()
+    assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
+    assert cds_list[4].get_rejected_cds()[0].get_id() == cds_list[4].get_id()

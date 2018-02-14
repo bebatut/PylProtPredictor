@@ -2,169 +2,112 @@ import pandas as pd
 
 from Bio import SeqIO
 
+from pylprotpredictor import cds
+from pylprotpredictor import export
 
-def parse_similarity_search_report(potential_pyl_similarity_search):
+
+def import_cds(pot_pyl_cds_filepath):
     """
-    Parse the similarity search report
+    :param pot_pyl_cds_filepath: path to JSON file with collection of potential PYL CDS
+
+    :return: dictionary of the potential PYL CDS
+    """
+    pot_pyl_cds = {}
+    d = export.import_json(pot_pyl_cds_filepath)
+    keys = list(d.keys())
+    keys.sort()
+    for cds_id in keys:
+        cds_obj = cds.CDS()
+        cds_obj.init_from_dict(d[cds_id])
+        pot_pyl_cds[cds_id] = cds_obj
+    return pot_pyl_cds
+
+
+def get_cds_obj(cds_id, pot_pyl_cds):
+    """Find the CDS object given an id
+
+    :param cds_id: id of the CDS to find
+    :param pot_pyl_cds: dictionary of the potential PYL CDS
+    
+    :return: a CDS object
+    """
+    if not cds_id in pot_pyl_cds:
+        raise ValueError("CDS not found for %s" % (cds_id))
+    return pot_pyl_cds[cds_id]
+
+
+def parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds):
+    """Parse the similarity search report and add information to the list of 
+    potential PYL CDS
+
+    :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database
+    :param pot_pyl_cds: dictionary of the potential PYL CDS
     """
     similarity_search_report = pd.read_table(
-        potential_pyl_similarity_search,
+        pot_pyl_similarity_search,
         index_col=None,
         header=None)
-    cds_report = {}
+
     for row in similarity_search_report.itertuples():
         seq_id = row[1]
-        cds_id = "_".join(seq_id.split("_")[:-1])
+        cds_id = seq_id.split("-")[0]
         evalue = float(row[11])
-        cds_report.setdefault(cds_id, {
-            "conserved_seq": "",
-            "rejected_seq": [],
-            "evalue": 10})
-        if evalue < cds_report[cds_id]["evalue"]:
-            if cds_report[cds_id]["conserved_seq"] != "":
-                cds_report[cds_id]["rejected_seq"].append(
-                    cds_report[cds_id]["conserved_seq"])
-            cds_report[cds_id]["conserved_seq"] = seq_id
-            cds_report[cds_id]["evalue"] = evalue
-        else:
-            cds_report[cds_id]["rejected_seq"].append(seq_id)
-    return cds_report
+        cds_obj = get_cds_obj(cds_id, pot_pyl_cds)
+        cds_obj.add_evalue(seq_id, evalue)
+        
+    return pot_pyl_cds
 
 
-def extract_seq_info(description):
+def extract_correct_cds(
+        pot_pyl_cds, cons_pot_pyl_seq_filepath, info_filepath):
+    """Identify and extract the correct CDS sequence
+    
+    :param pot_pyl_cds: dictionary of the potential PYL CDS
+    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS
+    :param info_filepath: path to a CSV file with final information about the CDS
     """
-    """
-    split_desc = description.split(" # ")
-    start = split_desc[3].split(": ")[-1]
-    end = split_desc[4].split(": ")[-1]
-    strand = split_desc[2].split(": ")[-1]
-    return start, end, strand
+    cons_sequences = []
+    info = {}
+    for cds_id in pot_pyl_cds:
+        cds_obj = pot_pyl_cds[cds_id]
+        cds_obj.identify_cons_rej_cds()
 
+        cons_seq = cds_obj.get_conserved_cds()
+        cons_sequences.append(cons_seq.get_seqrecord())
 
-def extract_conserved_rejected_sequences(cds_report, potential_pyl_seq):
-    """
-    """
-    conserved_seq = []
-    cons_seq_info = {}
-    rej_seq_info = {}
-    for record in SeqIO.parse(potential_pyl_seq, "fasta"):
-        seq_id = record.id
-        cds_id = "_".join(seq_id.split("_")[:-1])
-        seq_nb = seq_id.split("_")[-1]
-        start, end, strand = extract_seq_info(record.description)
-        if cds_id in cds_report:
-            if seq_nb == "1":
-                if seq_id in cds_report[cds_id]["conserved_seq"]:
-                    rej_seq_info.setdefault(cds_id, {
-                        "start": "",
-                        "end": "",
-                        "strand": "",
-                        "rejected_alternative_start": "",
-                        "rejected_alternative_end": "",
-                        "comment": ""})
-                    rej_seq_info[cds_id]["start"] = start
-                    rej_seq_info[cds_id]["end"] = end
-                    rej_seq_info[cds_id]["strand"] = strand
-                else:
-                    cons_seq_info.setdefault(cds_id, {
-                        "start": "",
-                        "end": "",
-                        "strand": "",
-                        "original_start": "",
-                        "original_end": ""})
-                    cons_seq_info[cds_id]["original_start"] = start
-                    cons_seq_info[cds_id]["original_end"] = end
-            else:
-                if seq_id in cds_report[cds_id]["conserved_seq"]:
-                    cons_seq_info.setdefault(cds_id, {
-                        "start": "",
-                        "end": "",
-                        "strand": "",
-                        "original_start": "",
-                        "original_end": ""})
-                    conserved_seq.append(record)
-                    cons_seq_info[cds_id]["start"] = start
-                    cons_seq_info[cds_id]["end"] = end
-                    cons_seq_info[cds_id]["strand"] = strand
-                else:
-                    rej_seq_info.setdefault(cds_id, {
-                        "start": "",
-                        "end": "",
-                        "strand": "",
-                        "rejected_alternative_start": "",
-                        "rejected_alternative_end": "",
-                        "comment": ""})
-                    if rej_seq_info[cds_id]["rejected_alternative_start"] != "":
-                        rej_seq_info[cds_id]["rejected_alternative_start"] = ",".join([
-                            rej_seq_info[cds_id]["rejected_alternative_start"],
-                            start])
-                        rej_seq_info[cds_id]["rejected_alternative_end"] = ",".join([
-                            rej_seq_info[cds_id]["rejected_alternative_end"],
-                            end])
-                    else:
-                        rej_seq_info[cds_id]["rejected_alternative_start"] = start
-                        rej_seq_info[cds_id]["rejected_alternative_end"] = end
-        else:
-            rej_seq_info.setdefault(cds_id, {
-                "start": "",
-                "end": "",
-                "strand": "",
-                "rejected_alternative_start": "",
-                "rejected_alternative_end": "",
-                "comment": ""})
-            rej_seq_info[cds_id]["comment"] = "None of the possible sequences \
-            match the reference database"
-            if seq_nb != "1":
-                if rej_seq_info[cds_id]["rejected_alternative_start"] != "":
-                    rej_seq_info[cds_id]["rejected_alternative_start"] = ",".join([
-                        rej_seq_info[cds_id]["rejected_alternative_start"],
-                        start])
-                    rej_seq_info[cds_id]["rejected_alternative_end"] = ",".join([
-                        rej_seq_info[cds_id]["rejected_alternative_end"],
-                        end])
-                else:
-                    rej_seq_info[cds_id]["rejected_alternative_start"] = start
-                    rej_seq_info[cds_id]["rejected_alternative_end"] = end
-            else:
-                rej_seq_info[cds_id]["start"] = start
-                rej_seq_info[cds_id]["end"] = end
-                rej_seq_info[cds_id]["strand"] = strand
-    return conserved_seq, cons_seq_info, rej_seq_info
+        rej_seq = cds_obj.get_rejected_cds()
+        info[cds_id] = {
+            "conserved_start": cons_seq.get_start(),
+            "conserved_end": cons_seq.get_end(),
+            "strand": cds_obj.get_strand(),
+            "origin_seq": cds_obj.get_origin_seq_id(),
+            "original_start": cds_obj.get_start(),
+            "original_end": cds_obj.get_end(),
+            "rejected_start": ";".join([str(s.get_start()) for s in rej_seq]),
+            "rejected_end": ";".join([str(s.get_end()) for s in rej_seq])}
+
+    export.export_fasta(cons_sequences, cons_pot_pyl_seq_filepath)
+    export.export_csv(
+        info,
+        info_filepath,
+        ["conserved_start", "conserved_end", "strand", "origin_seq", "original_start", "original_end", "rejected_start", "rejected_end"])
 
 
 def check_pyl_proteins(
-        potential_pyl_similarity_search, potential_pyl_seq,
-        conserved_potential_pyl_sequences, conserved_potential_pyl_sequences_info,
-        rejected_potential_pyl_sequences_info):
+        pot_pyl_similarity_search, pot_pyl_cds_filepath,
+        cons_pot_pyl_seq, info_filepath):
     """
+    Check predicted PYL CDS:
 
+    - Get the potential PYL CDS
+    - Parse the similarity search report
+    - Identify and extract the correct CDS sequence (the one with the lowest evalue)
+
+    :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database
+    :param pot_pyl_cds_filepath: path to JSON file with collection of potential PYL CDS
+    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS
+    :param info_filepath: path to a CSV file with final information about the CDS
     """
-    cds_report = parse_similarity_search_report(
-        potential_pyl_similarity_search)
-    seq, cons_seq_info, rej_seq_info = extract_conserved_rejected_sequences(
-        cds_report,
-        potential_pyl_seq)
-
-    with open(conserved_potential_pyl_sequences, "w") as conserved_seq_file:
-        SeqIO.write(seq, conserved_seq_file, "fasta")
-
-    cons_seq_info_df = pd.DataFrame(data=cons_seq_info).transpose()
-    col = [
-        "start",
-        "end",
-        "strand",
-        "original_start",
-        "original_end"]
-    cons_seq_info_df = cons_seq_info_df[col]
-    cons_seq_info_df.to_csv(conserved_potential_pyl_sequences_info)
-
-    rej_seq_info_df = pd.DataFrame(data=rej_seq_info).transpose()
-    col = [
-        "start",
-        "end",
-        "strand",
-        "rejected_alternative_start",
-        "rejected_alternative_end",
-        "comment"]
-    rej_seq_info_df = rej_seq_info_df[col]
-    rej_seq_info_df.to_csv(rejected_potential_pyl_sequences_info)
+    pot_pyl_cds = import_cds(pot_pyl_cds_filepath)
+    parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds)
+    extract_correct_cds(pot_pyl_cds, cons_pot_pyl_seq, info_filepath)
