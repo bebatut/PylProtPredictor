@@ -106,8 +106,8 @@ def extract_potential_pyl_cds(
                 "end": cds_obj.get_end(),
                 "strand": cds_obj.get_strand(),
                 "origin_seq": cds_obj.get_origin_seq_id(),
-                "alternative_start": ",".join([str(s) for s in cds_obj.get_alternative_start()]),
-                "alternative_end": ",".join([str(s) for s in cds_obj.get_alternative_end()])}
+                "alternative_start": ";".join([str(s) for s in cds_obj.get_alternative_start()]),
+                "alternative_end": ";".join([str(s) for s in cds_obj.get_alternative_end()])}
             sequences.append(cds_obj.get_translated_seq())
             sequences += cds_obj.get_translated_alternative_seq()
             pot_pyl_cds.update(cds_obj.export_to_dict())
