@@ -109,7 +109,7 @@ rule predict_potential_pyl_proteins:
             output_dir=config["output_dir"],
             file="potential_pyl_cds_objects")
     script:
-        "bin/predict_pyl_proteins"
+        "bin/predict"
 
 
 rule search_similarity:
@@ -158,16 +158,12 @@ rule check_pyl_proteins:
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="conserved_potential_pyl_sequences.fasta"),
-        conserved_potential_pyl_seq_info=expand(
+        final_cds_info=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="conserved_potential_pyl_sequences.csv"),
-        rejected_potential_pyl_seq_info=expand(
-            "{output_dir}/{file}",
-            output_dir=config["output_dir"],
-            file="rejected_potential_pyl_sequences.csv")
+            file="final_cds.csv")
     script:
-        "bin/check_pyl_proteins"
+        "bin/check"
 
 
 rule report:
