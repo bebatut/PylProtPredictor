@@ -28,20 +28,27 @@ def write_report(pred_cds, tag_ending_cds, pot_pyl_cds, final_cds, report_filepa
     pot_pyl_cds_nb = extract_row_number(pot_pyl_cds)
     final_cds_nb = extract_row_number(final_cds)
 
-    report("""
-    Prediction of PYL proteins
-    ==========================
+    print("%s %s %s %s" % (pred_cds_nb, tag_ending_cds_nb, pot_pyl_cds_nb, final_cds_nb))
 
-    {pred_cds_nb} sequences are predicted as CDS (see Table
-    predicted_cds_).
+    report(
+        """
+        Prediction of PYL proteins
+        ==========================
 
-    From these {pred_cds_nb} prediced CDS, {tag_ending_cds_nb} are ending
-    with a TAG STOP codon (see Table tag_ending_cds_).
-    {pot_pyl_cds_nb} are predicted as potential PYL sequences (see
-    Table potential_pyl_cds_).
+        {pred_cds_nb} sequences are predicted as CDS (see Table
+        predicted_cds_).
 
-    After similarity search, {final_cds_nb} sequences (of
-    {pot_pyl_cds_nb} predicted PYL sequences) are conserved as
-    potential PYL proteins (see Table final_cds_).
-    """, report_filepath, predicted_cds=pred_cds, tag_ending_cds=tag_ending_cds,
-    potential_pyl_cds=pot_pyl_cds, final_cds=final_cds)
+        From these {pred_cds_nb} prediced CDS, {tag_ending_cds_nb} are ending
+        with a TAG STOP codon (see Table tag_ending_cds_).
+        {pot_pyl_cds_nb} are predicted as potential PYL sequences (see
+        Table potential_pyl_cds_).
+
+        After similarity search, {final_cds_nb} sequences (of
+        {pot_pyl_cds_nb} predicted PYL sequences) are conserved as
+        potential PYL proteins (see Table final_cds_).
+        """,
+        report_filepath,
+        predicted_cds=pred_cds,
+        tag_ending_cds=tag_ending_cds,
+        potential_pyl_cds=pot_pyl_cds,
+        final_cds=final_cds)
