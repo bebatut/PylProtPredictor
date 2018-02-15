@@ -37,5 +37,5 @@ jobs:
           name: update code coverage
           command: |
             source activate PylProtPredictor
-            codecov
+            codecov -t e0873aae-ab97-4e87-a000-1bf66c75b4ee
           
