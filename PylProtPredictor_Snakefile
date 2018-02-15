@@ -169,7 +169,7 @@ rule check_pyl_proteins:
 rule report:
     '''Print a quick HTML report'''
     input:
-        predicted_cds_info=expand(
+        pred_cds=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="predicted_cds.csv"),
@@ -177,14 +177,14 @@ rule report:
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="tag_ending_cds.csv"),
-        potential_pyl_proteins=expand(
+        pot_pyl_cds=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="potential_pyl_proteins.csv"),
-        conserved_potential_pyl_sequences=expand(
+        final_cds=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="conserved_potential_pyl_sequences.csv")
+            file="final_cds.csv")
     output:
         report=expand(
             "{output_dir}/{file}",
