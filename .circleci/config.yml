@@ -35,5 +35,7 @@ jobs:
             py.test --cov=pylprotpredictor tests/
       - run:
           name: update code coverage
-          command: codecov
+          command: |
+            source activate PylProtPredictor
+            codecov
           
