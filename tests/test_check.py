@@ -4,8 +4,6 @@ import pytest
 
 from pathlib import Path
 
-from Bio import SeqIO
-
 from pylprotpredictor import check
 
 
@@ -50,7 +48,7 @@ def test_extract_correct_cds():
 
 def test_check_pyl_proteins():
     """Test check_pyl_proteins function"""
-    check.check_pyl_proteins(sim_search_filepath, pot_pyl_cds_filepath,"cons_pot_pyl_seq", "info")
+    check.check_pyl_proteins(sim_search_filepath, pot_pyl_cds_filepath, "cons_pot_pyl_seq", "info")
     assert filecmp.cmp("cons_pot_pyl_seq", cons_pot_pyl_seq_filepath)
     assert filecmp.cmp("info", info_filepath)
     os.remove("cons_pot_pyl_seq")

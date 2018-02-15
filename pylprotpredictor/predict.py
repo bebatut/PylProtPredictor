@@ -86,7 +86,6 @@ def extract_potential_pyl_cds(
     :param pot_pyl_cds_info_filepath: path to a cvs file to get information about potential PYL CDS
     :param pot_pyl_cds_obj_filepath: path to a JSON file to store the list of potential PYL CDS object
     """
-    pot_pyl_cds_nb = 0
     pot_pyl_cds = {}
     info = {}
     sequences = []

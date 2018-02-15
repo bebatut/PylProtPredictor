@@ -1,7 +1,5 @@
 import pandas as pd
 
-from Bio import SeqIO
-
 from pylprotpredictor import cds
 from pylprotpredictor import export
 
@@ -14,9 +12,7 @@ def import_cds(pot_pyl_cds_filepath):
     """
     pot_pyl_cds = {}
     d = export.import_json(pot_pyl_cds_filepath)
-    keys = list(d.keys())
-    keys.sort()
-    for cds_id in keys:
+    for cds_id in d:
         cds_obj = cds.CDS()
         cds_obj.init_from_dict(d[cds_id])
         pot_pyl_cds[cds_id] = cds_obj
@@ -28,16 +24,16 @@ def get_cds_obj(cds_id, pot_pyl_cds):
 
     :param cds_id: id of the CDS to find
     :param pot_pyl_cds: dictionary of the potential PYL CDS
-    
+
     :return: a CDS object
     """
-    if not cds_id in pot_pyl_cds:
+    if cds_id not in pot_pyl_cds:
         raise ValueError("CDS not found for %s" % (cds_id))
     return pot_pyl_cds[cds_id]
 
 
 def parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds):
-    """Parse the similarity search report and add information to the list of 
+    """Parse the similarity search report and add information to the list of
     potential PYL CDS
 
     :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database
@@ -54,21 +50,23 @@ def parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds):
         evalue = float(row[11])
         cds_obj = get_cds_obj(cds_id, pot_pyl_cds)
         cds_obj.add_evalue(seq_id, evalue)
-        
+
     return pot_pyl_cds
 
 
 def extract_correct_cds(
         pot_pyl_cds, cons_pot_pyl_seq_filepath, info_filepath):
     """Identify and extract the correct CDS sequence
-    
+
     :param pot_pyl_cds: dictionary of the potential PYL CDS
     :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS
     :param info_filepath: path to a CSV file with final information about the CDS
     """
     cons_sequences = []
     info = {}
-    for cds_id in pot_pyl_cds:
+    keys = list(pot_pyl_cds.keys())
+    keys.sort()
+    for cds_id in keys:
         cds_obj = pot_pyl_cds[cds_id]
         cds_obj.identify_cons_rej_cds()
 

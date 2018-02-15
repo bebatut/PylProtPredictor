@@ -1,5 +1,4 @@
 import filecmp
-import json
 import os
 
 from pathlib import Path
@@ -19,6 +18,7 @@ info = {
     'scaffold_117_243': {'start': 228271, 'end': 228441, 'strand': 'reverse', 'origin_seq': 'scaffold_117'},
     'scaffold_1220_19': {'start': 15451, 'end': 15930, 'strand': 'forward', 'origin_seq': 'scaffold_1220'}
 }
+
 
 def test_export_csv():
     """Test export_csv function"""

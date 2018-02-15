@@ -95,7 +95,7 @@ class CDS:
     def __init__(
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
             end=-1, strand="forward", seq=None, order=-1, next_cds_limit=-1,
-            alternative_ends=[], alternative_cds=[], evalue=10, 
+            alternative_ends=[], alternative_cds=[], evalue=10,
             conserved_cds=None, rejected_cds=[]):
         """Initiate a CDS instance"""
         self.id = seq_id
@@ -314,8 +314,7 @@ class CDS:
             self.get_seq(),
             id=self.get_id(),
             description=self.export_description())
-        return seq 
-
+        return seq
 
     def set_id(self, seq_id):
         """Change the id of the CDS
@@ -595,7 +594,7 @@ class CDS:
 
     def identify_cons_rej_cds(self):
         """
-        Identify which alternative CDS has conversed or rejected based on the 
+        Identify which alternative CDS has conversed or rejected based on the
         evalue
         """
         ref_evalue = self.get_evalue()
@@ -628,7 +627,7 @@ class CDS:
         :return: dict corresponding to CDS object
         """
         cds_id = self.get_id()
-        d = {cds_id : {
+        d = {cds_id: {
             'id': self.get_id(),
             'origin_seq_id': self.get_origin_seq_id(),
             'start': self.get_start(),
@@ -639,11 +638,10 @@ class CDS:
             'next_cds_limit': self.get_next_cds_limit(),
             'alternative_ends': self.get_alternative_ends(),
             'alternative_cds': {}}
-        }    
-        
+        }
+
         if self.has_alternative_ends():
             for alt_cds in self.get_alternative_cds():
                 d[cds_id]['alternative_cds'].update(alt_cds.export_to_dict())
 
         return d
-
