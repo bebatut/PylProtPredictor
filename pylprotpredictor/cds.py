@@ -128,7 +128,6 @@ class CDS:
         self.reset_alternative_cds()
         self.reset_rejected_cds()
 
-
     def init_from_dict(self, in_dict):
         """Initiate a CDS instance with a dictionary
 
