@@ -13,3 +13,4 @@ dependencies:
 - pandas
 - pytest
 - pytest-cov
+- codecov
