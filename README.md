@@ -1,6 +1,7 @@
 Detection of pyrrolysine proteins
 =================================
 
+[![CircleCI](https://circleci.com/gh/bebatut/PylProtPredictor.svg?style=svg)](https://circleci.com/gh/bebatut/PylProtPredictor)
 [![codecov](https://codecov.io/gh/bebatut/PylProtPredictor/branch/master/graph/badge.svg?token=6KyTn6n8Bp)](https://codecov.io/gh/bebatut/PylProtPredictor)
 
 # Introduction
