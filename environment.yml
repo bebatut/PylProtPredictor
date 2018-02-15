@@ -12,3 +12,4 @@ dependencies:
 - flake8
 - pandas
 - pytest
+- pytest-cov
