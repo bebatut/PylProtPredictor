@@ -55,7 +55,7 @@ def test_to_continue(end, origin_seq_size, next_cds_limit):
 
 
 def find_stop_codon_pos_in_seq(seq):
-    """Find position of STOP codon in a sequence
+    """Find position of STOP codon inside a sequence (not the last position)
 
     :param seq: string sequence of amino acids
 
@@ -77,15 +77,15 @@ def translate(seq):
     :return: string with the corresponding amino acid sequence with the TAG encoded STOP are replaced by Pyl amino acid
     """
     translated_seq = seq.translate()
+    mutable_seq = translated_seq.tomutable()
     str_seq = str(seq)
     n = 3
     codons = [str_seq[i:(i + n)] for i in range(0, len(str_seq), n)]
     for i in find_stop_codon_pos_in_seq(str(translated_seq)):
         if codons[i] != "TAG":
             raise ValueError("Stop codon (different from TAG) found inside the sequence")
-        mutable_seq = translated_seq.tomutable()
         mutable_seq[i] = "O"
-        translated_seq = mutable_seq.toseq()
+    translated_seq = mutable_seq.toseq()
     return translated_seq
 
 
@@ -125,6 +125,9 @@ class CDS:
         self.set_end(end)
         self.set_strand(strand)
         self.set_seq(record.seq)
+        self.reset_alternative_cds()
+        self.reset_rejected_cds()
+
 
     def init_from_dict(self, in_dict):
         """Initiate a CDS instance with a dictionary
@@ -142,6 +145,7 @@ class CDS:
         self.set_alternative_ends(in_dict["alternative_ends"])
 
         self.reset_alternative_cds()
+        self.reset_rejected_cds()
         for cds_id in in_dict["alternative_cds"]:
             print(cds_id)
             new_cds = CDS()
