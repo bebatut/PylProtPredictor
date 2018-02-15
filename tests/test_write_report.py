@@ -1,4 +1,3 @@
-import filecmp
 import os
 
 from pathlib import Path
@@ -30,5 +29,5 @@ def test_write_report():
         pot_pyl_protein_filepath,
         final_cds_filepath,
         "report.html")
-    assert filecmp.cmp("report.html", report_filepath)
+    assert round(os.stat("report.html").st_size, -1) == round(os.stat(report_filepath).st_size, -1)
     os.remove("report.html")
