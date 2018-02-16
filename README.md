@@ -4,7 +4,7 @@ Detection of pyrrolysine proteins
 [![CircleCI](https://circleci.com/gh/bebatut/PylProtPredictor.svg?style=svg)](https://circleci.com/gh/bebatut/PylProtPredictor)
 [![codecov](https://codecov.io/gh/bebatut/PylProtPredictor/branch/master/graph/badge.svg?token=6KyTn6n8Bp)](https://codecov.io/gh/bebatut/PylProtPredictor)
 
-# Introduction
+# Context
 
 Pyrrolysine is an amino acid that is used in the biosynthesis of proteins in some methanogenic archaea and bacterium. It is encoded in mRNA by the UAG codon, which in most organisms is the 'amber' stop codon.
 
@@ -22,8 +22,12 @@ Have a look to [the scheme explaining how the tool is working](doc/img/main_sche
 
 The following software are required:
 - [`git`](https://git-scm.com/book/fr/v1/D%C3%A9marrage-rapide-Installation-de-Git#Installation-sur-Linux)
-- [`conda`](https://conda.io/miniconda.html)
+- [`conda`](https://conda.io/miniconda.html):
 
+    ```
+    $ make install-conda
+    $ make configure-conda
+    ```
 
 ## Install the tool
 
@@ -42,7 +46,7 @@ $ cd pyl_protein_prediction
 - Prepare the environment
 
 ```
-$ conda env create --name PylProtPredictor --file environment.yml
+$ make create-env
 $ source activate PylProtPredictor
 ```
 
@@ -88,10 +92,10 @@ First off, thanks for taking the time to contribute!
 
 ## Tests
 
-The code is covered by tests. They are run automatically on Travis but we also recommend to run them locally before pushing to GitHub with:
+The code is covered by tests. They are run automatically on CircleCI but we also recommend to run them locally before pushing to GitHub with:
 
 ```
-pytest
+$ make test
 ```
 
 Any added code should be covered by new tests.
