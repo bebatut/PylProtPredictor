@@ -62,7 +62,7 @@ def test_translate():
     """Test translate"""
     aa = cds.translate(records[1].seq)
     assert aa == "MOKO*"
-    with pytest.raises(ValueError, match=r'Stop codon (different from TAG) found inside the sequence'):
+    with pytest.raises(ValueError, match=r'Stop codon'):
         cds.translate(Seq("ATGTAGTGATGA"))
 
 
@@ -305,10 +305,10 @@ def test_find_next_cds_limit():
         'scaffold_1220_19': cds_list[4]
     }
     with pytest.raises(ValueError, match=r'Incorrect order for scaffold_0_1'):
-        cds_list[2].find_alternative_ends()
+        cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
     cds_list[2].set_order(2)
     with pytest.raises(ValueError, match=r'No origin sequence provided'):
-        cds_list[2].find_alternative_ends()
+        cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
     cds_list[2].set_origin_seq(seqs[cds_list[3].get_origin_seq_id()])
     cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
     assert cds_list[2].get_next_cds_limit() == 228441
