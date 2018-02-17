@@ -99,3 +99,19 @@ $ make test
 ```
 
 Any added code should be covered by new tests.
+
+## Documentation
+
+Documentation about ENASearch is available online at http://bebatut.fr/PylProtPredictor
+
+To update it:
+
+- Make the changes in `src/docs`
+- Generate the doc:
+
+    ```
+    $ make doc
+    ```
+
+- Check it by opening the `docs/index.html` file in a web browser
+- Propose the changes via a Pull Request

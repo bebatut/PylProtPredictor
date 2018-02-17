@@ -42,6 +42,7 @@ doc: ## generate HTML documentation
 	rm -rf docs
 	mv "$(BUILDDIR)/html" docs
 	rm -rf docs/_sources
+	rm -rf tmp
 .PHONY: doc
 
 coverage: ## send test coverage to Code coverage
