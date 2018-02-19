@@ -1,6 +1,30 @@
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Data import CodonTable
+from Bio.Data.CodonTable import register_ncbi_table
+
+
+register_ncbi_table(
+    name='PylProt CodonTable',
+    alt_name=None,
+    id=66,
+    table={
+        'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
+        'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
+        'TGT': 'C', 'TGC': 'C', 'TGG': 'W', 'CTT': 'L', 'CTC': 'L',
+        'CTA': 'L', 'CTG': 'L', 'CCT': 'P', 'CCC': 'P', 'CCA': 'P',
+        'CCG': 'P', 'CAT': 'H', 'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q',
+        'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R', 'ATT': 'I',
+        'ATC': 'I', 'ATA': 'I', 'ATG': 'M', 'ACT': 'T', 'ACC': 'T',
+        'ACA': 'T', 'ACG': 'T', 'AAT': 'N', 'AAC': 'N', 'AAA': 'K',
+        'AAG': 'K', 'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
+        'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A',
+        'GCC': 'A', 'GCA': 'A', 'GCG': 'A', 'GAT': 'D', 'GAC': 'D',
+        'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G',
+        'GGG': 'G', 'TAG': 'O'},
+    stop_codons=['TAA', 'TGA'],
+    start_codons=['TTG', 'CTG', 'ATT', 'ATC', 'ATA', 'ATG', 'GTG']
+)
 
 
 def extract_seq_desc(desc):
@@ -76,16 +100,11 @@ def translate(seq):
 
     :return: string with the corresponding amino acid sequence with the TAG encoded STOP are replaced by Pyl amino acid
     """
-    translated_seq = seq.translate()
-    mutable_seq = translated_seq.tomutable()
-    str_seq = str(seq)
-    n = 3
-    codons = [str_seq[i:(i + n)] for i in range(0, len(str_seq), n)]
-    for i in find_stop_codon_pos_in_seq(str(translated_seq)):
-        if codons[i] != "TAG":
-            raise ValueError("Stop codon (different from TAG) found inside the sequence")
-        mutable_seq[i] = "O"
-    translated_seq = mutable_seq.toseq()
+    translated_seq = seq.translate(66)
+    if translated_seq[-1] == 'O':
+        mutable_seq = translated_seq.tomutable()
+        mutable_seq[-1] = "*"
+        translated_seq = mutable_seq.toseq()
     return translated_seq
 
 

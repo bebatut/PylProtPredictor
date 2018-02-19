@@ -5,7 +5,7 @@ SPHINXPROJ    = PylProtPredictor
 SOURCEDIR     = src/docs
 BUILDDIR      = tmp
 MINICONDA_URL = https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-MINICONDA	  = $HOME/miniconda
+MINICONDA	  = $HOME/miniconda3
 
 ifeq ($(shell uname -s),Darwin)
 	MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh

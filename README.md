@@ -34,7 +34,7 @@ The following software are required:
 - Clone this repository (or get the release)
 
 ```
-$ git clone git@gitlab.com:bebatut/pyl_protein_prediction.git
+$ git clone https://github.com/bebatut/PylProtPredictor.git
 ```
 
 - Move into the directory
@@ -43,11 +43,17 @@ $ git clone git@gitlab.com:bebatut/pyl_protein_prediction.git
 $ cd pyl_protein_prediction
 ```
 
-- Prepare the environment
+- Prepare the environment (only once)
 
 ```
 $ make create-env
-$ source activate PylProtPredictor
+```
+
+# Usage
+
+```
+$ source activate PylProtPredictor # once to activate the conda environment
+$ ./bin/PylProtPredictor --genome FILE --output PATH [options]
 ```
 
 > To exit the environment, you can execute
@@ -56,15 +62,9 @@ $ source activate PylProtPredictor
 > ```
 > But don't do that before running the analysis.
 
-# Usage
-
-```
-$ ./bin/PylProtPredictor --genome FILE --output PATH [options]
-```
+## Database setup
 
 The first run will be long: the reference database should be downloaded and prepare for the similarity search.
-
-## Database setup
 
 If you already have the Uniref90 database on your machine, you can simply symlink it.
 
@@ -73,14 +73,7 @@ ln -s /path/to/uniref90.dmnd data/uniref90.dmnd
 snakemake --cleanup-metadata data.uniref90.dmnd
 ```
 
-Otherwise, the pipeline will download and format it. Make sure you have at least 25GB available for the reference database. It can take several hours, depending of your connection.
-
-# Contributors
-
-- Cécile Hilpert
-- Bérénice Batut
-- Ylana Sauvaget
-- Kévin Gravouil
+Otherwise, the pipeline will download and format it. Make sure you have at least 25GB available for the reference database. It can take several hours, depending on your connection.
 
 # Support & Bug Reports
 
@@ -115,3 +108,12 @@ To update it:
 
 - Check it by opening the `docs/index.html` file in a web browser
 - Propose the changes via a Pull Request
+
+## Contributors
+
+- Bérénice Batut
+- Jean-François Brugère
+- Kévin Gravouil
+- Cécile Hilpert
+- Ylana Sauvaget
+

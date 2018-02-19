@@ -62,8 +62,8 @@ def test_translate():
     """Test translate"""
     aa = cds.translate(records[1].seq)
     assert aa == "MOKO*"
-    with pytest.raises(ValueError, match=r'Stop codon'):
-        cds.translate(Seq("ATGTAGTGATGA"))
+    aa = cds.translate(Seq("ATGTAGTGATAG"))
+    assert aa == "MO**"
 
 
 def test_init_from_record():
