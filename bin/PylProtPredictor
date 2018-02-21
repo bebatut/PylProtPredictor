@@ -1,4 +1,4 @@
-#!/bin/env/bash
+#!/usr/bin/env bash
 
 display_help() {
     echo "PylProtPredictor Pipeline (powered by Snakemake)"
