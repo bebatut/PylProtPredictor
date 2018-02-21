@@ -4,4 +4,5 @@
 results
 data/uniref90.dmnd
 .snakemake
-src/.snakemake*
+.pytest_cache/
+.cache

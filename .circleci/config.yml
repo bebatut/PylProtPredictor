@@ -7,33 +7,26 @@ jobs:
       - MINICONDA: "$HOME/miniconda"
     steps:
       - checkout
-      - run: echo 'export PATH=$HOME/miniconda/bin:$PATH' >> $BASH_ENV
+      - run: echo 'export PATH=$HOME/miniconda3/bin:$PATH' >> $BASH_ENV
       - run:
           name: install miniconda
           command: |
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-            bash Miniconda3-latest-Linux-x86_64.sh -b -p $MINICONDA
-            conda config --set show_channel_urls yes --set always_yes yes
-            conda update conda conda-env
+            make install-conda
       - run:
           name: configure conda
           command: |
-            conda config --system --add channels conda-forge
-            conda config --system --add channels defaults
-            conda config --system --add channels r
-            conda config --system --add channels bioconda
+            make configure-conda
       - run:
           name: create conda environment
           command: |
-            conda env create --name PylProtPredictor --file environment.yml
+            make create-env
       - run:
           name: run linting and test
           command: |
             source activate PylProtPredictor
-            conda list
-            flake8 --exclude=.git,build --ignore=E501 .
-            py.test --cov=pylprotpredictor tests/
+            make test
       - run:
           name: update code coverage
-          command: codecov
-          
+          command: |
+            source activate PylProtPredictor
+            make coverage

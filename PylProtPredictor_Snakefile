@@ -1,0 +1,194 @@
+from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from snakemake.utils import available_cpu_count
+from snakemake.utils import makedirs
+
+FTP = FTPRemoteProvider()
+
+ref_database = "uniref90"
+ref_database_url = "ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
+data_dir = "data"
+
+makedirs(data_dir)
+makedirs(config["output_dir"])
+
+
+rule all:
+    '''Run the complete pipeline'''
+    input:
+        expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="report.html")
+
+rule purge:
+    '''Delete the output directory'''
+    input:
+        expand(
+            "{output_dir}",
+            output_dir=config["output_dir"])
+    message: "!!! DELETING THE OUTPUT DIRECTORY '{input}' !!!"
+    shell: "rm -rf {input}"
+
+
+rule prepare_database:
+    '''Download and format the Uniref90 database for Diamond'''
+    input:
+        FTP.remote(
+            ref_database_url,
+            keep_local=False)
+    output:
+        expand(
+            "{data_dir}/{ref_database}.dmnd",
+            data_dir=data_dir,
+            ref_database=ref_database)
+    shell:
+        "diamond makedb"
+        " --in {input}"
+        " --db {output}"
+        " --quiet"
+
+
+rule predict_cds:
+    '''Predict CDS from the input genome using Prodigal'''
+    input:
+        config["genome"]
+    output:
+        cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="predicted_cds.fasta"),
+        info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="cds_prediction_info.txt"),
+        log=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="cds_prediction_log.txt")
+    shell:
+        "prodigal"
+        " -i {input}"
+        " -d {output.cds}"
+        " -f gbk"
+        " -g 11"
+        " -o {output.info}"
+        " 2> {output.log}"
+
+
+rule predict_potential_pyl_proteins:
+    '''Predict potential PYL-contrainin proteins from predicted CDS'''
+    input:
+        genome=config["genome"],
+        predicted_cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="predicted_cds.fasta")
+    output:
+        potential_pyl_sequences=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_sequences.fasta"),
+        pyl_protein_prediction_log=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="pyl_protein_prediction_log.txt"),
+        predicted_cds_info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="predicted_cds.csv"),
+        tag_ending_cds_info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="tag_ending_cds.csv"),
+        potential_pyl_protein_info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_proteins.csv"),
+        pot_pyl_cds_obj=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_cds_objects")
+    script:
+        "bin/predict"
+
+
+rule search_similarity:
+    '''Align predicted Pyl proteins on Uniref90 using Diamond'''
+    threads: available_cpu_count()
+    input:
+        potential_pyl_seq=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_sequences.fasta"),
+        ref_db=expand(
+            "{data_dir}/{ref_database}.dmnd",
+            data_dir=data_dir,
+            ref_database=ref_database)
+    output:
+        potential_pyl_similarity_search=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_similarity_search.txt")
+    shell:
+        "diamond blastp"
+        " -d {input.ref_db}"
+        " -q {input.potential_pyl_seq}"
+        " -o {output}"
+        " -k 1"
+        " -e 0.01"
+        " -f 6"
+        " -b 0.5"
+        " -p {threads} "
+        " --quiet"
+
+
+rule check_pyl_proteins:
+    '''Validate potential Pyl protein by analysing the alignments'''
+    input:
+        potential_pyl_similarity_search=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_similarity_search.txt"),
+        potential_pyl_sequences=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_sequences.fasta")
+    output:
+        conserved_potential_pyl_seq=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="conserved_potential_pyl_sequences.fasta"),
+        final_cds_info=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="final_cds.csv")
+    script:
+        "bin/check"
+
+
+rule report:
+    '''Print a quick HTML report'''
+    input:
+        pred_cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="predicted_cds.csv"),
+        tag_ending_cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="tag_ending_cds.csv"),
+        pot_pyl_cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="potential_pyl_proteins.csv"),
+        final_cds=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="final_cds.csv")
+    output:
+        report=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="report.html")
+    script:
+        "bin/write_report"
