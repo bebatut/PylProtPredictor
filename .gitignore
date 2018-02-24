@@ -6,3 +6,5 @@ data/uniref90.dmnd
 .snakemake
 .pytest_cache/
 .cache
+.coverage
+.envrc
