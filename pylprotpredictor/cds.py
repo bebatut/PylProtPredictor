@@ -114,7 +114,7 @@ class CDS:
     def __init__(
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
             end=-1, strand="forward", seq=None, order=-1, next_cds_limit=-1,
-            alternative_ends=[], alternative_cds=[], evalue=10,
+            alternative_ends=[], alternative_cds=[], alignments=[],
             conserved_cds=None, rejected_cds=[]):
         """Initiate a CDS instance"""
         self.id = seq_id
@@ -128,7 +128,7 @@ class CDS:
         self.next_cds_limit = next_cds_limit
         self.alternative_ends = alternative_ends
         self.alternative_cds = alternative_cds
-        self.evalue = evalue
+        self.alignments = alignments
         self.conserved_cds = conserved_cds
         self.rejected_cds = rejected_cds
 
@@ -146,6 +146,7 @@ class CDS:
         self.set_seq(record.seq)
         self.reset_alternative_cds()
         self.reset_rejected_cds()
+        self.reset_alignments()
 
     def init_from_dict(self, in_dict):
         """Initiate a CDS instance with a dictionary
@@ -163,6 +164,7 @@ class CDS:
         self.set_alternative_ends(in_dict["alternative_ends"])
 
         self.reset_alternative_cds()
+        self.reset_alignments()
         self.reset_rejected_cds()
         for cds_id in in_dict["alternative_cds"]:
             print(cds_id)
@@ -247,12 +249,12 @@ class CDS:
         """
         return self.alternative_cds
 
-    def get_evalue(self):
-        """Return the evalue
+    def get_alignments(self):
+        """Return the list of alignments
 
-        :return: evalue of the CDS object
+        :return: list of alignment object
         """
-        return self.evalue
+        return self.alignments
 
     def get_conserved_cds(self):
         """Return the CDS object of the conserved CDS as correct CDS (start, end, sequence)
@@ -337,6 +339,30 @@ class CDS:
             id=self.get_id(),
             description=self.export_description())
         return seq
+
+    def get_lowest_evalue(self):
+        """Return the lowest evalue for all alignments
+
+        :return: float
+        """
+        lowest_evalue = 10
+        for al in self.get_alignments():
+            evalue = al.get_evalue()
+            if evalue < lowest_evalue:
+                lowest_evalue = evalue
+        return lowest_evalue
+
+    def get_highest_bitscore(self):
+        """Return the highest bitscore for all alignments
+
+        :return: float
+        """
+        highest_bitscore = 0
+        for al in self.get_alignments():
+            bitscore = al.get_bitscore()
+            if bitscore > highest_bitscore:
+                highest_bitscore = bitscore
+        return highest_bitscore
 
     def set_id(self, seq_id):
         """Change the id of the CDS
@@ -440,6 +466,19 @@ class CDS:
         :param alternative_cds: a CDS object
         """
         self.alternative_cds.append(alternative_cds)
+
+    def reset_alignments(self):
+        """Reset the list of alignments"""
+        self.alignments = []
+        for alt_cds in self.get_alternative_cds():
+            alt_cds.reset_alignments()
+
+    def add_alignment(self, alignment):
+        """Add an alignment object to the list of alignment
+
+        :param alignment: an alignment object
+        """
+        self.alignments.append(alignment)
 
     def reset_rejected_cds(self):
         """Reset the list of rejected cds"""
@@ -600,36 +639,71 @@ class CDS:
             count += 1
             self.add_alternative_cds(new_cds)
 
-    def add_evalue(self, seq_id, evalue):
-        """Add evalue to the correct CDS object
+    def add_id_alignment(self, seq_id, alignment):
+        """Add alignment to the correct CDS object
 
         :param seq_id: id of the CDS
-        :param evalue: evalue to add
-        :param origin_cds_obj: original CDS object
+        :param alignment: alignment object to add
         """
         if seq_id == self.get_id():
-            self.set_evalue(evalue)
+            self.add_alignment(alignment)
         else:
             for alt_cds in self.get_alternative_cds():
                 if alt_cds.get_id() == seq_id:
-                    alt_cds.set_evalue(evalue)
+                    alt_cds.add_alignment(alignment)
 
-    def identify_cons_rej_cds(self):
-        """
-        Identify which alternative CDS has conversed or rejected based on the
+    def identify_lowest_evalue(self):
+        """Identify which alternative CDS to converse or reject based on the
         evalue
         """
-        ref_evalue = self.get_evalue()
+        ref_evalue = self.get_lowest_evalue()
         self.reset_rejected_cds()
         self.set_conserved_cds(self)
         for alt_cds in self.get_alternative_cds():
-            evalue = alt_cds.get_evalue()
+            evalue = alt_cds.get_lowest_evalue()
             if evalue < ref_evalue:
                 ref_evalue = evalue
                 self.add_rejected_cds(self.get_conserved_cds())
                 self.set_conserved_cds(alt_cds)
             else:
                 self.add_rejected_cds(alt_cds)
+        return ref_evalue
+
+    def identify_highest_bitscore(self):
+        """Identify which alternative CDS to converse or reject based on the
+        bitscore
+        """
+        ref_bitscore = self.get_highest_bitscore()
+        self.reset_rejected_cds()
+        self.set_conserved_cds(self)
+        for alt_cds in self.get_alternative_cds():
+            bitscore = alt_cds.get_highest_bitscore()
+            if bitscore > ref_bitscore:
+                ref_bitscore = bitscore
+                self.add_rejected_cds(self.get_conserved_cds())
+                self.set_conserved_cds(alt_cds)
+            else:
+                self.add_rejected_cds(alt_cds)
+        return ref_bitscore
+
+    def identify_cons_rej_cds(self):
+        """Identify which alternative CDS to converse or reject based on the
+        evalue or the bitscore:
+
+        - Extract the CDS (current and possible alternative sequence) with the
+        lowest evalue
+        - Reset if the lowest evalue is too high and could be due to random
+        alignment
+        - Extract the CDS (current and possible alternative sequence) with the
+        highest bitscore
+        """
+        ref_evalue = self.identify_lowest_evalue()
+
+        if ref_evalue > 1e-10:
+            self.reset_rejected_cds()
+            self.set_conserved_cds(None)
+        elif self.get_conserved_cds() == self:
+            self.identify_highest_bitscore()
 
     def export_description(self):
         """Export the description of the CDS
