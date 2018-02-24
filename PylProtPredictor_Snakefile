@@ -134,7 +134,7 @@ rule search_similarity:
         " -d {input.ref_db}"
         " -q {input.potential_pyl_seq}"
         " -o {output}"
-        " -k 1"
+        " -k 5"
         " -e 0.01"
         " -f 6"
         " -b 0.5"
