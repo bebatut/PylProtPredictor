@@ -96,7 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_case.html">Some example of usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code.html">Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code.html">Code: pylprotpredictor module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/bebatut/PylProtPredictor">Source code on GitHub</a></li>
 </ul>
@@ -169,7 +169,7 @@
 <div class="section" id="prediction">
 <h2>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h2>
 <p>The first step of the workflow is the prediction of proteins potentially using Pyrrolysine (PYL) as amino acid. In these proteins, the TAG codon is not used as a STOP codon but translated into PYL amino acid.</p>
-<p>This prediction starts with the prediction of the CDS on a genome using <a href="#id1"><span class="problematic" id="id2">`Prodigal &lt;&gt;`_</span></a>. The TAG-ending CDS are then identified: their sequence is extracted and potentially extended until next STOP codon to extract potential alternative sequences for these proteins with PYL as amino acid.</p>
+<p>This prediction starts with the prediction of the CDS on a genome using <a class="reference external" href="https://github.com/hyattpd/Prodigal">Prodigal</a>. The TAG-ending CDS are then identified: their sequence is extracted and potentially extended until next STOP codon to extract potential alternative sequences for these proteins with PYL as amino acid.</p>
 <div class="figure align-center" id="prediction-workflow">
 <a class="reference internal image-reference" href="_images/prediction_scheme.png"><img alt="_images/prediction_scheme.png" src="_images/prediction_scheme.png" style="width: 495.5px; height: 377.0px;" /></a>
 </div>
@@ -177,7 +177,7 @@
 <div class="section" id="checking">
 <h2>Checking<a class="headerlink" href="#checking" title="Permalink to this headline">¶</a></h2>
 <p>For each TAG-ending CDS, several potential sequences are extracted: the original identified CDS and possible extensions in which TAG would not be a STOP codon but a PYL.</p>
-<p>To identify which sequence for each CDS is the most likely, the sequences are searched against a reference database (<a href="#id3"><span class="problematic" id="id4">`UniRef 90 &lt;&gt;`_</span></a>). The sequence with the smallest evalue in the similarity search is conserved as the representative sequence for the CDS.</p>
+<p>To identify which sequence for each CDS is the most likely, the sequences are searched against a reference database (<a class="reference external" href="http://www.uniprot.org/help/uniref">UniRef 90</a>) using <a class="reference external" href="https://github.com/bbuchfink/diamond">diamond</a>. To identify which sequence for each CDS to converse or reject, the diamond report is parsed. The sequence with the smallest evalue is extracted. If the conserved evalue is higher to a threshold to consider the alignement to be non-random, no sequence is not conserved for this CDS. On the other side, if the conserved sequence corresponds to the original CDS, we try to extract the sequence with the longest alignment (highest bitscore).</p>
 </div>
 </div>
 

@@ -1,0 +1,966 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pylprotpredictor.cds &mdash; PylProtPredictor 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PylProtPredictor 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PylProtPredictor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">PylProtPredictor documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylprotpredictor.html">Identification of potential PYL proteins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use_case.html">Some example of usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code: pylprotpredictor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/bebatut/PylProtPredictor">Source code on GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PylProtPredictor</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pylprotpredictor.cds</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pylprotpredictor.cds</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">Bio.Seq</span> <span class="k">import</span> <span class="n">Seq</span>
+<span class="kn">from</span> <span class="nn">Bio.SeqRecord</span> <span class="k">import</span> <span class="n">SeqRecord</span>
+<span class="kn">from</span> <span class="nn">Bio.Data</span> <span class="k">import</span> <span class="n">CodonTable</span>
+<span class="kn">from</span> <span class="nn">Bio.Data.CodonTable</span> <span class="k">import</span> <span class="n">register_ncbi_table</span>
+
+
+<span class="n">register_ncbi_table</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;PylProt CodonTable&#39;</span><span class="p">,</span>
+    <span class="n">alt_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="mi">66</span><span class="p">,</span>
+    <span class="n">table</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;TTT&#39;</span><span class="p">:</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;TTC&#39;</span><span class="p">:</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;TTA&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;TTG&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;TCT&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;TCC&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;TCA&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;TCG&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;TAT&#39;</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;TAC&#39;</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;TGT&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;TGC&#39;</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;TGG&#39;</span><span class="p">:</span> <span class="s1">&#39;W&#39;</span><span class="p">,</span> <span class="s1">&#39;CTT&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;CTC&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CTA&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;CTG&#39;</span><span class="p">:</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;CCT&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;CCC&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;CCA&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CCG&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;CAT&#39;</span><span class="p">:</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;CAC&#39;</span><span class="p">:</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;CAA&#39;</span><span class="p">:</span> <span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;CAG&#39;</span><span class="p">:</span> <span class="s1">&#39;Q&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CGT&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;CGC&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;CGA&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;CGG&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;ATT&#39;</span><span class="p">:</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ATC&#39;</span><span class="p">:</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;ATA&#39;</span><span class="p">:</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;ATG&#39;</span><span class="p">:</span> <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;ACT&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;ACC&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ACA&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;ACG&#39;</span><span class="p">:</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;AAT&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;AAC&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;AAA&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;AAG&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;AGT&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;AGC&#39;</span><span class="p">:</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;AGA&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;AGG&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;GTT&#39;</span><span class="p">:</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;GTC&#39;</span><span class="p">:</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;GTA&#39;</span><span class="p">:</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;GTG&#39;</span><span class="p">:</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;GCT&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;GCC&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;GCG&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;GAT&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;GAC&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;GAA&#39;</span><span class="p">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;GAG&#39;</span><span class="p">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;GGT&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;GGC&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;GGA&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;GGG&#39;</span><span class="p">:</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;TAG&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">},</span>
+    <span class="n">stop_codons</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TAA&#39;</span><span class="p">,</span> <span class="s1">&#39;TGA&#39;</span><span class="p">],</span>
+    <span class="n">start_codons</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;TTG&#39;</span><span class="p">,</span> <span class="s1">&#39;CTG&#39;</span><span class="p">,</span> <span class="s1">&#39;ATT&#39;</span><span class="p">,</span> <span class="s1">&#39;ATC&#39;</span><span class="p">,</span> <span class="s1">&#39;ATA&#39;</span><span class="p">,</span> <span class="s1">&#39;ATG&#39;</span><span class="p">,</span> <span class="s1">&#39;GTG&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="extract_seq_desc"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.extract_seq_desc">[docs]</a><span class="k">def</span> <span class="nf">extract_seq_desc</span><span class="p">(</span><span class="n">desc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract from description the seq id, the origin sequence, start, end and</span>
+<span class="sd">    strand from a predicted CDS</span>
+
+<span class="sd">    :param desc: description of a prediced CDS with Prodigal</span>
+
+<span class="sd">    :return: id of predicted CDS</span>
+<span class="sd">    :return: id of the origin sequence</span>
+<span class="sd">    :return: start position of the predicted CDS</span>
+<span class="sd">    :return: end position of the predicted CDS</span>
+<span class="sd">    :return: strand of the predicted CDS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">split_description</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+    <span class="n">seq_id</span> <span class="o">=</span> <span class="n">split_description</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">origin_seq</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seq_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">seq_id</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">seq_id</span> <span class="o">=</span> <span class="s2">&quot;cds_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seq_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_description</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_description</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="n">strand</span> <span class="o">=</span> <span class="n">transform_strand</span><span class="p">(</span><span class="n">split_description</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">seq_id</span><span class="p">,</span> <span class="n">origin_seq</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">strand</span>
+
+
+<div class="viewcode-block" id="transform_strand"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.transform_strand">[docs]</a><span class="k">def</span> <span class="nf">transform_strand</span><span class="p">(</span><span class="n">strand_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transform strand from numerical value to string value</span>
+
+<span class="sd">    :param strand_id: numerical value to represent a strand (1 or -1)</span>
+
+<span class="sd">    :return: string value (forward or reverse) for the strand</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">strand_id</span> <span class="o">==</span> <span class="s2">&quot;-1&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;reverse&#39;</span>
+    <span class="k">elif</span> <span class="n">strand_id</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;forward&#39;</span>
+    <span class="k">else</span><span class="p">:</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong strand_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">strand_id</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="test_to_continue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.test_to_continue">[docs]</a><span class="k">def</span> <span class="nf">test_to_continue</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">origin_seq_size</span><span class="p">,</span> <span class="n">next_cds_limit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test if possible to extract next codon: position still in the genome and</span>
+<span class="sd">    lower than the end of the next CDS</span>
+
+<span class="sd">    :param end: int corresponding to the current end</span>
+<span class="sd">    :param origin_seq_size: size of the origin sequence</span>
+<span class="sd">    :param next_cds_limit: int corresponding to the end of the next CDS on the same strand</span>
+
+<span class="sd">    :return: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">end</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">origin_seq_size</span> <span class="ow">and</span> <span class="p">(</span><span class="n">end</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">next_cds_limit</span>
+
+
+<div class="viewcode-block" id="find_stop_codon_pos_in_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.find_stop_codon_pos_in_seq">[docs]</a><span class="k">def</span> <span class="nf">find_stop_codon_pos_in_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find position of STOP codon inside a sequence (not the last position)</span>
+
+<span class="sd">    :param seq: string sequence of amino acids</span>
+
+<span class="sd">    :return: list of position for possible STOP codons in a sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stop_codon_pos</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">seq</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+            <span class="n">stop_codon_pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">stop_codon_pos</span>
+
+
+<div class="viewcode-block" id="translate"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.translate">[docs]</a><span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Translate a sequence into amino acids while replacing any possible STOP</span>
+<span class="sd">    codon encoded by TAG by a Pyl amino acid</span>
+
+<span class="sd">    :param seq: a Seq object</span>
+
+<span class="sd">    :return: string with the corresponding amino acid sequence with the TAG encoded STOP are replaced by Pyl amino acid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">translated_seq</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">translated_seq</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+        <span class="n">mutable_seq</span> <span class="o">=</span> <span class="n">translated_seq</span><span class="o">.</span><span class="n">tomutable</span><span class="p">()</span>
+        <span class="n">mutable_seq</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+        <span class="n">translated_seq</span> <span class="o">=</span> <span class="n">mutable_seq</span><span class="o">.</span><span class="n">toseq</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">translated_seq</span>
+
+
+<div class="viewcode-block" id="CDS"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS">[docs]</a><span class="k">class</span> <span class="nc">CDS</span><span class="p">:</span>
+    <span class="s1">&#39;Class to describe a CDS&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">seq_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">origin_seq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">origin_seq_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="n">seq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_cds_limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">alternative_ends</span><span class="o">=</span><span class="p">[],</span> <span class="n">alternative_cds</span><span class="o">=</span><span class="p">[],</span> <span class="n">alignments</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">conserved_cds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rejected_cds</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate a CDS instance&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">seq_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span> <span class="o">=</span> <span class="n">origin_seq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq_id</span> <span class="o">=</span> <span class="n">origin_seq_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strand</span> <span class="o">=</span> <span class="n">strand</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="n">seq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_cds_limit</span> <span class="o">=</span> <span class="n">next_cds_limit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_ends</span> <span class="o">=</span> <span class="n">alternative_ends</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_cds</span> <span class="o">=</span> <span class="n">alternative_cds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span> <span class="o">=</span> <span class="n">alignments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conserved_cds</span> <span class="o">=</span> <span class="n">conserved_cds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_cds</span> <span class="o">=</span> <span class="n">rejected_cds</span>
+
+<div class="viewcode-block" id="CDS.init_from_record"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.init_from_record">[docs]</a>    <span class="k">def</span> <span class="nf">init_from_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate a CDS instance with a SeqRecord object</span>
+
+<span class="sd">        :param record:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq_id</span><span class="p">,</span> <span class="n">origin_seq_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">strand</span> <span class="o">=</span> <span class="n">extract_seq_desc</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">seq_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_origin_seq_id</span><span class="p">(</span><span class="n">origin_seq_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_start</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_end</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_strand</span><span class="p">(</span><span class="n">strand</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_seq</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_alternative_cds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_rejected_cds</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_alignments</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CDS.init_from_dict"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.init_from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">init_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate a CDS instance with a dictionary</span>
+
+<span class="sd">        :param in_dict: dictionary with attribute for a CDS object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_origin_seq_id</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;origin_seq_id&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_start</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_end</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_strand</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;strand&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_seq</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;seq&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_order</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_next_cds_limit</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;next_cds_limit&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_alternative_ends</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;alternative_ends&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_alternative_cds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_alignments</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_rejected_cds</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cds_id</span> <span class="ow">in</span> <span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;alternative_cds&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cds_id</span><span class="p">)</span>
+            <span class="n">new_cds</span> <span class="o">=</span> <span class="n">CDS</span><span class="p">()</span>
+            <span class="n">new_cds</span><span class="o">.</span><span class="n">init_from_dict</span><span class="p">(</span><span class="n">in_dict</span><span class="p">[</span><span class="s2">&quot;alternative_cds&quot;</span><span class="p">][</span><span class="n">cds_id</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_alternative_cds</span><span class="p">(</span><span class="n">new_cds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.get_id"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the id of the CDS</span>
+
+<span class="sd">        :return: string corresponding to the id</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+
+<div class="viewcode-block" id="CDS.get_origin_seq_id"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_origin_seq_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_origin_seq_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the id of origin seq of the CDS</span>
+
+<span class="sd">        :return: string corresponding to the origin seq</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq_id</span>
+
+<div class="viewcode-block" id="CDS.get_origin_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_origin_seq">[docs]</a>    <span class="k">def</span> <span class="nf">get_origin_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the SeqRecord object corresponding to the origin seq of the CDS</span>
+
+<span class="sd">        :return: SeqRecord object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span>
+
+<div class="viewcode-block" id="CDS.get_start"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_start">[docs]</a>    <span class="k">def</span> <span class="nf">get_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the start position of the CDS on the origin sequence</span>
+
+<span class="sd">        :return: int corresponding to the start position</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+<div class="viewcode-block" id="CDS.get_end"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_end">[docs]</a>    <span class="k">def</span> <span class="nf">get_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the end position of the CDS on the origin sequence</span>
+
+<span class="sd">        :return: int corresponding to the end position</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+
+<div class="viewcode-block" id="CDS.get_strand"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_strand">[docs]</a>    <span class="k">def</span> <span class="nf">get_strand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the strand of the CDS on the origin sequence</span>
+
+<span class="sd">        :return: string corresponding to the strand (forward or reverse)</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strand</span>
+
+<div class="viewcode-block" id="CDS.get_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_seq">[docs]</a>    <span class="k">def</span> <span class="nf">get_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the sequence of the CDS</span>
+
+<span class="sd">        :return: string with the sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seq</span>
+
+<div class="viewcode-block" id="CDS.get_order"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_order">[docs]</a>    <span class="k">def</span> <span class="nf">get_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the order of the CDS on the strand on the origin sequence</span>
+
+<span class="sd">        :return: int corresponding to the order value</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+
+<div class="viewcode-block" id="CDS.get_next_cds_limit"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_next_cds_limit">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_cds_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the end or start (if reverse strand) of next CDS on the strand on the origin sequence</span>
+
+<span class="sd">        :return: int corresponding to the end or start of the next CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_cds_limit</span>
+
+<div class="viewcode-block" id="CDS.get_alternative_ends"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_alternative_ends">[docs]</a>    <span class="k">def</span> <span class="nf">get_alternative_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of possible alternative ends if the CDS is ending with TAG STOP codon</span>
+
+<span class="sd">        :return: list of int corresponding to the alternative ends</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternative_ends</span>
+
+<div class="viewcode-block" id="CDS.get_alternative_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_alternative_cds">[docs]</a>    <span class="k">def</span> <span class="nf">get_alternative_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of possible alternative CDS if the CDS is ending with TAG STOP codon</span>
+
+<span class="sd">        :return: list of CDS object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alternative_cds</span>
+
+<div class="viewcode-block" id="CDS.get_alignments"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_alignments">[docs]</a>    <span class="k">def</span> <span class="nf">get_alignments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of alignments</span>
+
+<span class="sd">        :return: list of alignment object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span>
+
+<div class="viewcode-block" id="CDS.get_conserved_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_conserved_cds">[docs]</a>    <span class="k">def</span> <span class="nf">get_conserved_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the CDS object of the conserved CDS as correct CDS (start, end, sequence)</span>
+
+<span class="sd">        :return: CDS object of the conserved CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conserved_cds</span>
+
+<div class="viewcode-block" id="CDS.get_rejected_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_rejected_cds">[docs]</a>    <span class="k">def</span> <span class="nf">get_rejected_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of the rejected CDS objects as correct CDS (start, end, sequence)</span>
+
+<span class="sd">        :return: list of CDS objects</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejected_cds</span>
+
+<div class="viewcode-block" id="CDS.get_origin_seq_size"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_origin_seq_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_origin_seq_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the length of the origin sequence</span>
+
+<span class="sd">        :return: int corresponding to the length of the origin sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_origin_seq</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No origin sequence provided&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq</span><span class="p">()</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.get_origin_seq_string"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_origin_seq_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_origin_seq_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the string of the origin sequence</span>
+
+<span class="sd">        :return: string corresponding to the origin sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_origin_seq</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No origin sequence provided&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq</span><span class="p">()</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.get_alternative_start"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_alternative_start">[docs]</a>    <span class="k">def</span> <span class="nf">get_alternative_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of alternative CDS start</span>
+
+<span class="sd">        :return: list of the start of the alternative CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alt_starts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+            <span class="n">alt_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alt_cds</span><span class="o">.</span><span class="n">get_start</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">alt_starts</span>
+
+<div class="viewcode-block" id="CDS.get_alternative_end"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_alternative_end">[docs]</a>    <span class="k">def</span> <span class="nf">get_alternative_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of alternative CDS end</span>
+
+<span class="sd">        :return: list of the end of the alternative CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alt_ends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+            <span class="n">alt_ends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alt_cds</span><span class="o">.</span><span class="n">get_end</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">alt_ends</span>
+
+<div class="viewcode-block" id="CDS.get_translated_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_translated_seq">[docs]</a>    <span class="k">def</span> <span class="nf">get_translated_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the translated sequence of the CDS</span>
+
+<span class="sd">        :return: SeqRecord object corresponding to the translated sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">SeqRecord</span><span class="p">(</span>
+            <span class="n">translate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_seq</span><span class="p">()),</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
+            <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_description</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">seq</span>
+
+<div class="viewcode-block" id="CDS.get_translated_alternative_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_translated_alternative_seq">[docs]</a>    <span class="k">def</span> <span class="nf">get_translated_alternative_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of the translated sequences of the alternative sequences</span>
+
+<span class="sd">        :return: list of SeqRecord objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transl_alt_seq</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+            <span class="n">transl_alt_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alt_cds</span><span class="o">.</span><span class="n">get_translated_seq</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">transl_alt_seq</span>
+
+<div class="viewcode-block" id="CDS.get_seqrecord"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_seqrecord">[docs]</a>    <span class="k">def</span> <span class="nf">get_seqrecord</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a SeqRecord of the CDS</span>
+
+<span class="sd">        :return: SeqRecord</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">SeqRecord</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_seq</span><span class="p">(),</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
+            <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_description</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">seq</span>
+
+<div class="viewcode-block" id="CDS.get_lowest_evalue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_lowest_evalue">[docs]</a>    <span class="k">def</span> <span class="nf">get_lowest_evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the lowest evalue for all alignments</span>
+
+<span class="sd">        :return: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lowest_evalue</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">for</span> <span class="n">al</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alignments</span><span class="p">():</span>
+            <span class="n">evalue</span> <span class="o">=</span> <span class="n">al</span><span class="o">.</span><span class="n">get_evalue</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">evalue</span> <span class="o">&lt;</span> <span class="n">lowest_evalue</span><span class="p">:</span>
+                <span class="n">lowest_evalue</span> <span class="o">=</span> <span class="n">evalue</span></div>
+        <span class="k">return</span> <span class="n">lowest_evalue</span>
+
+<div class="viewcode-block" id="CDS.get_highest_bitscore"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.get_highest_bitscore">[docs]</a>    <span class="k">def</span> <span class="nf">get_highest_bitscore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the highest bitscore for all alignments</span>
+
+<span class="sd">        :return: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">highest_bitscore</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">al</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alignments</span><span class="p">():</span>
+            <span class="n">bitscore</span> <span class="o">=</span> <span class="n">al</span><span class="o">.</span><span class="n">get_bitscore</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">bitscore</span> <span class="o">&gt;</span> <span class="n">highest_bitscore</span><span class="p">:</span>
+                <span class="n">highest_bitscore</span> <span class="o">=</span> <span class="n">bitscore</span></div>
+        <span class="k">return</span> <span class="n">highest_bitscore</span>
+
+<div class="viewcode-block" id="CDS.set_id"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the id of the CDS</span>
+
+<span class="sd">        :param order: new id value</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">seq_id</span>
+
+<div class="viewcode-block" id="CDS.set_origin_seq_id"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_origin_seq_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_origin_seq_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin_seq_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the id of the origin sequence of the CDS</span>
+
+<span class="sd">        :param order: new origin seq id value</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq_id</span> <span class="o">=</span> <span class="n">origin_seq_id</span>
+
+<div class="viewcode-block" id="CDS.set_start"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_start">[docs]</a>    <span class="k">def</span> <span class="nf">set_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the start position of the CDS</span>
+
+<span class="sd">        :param start: new start value (int)</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+
+<div class="viewcode-block" id="CDS.set_end"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_end">[docs]</a>    <span class="k">def</span> <span class="nf">set_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the end position of the CDS</span>
+
+<span class="sd">        :param end: new end value (int)</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+
+<div class="viewcode-block" id="CDS.set_strand"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_strand">[docs]</a>    <span class="k">def</span> <span class="nf">set_strand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the strand value of the CDS</span>
+
+<span class="sd">        :param end: new strand (forward or reverse)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">!=</span> <span class="s2">&quot;reverse&quot;</span> <span class="ow">and</span> <span class="n">strand</span> <span class="o">!=</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect strand value: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">strand</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strand</span> <span class="o">=</span> <span class="n">strand</span>
+
+<div class="viewcode-block" id="CDS.set_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_seq">[docs]</a>    <span class="k">def</span> <span class="nf">set_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the sequence object of the CDS</span>
+
+<span class="sd">        :param seq: new Seq object with the sequence of the CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="n">seq</span>
+
+<div class="viewcode-block" id="CDS.set_order"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_order">[docs]</a>    <span class="k">def</span> <span class="nf">set_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the order of the CDS on the strand on the origin sequence</span>
+
+<span class="sd">        :param order: new order value</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+
+<div class="viewcode-block" id="CDS.set_next_cds_limit"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_next_cds_limit">[docs]</a>    <span class="k">def</span> <span class="nf">set_next_cds_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_cds_limit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the end or start (if reverse strand) of next CDS on the strand on the origin sequence</span>
+
+<span class="sd">        :param next_cds_limit: int corresponding to the end or start of next CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_cds_limit</span> <span class="o">=</span> <span class="n">next_cds_limit</span>
+
+<div class="viewcode-block" id="CDS.set_origin_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_origin_seq">[docs]</a>    <span class="k">def</span> <span class="nf">set_origin_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin_seq</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the SeqRecord object corresponding to the origin seq of the CDS</span>
+
+<span class="sd">        :param origin_seq: SeqRecord object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strand</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;reverse&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="o">.</span><span class="n">description</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="o">.</span><span class="n">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">origin_seq</span> <span class="o">=</span> <span class="n">origin_seq</span>
+
+<div class="viewcode-block" id="CDS.set_alternative_ends"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_alternative_ends">[docs]</a>    <span class="k">def</span> <span class="nf">set_alternative_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alternative_ends</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the list of alternative ends</span>
+
+<span class="sd">        :param alternative_ends: list of int corresponding to the new alternative ends</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_ends</span> <span class="o">=</span> <span class="n">alternative_ends</span>
+
+<div class="viewcode-block" id="CDS.set_evalue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_evalue">[docs]</a>    <span class="k">def</span> <span class="nf">set_evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evalue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the evalue</span>
+
+<span class="sd">        :param evalue: new evalue</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalue</span> <span class="o">=</span> <span class="n">evalue</span>
+
+<div class="viewcode-block" id="CDS.set_conserved_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.set_conserved_cds">[docs]</a>    <span class="k">def</span> <span class="nf">set_conserved_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conserved_cds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the conserved CDS</span>
+
+<span class="sd">        :param conserved_cds: CDS object of the conserved CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conserved_cds</span> <span class="o">=</span> <span class="n">conserved_cds</span>
+
+<div class="viewcode-block" id="CDS.reset_alternative_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.reset_alternative_cds">[docs]</a>    <span class="k">def</span> <span class="nf">reset_alternative_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the list of alternative cds&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_cds</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="CDS.add_alternative_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.add_alternative_cds">[docs]</a>    <span class="k">def</span> <span class="nf">add_alternative_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alternative_cds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an alternative CDS to the list of possible alternative CDS</span>
+
+<span class="sd">        :param alternative_cds: a CDS object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_cds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alternative_cds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.reset_alignments"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.reset_alignments">[docs]</a>    <span class="k">def</span> <span class="nf">reset_alignments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the list of alignments&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span></div>
+            <span class="n">alt_cds</span><span class="o">.</span><span class="n">reset_alignments</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CDS.add_alignment"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.add_alignment">[docs]</a>    <span class="k">def</span> <span class="nf">add_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alignment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an alignment object to the list of alignment</span>
+
+<span class="sd">        :param alignment: an alignment object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.reset_rejected_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.reset_rejected_cds">[docs]</a>    <span class="k">def</span> <span class="nf">reset_rejected_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the list of rejected cds&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_cds</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="CDS.add_rejected_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.add_rejected_cds">[docs]</a>    <span class="k">def</span> <span class="nf">add_rejected_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rejected_cds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a rejected CDS to the list of rejected CDS</span>
+
+<span class="sd">        :param rejected_cds: a CDS object</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_cds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rejected_cds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.is_reverse_strand"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.is_reverse_strand">[docs]</a>    <span class="k">def</span> <span class="nf">is_reverse_strand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the strand is reverse</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strand</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;reverse&quot;</span>
+
+<div class="viewcode-block" id="CDS.is_tag_ending_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.is_tag_ending_seq">[docs]</a>    <span class="k">def</span> <span class="nf">is_tag_ending_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the sequence is ending with TAG STOP codon</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_seq</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;TAG&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.has_next_cds_limit"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.has_next_cds_limit">[docs]</a>    <span class="k">def</span> <span class="nf">has_next_cds_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the limit of next CDS is set</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_cds_limit</span><span class="p">()</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span>
+
+<div class="viewcode-block" id="CDS.has_alternative_ends"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.has_alternative_ends">[docs]</a>    <span class="k">def</span> <span class="nf">has_alternative_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the list of alternative ends is not empty</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_ends</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="CDS.is_potential_pyl_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.is_potential_pyl_cds">[docs]</a>    <span class="k">def</span> <span class="nf">is_potential_pyl_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the CDS is a potential PYL CDS: having alternative cds</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="CDS.has_origin_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.has_origin_seq">[docs]</a>    <span class="k">def</span> <span class="nf">has_origin_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if the CDS has a origin seq</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="CDS.find_next_cds_limit"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.find_next_cds_limit">[docs]</a>    <span class="k">def</span> <span class="nf">find_next_cds_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordered_pred_cds</span><span class="p">,</span> <span class="n">pred_cds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine the end of the next CDS on the strand on the origin sequence</span>
+
+<span class="sd">        If the stand is reverse, we need to take the start of the previous CDS</span>
+
+<span class="sd">        :param ordered_pred_cds: ordered ids of the CDS on the same strand on the origin sequence</span>
+<span class="sd">        :param pred_cds: a dictionary with the predicted CDS represented as CDS objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ordered_pred_cds</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_order</span><span class="p">()]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect order for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_origin_seq</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No origin sequence provided&quot;</span><span class="p">)</span>
+
+        <span class="n">origin_seq_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_size</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_reverse_strand</span><span class="p">():</span>
+            <span class="n">next_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_order</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">next_cds_limit</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">next_id</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">next_cds_id</span> <span class="o">=</span> <span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">next_id</span><span class="p">]</span>
+                <span class="n">next_cds_limit</span> <span class="o">=</span> <span class="n">pred_cds</span><span class="p">[</span><span class="n">next_cds_id</span><span class="p">]</span><span class="o">.</span><span class="n">get_start</span><span class="p">()</span>
+            <span class="n">next_cds_limit</span> <span class="o">=</span> <span class="p">(</span><span class="n">origin_seq_size</span> <span class="o">-</span> <span class="n">next_cds_limit</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">next_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_order</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">next_cds_limit</span> <span class="o">=</span> <span class="n">origin_seq_size</span>
+            <span class="k">if</span> <span class="n">next_id</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_pred_cds</span><span class="p">):</span>
+                <span class="n">next_cds_id</span> <span class="o">=</span> <span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">next_id</span><span class="p">]</span>
+                <span class="n">next_cds_limit</span> <span class="o">=</span> <span class="n">pred_cds</span><span class="p">[</span><span class="n">next_cds_id</span><span class="p">]</span><span class="o">.</span><span class="n">get_end</span><span class="p">()</span>
+</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_next_cds_limit</span><span class="p">(</span><span class="n">next_cds_limit</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.find_alternative_ends"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.find_alternative_ends">[docs]</a>    <span class="k">def</span> <span class="nf">find_alternative_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find alternative ends (on the same ORF) for a CDS until the next found STOP</span>
+<span class="sd">        codon on the genome (or its complement if the CDS is on the reverse strand)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_origin_seq</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No origin sequence provided&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next_cds_limit</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No next CDS limit provided&quot;</span><span class="p">)</span>
+
+        <span class="n">origin_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_string</span><span class="p">()</span>
+        <span class="n">origin_seq_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_size</span><span class="p">()</span>
+
+        <span class="n">new_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_end</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_reverse_strand</span><span class="p">():</span>
+            <span class="n">new_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">origin_seq_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">stop_codons</span> <span class="o">=</span> <span class="n">CodonTable</span><span class="o">.</span><span class="n">unambiguous_dna_by_id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stop_codons</span>
+        <span class="n">to_continue</span> <span class="o">=</span> <span class="n">test_to_continue</span><span class="p">(</span><span class="n">new_end</span><span class="p">,</span> <span class="n">origin_seq_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_cds_limit</span><span class="p">())</span>
+        <span class="n">new_ends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">to_continue</span><span class="p">:</span>
+            <span class="n">codon</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="p">[</span><span class="n">new_end</span><span class="p">:(</span><span class="n">new_end</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)]</span>
+            <span class="n">new_end</span> <span class="o">+=</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="n">codon</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stop_codons</span><span class="p">:</span>
+                <span class="n">to_continue</span> <span class="o">=</span> <span class="n">test_to_continue</span><span class="p">(</span><span class="n">new_end</span><span class="p">,</span> <span class="n">origin_seq_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_cds_limit</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_ends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_end</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">codon</span> <span class="o">!=</span> <span class="s1">&#39;TAG&#39;</span><span class="p">:</span>
+                    <span class="n">to_continue</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">to_continue</span> <span class="o">=</span> <span class="n">test_to_continue</span><span class="p">(</span><span class="n">new_end</span><span class="p">,</span> <span class="n">origin_seq_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_cds_limit</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_alternative_ends</span><span class="p">(</span><span class="n">new_ends</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.extract_possible_alternative_seq"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.extract_possible_alternative_seq">[docs]</a>    <span class="k">def</span> <span class="nf">extract_possible_alternative_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the start, end and sequence of different possible sequences for a CDS identified as</span>
+<span class="sd">        potential PYL CDS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_alternative_ends</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_origin_seq</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No origin sequence provided&quot;</span><span class="p">)</span>
+
+        <span class="n">origin_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_string</span><span class="p">()</span>
+        <span class="n">origin_seq_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_size</span><span class="p">()</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_end</span><span class="p">()</span>
+        <span class="n">seq_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_alternative_cds</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">alt_end</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_ends</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_reverse_strand</span><span class="p">():</span>
+                <span class="n">new_start</span> <span class="o">=</span> <span class="n">origin_seq_size</span> <span class="o">-</span> <span class="n">alt_end</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">new_end</span> <span class="o">=</span> <span class="n">end</span>
+                <span class="n">rev_start</span> <span class="o">=</span> <span class="n">origin_seq_size</span> <span class="o">-</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">new_seq</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="p">[(</span><span class="n">rev_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span><span class="n">alt_end</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_start</span> <span class="o">=</span> <span class="n">start</span>
+                <span class="n">new_end</span> <span class="o">=</span> <span class="n">alt_end</span>
+                <span class="n">new_seq</span> <span class="o">=</span> <span class="n">origin_seq</span><span class="p">[(</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span><span class="n">new_end</span><span class="p">]</span>
+            <span class="n">new_cds</span> <span class="o">=</span> <span class="n">CDS</span><span class="p">(</span>
+                <span class="n">seq_id</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seq_id</span><span class="p">,</span> <span class="n">count</span><span class="p">),</span>
+                <span class="n">start</span><span class="o">=</span><span class="n">new_start</span><span class="p">,</span>
+                <span class="n">end</span><span class="o">=</span><span class="n">new_end</span><span class="p">,</span>
+                <span class="n">strand</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
+                <span class="n">origin_seq_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
+                <span class="n">seq</span><span class="o">=</span><span class="n">Seq</span><span class="p">(</span><span class="n">new_seq</span><span class="p">))</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_alternative_cds</span><span class="p">(</span><span class="n">new_cds</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.add_id_alignment"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.add_id_alignment">[docs]</a>    <span class="k">def</span> <span class="nf">add_id_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_id</span><span class="p">,</span> <span class="n">alignment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add alignment to the correct CDS object</span>
+
+<span class="sd">        :param seq_id: id of the CDS</span>
+<span class="sd">        :param alignment: alignment object to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">seq_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_alignment</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">alt_cds</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">==</span> <span class="n">seq_id</span><span class="p">:</span></div>
+                    <span class="n">alt_cds</span><span class="o">.</span><span class="n">add_alignment</span><span class="p">(</span><span class="n">alignment</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CDS.identify_lowest_evalue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.identify_lowest_evalue">[docs]</a>    <span class="k">def</span> <span class="nf">identify_lowest_evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identify which alternative CDS to converse or reject based on the</span>
+<span class="sd">        evalue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_evalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lowest_evalue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_rejected_cds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_conserved_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+            <span class="n">evalue</span> <span class="o">=</span> <span class="n">alt_cds</span><span class="o">.</span><span class="n">get_lowest_evalue</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">evalue</span> <span class="o">&lt;</span> <span class="n">ref_evalue</span><span class="p">:</span>
+                <span class="n">ref_evalue</span> <span class="o">=</span> <span class="n">evalue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_rejected_cds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conserved_cds</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_conserved_cds</span><span class="p">(</span><span class="n">alt_cds</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_rejected_cds</span><span class="p">(</span><span class="n">alt_cds</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ref_evalue</span>
+
+<div class="viewcode-block" id="CDS.identify_highest_bitscore"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.identify_highest_bitscore">[docs]</a>    <span class="k">def</span> <span class="nf">identify_highest_bitscore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identify which alternative CDS to converse or reject based on the</span>
+<span class="sd">        bitscore</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_bitscore</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_highest_bitscore</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_rejected_cds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_conserved_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+            <span class="n">bitscore</span> <span class="o">=</span> <span class="n">alt_cds</span><span class="o">.</span><span class="n">get_highest_bitscore</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">bitscore</span> <span class="o">&gt;</span> <span class="n">ref_bitscore</span><span class="p">:</span>
+                <span class="n">ref_bitscore</span> <span class="o">=</span> <span class="n">bitscore</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_rejected_cds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conserved_cds</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_conserved_cds</span><span class="p">(</span><span class="n">alt_cds</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_rejected_cds</span><span class="p">(</span><span class="n">alt_cds</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ref_bitscore</span>
+
+<div class="viewcode-block" id="CDS.identify_cons_rej_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.identify_cons_rej_cds">[docs]</a>    <span class="k">def</span> <span class="nf">identify_cons_rej_cds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Identify which alternative CDS to converse or reject based on the</span>
+<span class="sd">        evalue or the bitscore:</span>
+
+<span class="sd">        - Extract the CDS (current and possible alternative sequence) with the lowest evalue</span>
+<span class="sd">        - Reset if the lowest evalue is too high and could be due to random alignment</span>
+<span class="sd">        - Extract the CDS (current and possible alternative sequence) with the highest bitscore</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_evalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_lowest_evalue</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ref_evalue</span> <span class="o">&gt;</span> <span class="mf">1e-10</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_rejected_cds</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_conserved_cds</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conserved_cds</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="p">:</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identify_highest_bitscore</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CDS.export_description"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.export_description">[docs]</a>    <span class="k">def</span> <span class="nf">export_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the description of the CDS</span>
+
+<span class="sd">        :return: string with the description</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;# origin_seq: </span><span class="si">%s</span><span class="s2"> # strand: </span><span class="si">%s</span><span class="s2"> # start: </span><span class="si">%s</span><span class="s2"> # end: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_end</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">desc</span>
+
+<div class="viewcode-block" id="CDS.export_to_dict"><a class="viewcode-back" href="../../code.html#pylprotpredictor.cds.CDS.export_to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">export_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the object to CDS</span>
+
+<span class="sd">        :return: dict corresponding to CDS object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cds_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">cds_id</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
+            <span class="s1">&#39;origin_seq_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
+            <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
+            <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_end</span><span class="p">(),</span>
+            <span class="s1">&#39;strand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
+            <span class="s1">&#39;seq&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_seq</span><span class="p">()),</span>
+            <span class="s1">&#39;order&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_order</span><span class="p">(),</span>
+            <span class="s1">&#39;next_cds_limit&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_cds_limit</span><span class="p">(),</span>
+            <span class="s1">&#39;alternative_ends&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_ends</span><span class="p">(),</span>
+            <span class="s1">&#39;alternative_cds&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_alternative_ends</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">alt_cds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alternative_cds</span><span class="p">():</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">cds_id</span><span class="p">][</span><span class="s1">&#39;alternative_cds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">alt_cds</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">())</span>
+</div></div>
+        <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bérénice Batut, Kévin Gravouil, Jean-Francois Brugère.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

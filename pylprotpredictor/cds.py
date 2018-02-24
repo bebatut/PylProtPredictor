@@ -690,12 +690,10 @@ class CDS:
         """Identify which alternative CDS to converse or reject based on the
         evalue or the bitscore:
 
-        - Extract the CDS (current and possible alternative sequence) with the
-        lowest evalue
-        - Reset if the lowest evalue is too high and could be due to random
-        alignment
-        - Extract the CDS (current and possible alternative sequence) with the
-        highest bitscore
+        - Extract the CDS (current and possible alternative sequence) with the lowest evalue
+        - Reset if the lowest evalue is too high and could be due to random alignment
+        - Extract the CDS (current and possible alternative sequence) with the highest bitscore
+
         """
         ref_evalue = self.identify_lowest_evalue()
 

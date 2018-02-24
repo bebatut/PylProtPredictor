@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pylprotpredictor.write_report &mdash; PylProtPredictor 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PylProtPredictor 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PylProtPredictor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">PylProtPredictor documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylprotpredictor.html">Identification of potential PYL proteins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use_case.html">Some example of usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code: pylprotpredictor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/bebatut/PylProtPredictor">Source code on GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PylProtPredictor</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pylprotpredictor.write_report</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pylprotpredictor.write_report</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">snakemake.utils</span> <span class="k">import</span> <span class="n">report</span>
+
+
+<div class="viewcode-block" id="extract_row_number"><a class="viewcode-back" href="../../code.html#pylprotpredictor.write_report.extract_row_number">[docs]</a><span class="k">def</span> <span class="nf">extract_row_number</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract row number of a CSV file</span>
+
+<span class="sd">    :param csv_filepath: path to a CSV file</span>
+
+<span class="sd">    :return: an integer corresponding to the number of lines in the CSV file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="write_report"><a class="viewcode-back" href="../../code.html#pylprotpredictor.write_report.write_report">[docs]</a><span class="k">def</span> <span class="nf">write_report</span><span class="p">(</span><span class="n">pred_cds</span><span class="p">,</span> <span class="n">tag_ending_cds</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">,</span> <span class="n">final_cds</span><span class="p">,</span> <span class="n">report_filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write HTML report to summarize the full analysis</span>
+
+<span class="sd">    :param pred_cds:</span>
+<span class="sd">    :param tag_ending_cds:</span>
+<span class="sd">    :param pot_pyl_cds:</span>
+<span class="sd">    :param final_cds_info:</span>
+<span class="sd">    :param report_filepath:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pred_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">pred_cds</span><span class="p">)</span>
+    <span class="n">tag_ending_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">tag_ending_cds</span><span class="p">)</span>
+    <span class="n">pot_pyl_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="p">)</span>
+    <span class="n">final_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">final_cds</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pred_cds_nb</span><span class="p">,</span> <span class="n">tag_ending_cds_nb</span><span class="p">,</span> <span class="n">pot_pyl_cds_nb</span><span class="p">,</span> <span class="n">final_cds_nb</span><span class="p">))</span>
+
+    <span class="n">report</span><span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prediction of PYL proteins</span>
+<span class="sd">        ==========================</span>
+
+<span class="sd">        {pred_cds_nb} sequences are predicted as CDS (see Table</span>
+<span class="sd">        predicted_cds_).</span>
+
+<span class="sd">        From these {pred_cds_nb} prediced CDS, {tag_ending_cds_nb} are ending</span>
+<span class="sd">        with a TAG STOP codon (see Table tag_ending_cds_).</span>
+<span class="sd">        {pot_pyl_cds_nb} are predicted as potential PYL sequences (see</span>
+<span class="sd">        Table potential_pyl_cds_).</span>
+
+<span class="sd">        After similarity search, {final_cds_nb} sequences (of</span>
+<span class="sd">        {pot_pyl_cds_nb} predicted PYL sequences) are conserved as</span>
+<span class="sd">        potential PYL proteins (see Table final_cds_).</span>
+<span class="sd">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="n">report_filepath</span><span class="p">,</span>
+        <span class="n">predicted_cds</span><span class="o">=</span><span class="n">pred_cds</span><span class="p">,</span>
+        <span class="n">tag_ending_cds</span><span class="o">=</span><span class="n">tag_ending_cds</span><span class="p">,</span>
+        <span class="n">potential_pyl_cds</span><span class="o">=</span><span class="n">pot_pyl_cds</span><span class="p">,</span></div>
+        <span class="n">final_cds</span><span class="o">=</span><span class="n">final_cds</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bérénice Batut, Kévin Gravouil, Jean-Francois Brugère.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
