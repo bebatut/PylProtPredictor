@@ -135,7 +135,7 @@ rule search_similarity:
         " -q {input.potential_pyl_seq}"
         " -o {output}"
         " -k 5"
-        " -e 0.01"
+        " -e 1e-10"
         " -f 6"
         " -b 0.5"
         " -p {threads} "
