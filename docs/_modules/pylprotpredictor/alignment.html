@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pylprotpredictor.alignment &mdash; PylProtPredictor 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PylProtPredictor 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PylProtPredictor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">PylProtPredictor documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylprotpredictor.html">Identification of potential PYL proteins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use_case.html">Some example of usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code: pylprotpredictor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/bebatut/PylProtPredictor">Source code on GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PylProtPredictor</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pylprotpredictor.alignment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pylprotpredictor.alignment</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="Alignment"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment">[docs]</a><span></span><span class="k">class</span> <span class="nc">Alignment</span><span class="p">:</span>
+    <span class="s1">&#39;Class to describe a DIAMOND alignment&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">sseqid</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pident</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mismatch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">gapopen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">qstart</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">qend</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sstart</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">send</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">evalue</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bitscore</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate a CDS instance&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sseqid</span> <span class="o">=</span> <span class="n">sseqid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pident</span> <span class="o">=</span> <span class="n">pident</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mismatch</span> <span class="o">=</span> <span class="n">mismatch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gapopen</span> <span class="o">=</span> <span class="n">gapopen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span> <span class="o">=</span> <span class="n">qstart</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qend</span> <span class="o">=</span> <span class="n">qend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sstart</span> <span class="o">=</span> <span class="n">sstart</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span> <span class="o">=</span> <span class="n">send</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalue</span> <span class="o">=</span> <span class="n">evalue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bitscore</span> <span class="o">=</span> <span class="n">bitscore</span>
+
+<div class="viewcode-block" id="Alignment.init_from_search_report_row"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.init_from_search_report_row">[docs]</a>    <span class="k">def</span> <span class="nf">init_from_search_report_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate an Alignment instance with a row extracted from a</span>
+<span class="sd">        BLAST/DIAMOND table</span>
+
+<span class="sd">        :param row: a pandas row</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sseqid</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_pident</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_length</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_mismatch</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_gapopen</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_qstart</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_qend</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">8</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sstart</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_send</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">10</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_evalue</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">11</span><span class="p">]))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_bitscore</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">12</span><span class="p">]))</span>
+
+<div class="viewcode-block" id="Alignment.get_sseqid"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_sseqid">[docs]</a>    <span class="k">def</span> <span class="nf">get_sseqid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return query sequence id</span>
+
+<span class="sd">        :return: string</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sseqid</span>
+
+<div class="viewcode-block" id="Alignment.get_pident"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_pident">[docs]</a>    <span class="k">def</span> <span class="nf">get_pident</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return percentage of identical matches</span>
+
+<span class="sd">        :return: float</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pident</span>
+
+<div class="viewcode-block" id="Alignment.get_length"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_length">[docs]</a>    <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return alignment length</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+
+<div class="viewcode-block" id="Alignment.get_mismatch"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_mismatch">[docs]</a>    <span class="k">def</span> <span class="nf">get_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of mismatches</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mismatch</span>
+
+<div class="viewcode-block" id="Alignment.get_gapopen"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_gapopen">[docs]</a>    <span class="k">def</span> <span class="nf">get_gapopen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of gap openings</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gapopen</span>
+
+<div class="viewcode-block" id="Alignment.get_qstart"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_qstart">[docs]</a>    <span class="k">def</span> <span class="nf">get_qstart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return query sequence id</span>
+
+<span class="sd">        :return: query sequence id</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span>
+
+<div class="viewcode-block" id="Alignment.get_qend"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_qend">[docs]</a>    <span class="k">def</span> <span class="nf">get_qend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return end of alignment in query</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qend</span>
+
+<div class="viewcode-block" id="Alignment.get_sstart"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_sstart">[docs]</a>    <span class="k">def</span> <span class="nf">get_sstart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return start of alignment in subject</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sstart</span>
+
+<div class="viewcode-block" id="Alignment.get_send"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_send">[docs]</a>    <span class="k">def</span> <span class="nf">get_send</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return end of alignment in subject</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span>
+
+<div class="viewcode-block" id="Alignment.get_evalue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_evalue">[docs]</a>    <span class="k">def</span> <span class="nf">get_evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return expect value</span>
+
+<span class="sd">        :return: float</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalue</span>
+
+<div class="viewcode-block" id="Alignment.get_bitscore"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.get_bitscore">[docs]</a>    <span class="k">def</span> <span class="nf">get_bitscore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return bit score</span>
+
+<span class="sd">        :return: query sequence id</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitscore</span>
+
+<div class="viewcode-block" id="Alignment.set_sseqid"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_sseqid">[docs]</a>    <span class="k">def</span> <span class="nf">set_sseqid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sseqid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify query Seq-id</span>
+
+<span class="sd">        :param sseqid: string</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sseqid</span> <span class="o">=</span> <span class="n">sseqid</span>
+
+<div class="viewcode-block" id="Alignment.set_pident"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_pident">[docs]</a>    <span class="k">def</span> <span class="nf">set_pident</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pident</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify percentage of identical matches</span>
+
+<span class="sd">        :param pident: float</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pident</span> <span class="o">=</span> <span class="n">pident</span>
+
+<div class="viewcode-block" id="Alignment.set_length"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_length">[docs]</a>    <span class="k">def</span> <span class="nf">set_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify alignment length</span>
+
+<span class="sd">        :param length: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+
+<div class="viewcode-block" id="Alignment.set_mismatch"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_mismatch">[docs]</a>    <span class="k">def</span> <span class="nf">set_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mismatch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify number of mismatches</span>
+
+<span class="sd">        :param mismatch: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mismatch</span> <span class="o">=</span> <span class="n">mismatch</span>
+
+<div class="viewcode-block" id="Alignment.set_gapopen"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_gapopen">[docs]</a>    <span class="k">def</span> <span class="nf">set_gapopen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gapopen</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify number of gap openings</span>
+
+<span class="sd">        :param gapopen: string</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gapopen</span> <span class="o">=</span> <span class="n">gapopen</span>
+
+<div class="viewcode-block" id="Alignment.set_qstart"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_qstart">[docs]</a>    <span class="k">def</span> <span class="nf">set_qstart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify start of alignment in query</span>
+
+<span class="sd">        :param qstart: string</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span> <span class="o">=</span> <span class="n">qstart</span>
+
+<div class="viewcode-block" id="Alignment.set_qend"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_qend">[docs]</a>    <span class="k">def</span> <span class="nf">set_qend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qend</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify end of alignment in query</span>
+
+<span class="sd">        :param qend: string</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qend</span> <span class="o">=</span> <span class="n">qend</span>
+
+<div class="viewcode-block" id="Alignment.set_sstart"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_sstart">[docs]</a>    <span class="k">def</span> <span class="nf">set_sstart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sstart</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify start of alignment in subject</span>
+
+<span class="sd">        :param sstart: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sstart</span> <span class="o">=</span> <span class="n">sstart</span>
+
+<div class="viewcode-block" id="Alignment.set_send"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_send">[docs]</a>    <span class="k">def</span> <span class="nf">set_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">send</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify end of alignment in subject</span>
+
+<span class="sd">        :param send: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span> <span class="o">=</span> <span class="n">send</span>
+
+<div class="viewcode-block" id="Alignment.set_evalue"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_evalue">[docs]</a>    <span class="k">def</span> <span class="nf">set_evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evalue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify evalue</span>
+
+<span class="sd">        :param evalue: float</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalue</span> <span class="o">=</span> <span class="n">evalue</span>
+
+<div class="viewcode-block" id="Alignment.set_bitscore"><a class="viewcode-back" href="../../code.html#pylprotpredictor.alignment.Alignment.set_bitscore">[docs]</a>    <span class="k">def</span> <span class="nf">set_bitscore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bitscore</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Modify bit score</span>
+
+<span class="sd">        :param bitscore: int</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bitscore</span> <span class="o">=</span> <span class="n">bitscore</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bérénice Batut, Kévin Gravouil, Jean-Francois Brugère.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

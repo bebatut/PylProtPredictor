@@ -1,24 +1,33 @@
-Code
-====
+Code: pylprotpredictor module
+=============================
 
+CDS class
+---------
+
+.. automodule:: pylprotpredictor.cds
+    :members: 
+
+
+Alignment class
+---------------
+
+.. automodule:: pylprotpredictor.alignment
+    :members: 
 
 Predict
 -------
 
 .. automodule:: pylprotpredictor.predict
-   :prog: pylprotpredictor
-   :show-nested:
+    :members: 
 
 Check
 -----
 
 .. automodule:: pylprotpredictor.check
-   :prog: pylprotpredictor
-   :show-nested:
+    :members: 
 
-Write HTML report
------------------
+Write report
+------------
 
 .. automodule:: pylprotpredictor.write_report
-   :prog: pylprotpredictor
-   :show-nested:
+    :members: 

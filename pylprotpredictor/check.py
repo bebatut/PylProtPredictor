@@ -1,5 +1,6 @@
 import pandas as pd
 
+from pylprotpredictor import alignment
 from pylprotpredictor import cds
 from pylprotpredictor import export
 
@@ -45,11 +46,12 @@ def parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds):
         header=None)
 
     for row in similarity_search_report.itertuples():
-        seq_id = row[1]
-        cds_id = seq_id.split("-")[0]
-        evalue = float(row[11])
+        cds_id = row[1].split("-")[0]
         cds_obj = get_cds_obj(cds_id, pot_pyl_cds)
-        cds_obj.add_evalue(seq_id, evalue)
+
+        al = alignment.Alignment()
+        al.init_from_search_report_row(row)
+        cds_obj.add_id_alignment(row[1], al)
 
     return pot_pyl_cds
 

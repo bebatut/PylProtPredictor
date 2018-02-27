@@ -33,8 +33,8 @@ def test_get_cds_obj():
 def test_parse_similarity_search_report():
     """Test parse_similarity_search_report function"""
     check.parse_similarity_search_report(sim_search_filepath, pot_pyl_cds)
-    assert pot_pyl_cds["scaffold_117_243"].get_evalue() == 7.000000000000001e-54
-    assert pot_pyl_cds["scaffold_117_243"].get_alternative_cds()[0].get_evalue() == 3.999999999999999e-131
+    assert pot_pyl_cds["scaffold_117_243"].get_alignments()[0].get_evalue() == 7.000000000000001e-54
+    assert pot_pyl_cds["scaffold_117_243"].get_alternative_cds()[0].get_alignments()[0].get_evalue() == 3.999999999999999e-131
 
 
 def test_extract_correct_cds():

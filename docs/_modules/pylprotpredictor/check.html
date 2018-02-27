@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pylprotpredictor.check &mdash; PylProtPredictor 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="PylProtPredictor 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PylProtPredictor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">PylProtPredictor documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylprotpredictor.html">Identification of potential PYL proteins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../use_case.html">Some example of usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../code.html">Code: pylprotpredictor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/bebatut/PylProtPredictor">Source code on GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PylProtPredictor</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pylprotpredictor.check</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pylprotpredictor.check</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">alignment</span>
+<span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">cds</span>
+<span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">export</span>
+
+
+<div class="viewcode-block" id="import_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.check.import_cds">[docs]</a><span class="k">def</span> <span class="nf">import_cds</span><span class="p">(</span><span class="n">pot_pyl_cds_filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param pot_pyl_cds_filepath: path to JSON file with collection of potential PYL CDS</span>
+
+<span class="sd">    :return: dictionary of the potential PYL CDS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pot_pyl_cds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">export</span><span class="o">.</span><span class="n">import_json</span><span class="p">(</span><span class="n">pot_pyl_cds_filepath</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cds_id</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">cds_obj</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">CDS</span><span class="p">()</span>
+        <span class="n">cds_obj</span><span class="o">.</span><span class="n">init_from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">cds_id</span><span class="p">])</span>
+        <span class="n">pot_pyl_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cds_obj</span></div>
+    <span class="k">return</span> <span class="n">pot_pyl_cds</span>
+
+
+<div class="viewcode-block" id="get_cds_obj"><a class="viewcode-back" href="../../code.html#pylprotpredictor.check.get_cds_obj">[docs]</a><span class="k">def</span> <span class="nf">get_cds_obj</span><span class="p">(</span><span class="n">cds_id</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the CDS object given an id</span>
+
+<span class="sd">    :param cds_id: id of the CDS to find</span>
+<span class="sd">    :param pot_pyl_cds: dictionary of the potential PYL CDS</span>
+
+<span class="sd">    :return: a CDS object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cds_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pot_pyl_cds</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;CDS not found for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cds_id</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">pot_pyl_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="parse_similarity_search_report"><a class="viewcode-back" href="../../code.html#pylprotpredictor.check.parse_similarity_search_report">[docs]</a><span class="k">def</span> <span class="nf">parse_similarity_search_report</span><span class="p">(</span><span class="n">pot_pyl_similarity_search</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse the similarity search report and add information to the list of</span>
+<span class="sd">    potential PYL CDS</span>
+
+<span class="sd">    :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database</span>
+<span class="sd">    :param pot_pyl_cds: dictionary of the potential PYL CDS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">similarity_search_report</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span>
+        <span class="n">pot_pyl_similarity_search</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">similarity_search_report</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+        <span class="n">cds_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cds_obj</span> <span class="o">=</span> <span class="n">get_cds_obj</span><span class="p">(</span><span class="n">cds_id</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">)</span>
+
+        <span class="n">al</span> <span class="o">=</span> <span class="n">alignment</span><span class="o">.</span><span class="n">Alignment</span><span class="p">()</span>
+        <span class="n">al</span><span class="o">.</span><span class="n">init_from_search_report_row</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">cds_obj</span><span class="o">.</span><span class="n">add_id_alignment</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">al</span><span class="p">)</span>
+</div>
+    <span class="k">return</span> <span class="n">pot_pyl_cds</span>
+
+
+<div class="viewcode-block" id="extract_correct_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.check.extract_correct_cds">[docs]</a><span class="k">def</span> <span class="nf">extract_correct_cds</span><span class="p">(</span>
+        <span class="n">pot_pyl_cds</span><span class="p">,</span> <span class="n">cons_pot_pyl_seq_filepath</span><span class="p">,</span> <span class="n">info_filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Identify and extract the correct CDS sequence</span>
+
+<span class="sd">    :param pot_pyl_cds: dictionary of the potential PYL CDS</span>
+<span class="sd">    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS</span>
+<span class="sd">    :param info_filepath: path to a CSV file with final information about the CDS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cons_sequences</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">cds_id</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">cds_obj</span> <span class="o">=</span> <span class="n">pot_pyl_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span>
+        <span class="n">cds_obj</span><span class="o">.</span><span class="n">identify_cons_rej_cds</span><span class="p">()</span>
+
+        <span class="n">cons_seq</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_conserved_cds</span><span class="p">()</span>
+        <span class="n">cons_sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cons_seq</span><span class="o">.</span><span class="n">get_seqrecord</span><span class="p">())</span>
+
+        <span class="n">rej_seq</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_rejected_cds</span><span class="p">()</span>
+        <span class="n">info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;conserved_start&quot;</span><span class="p">:</span> <span class="n">cons_seq</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
+            <span class="s2">&quot;conserved_end&quot;</span><span class="p">:</span> <span class="n">cons_seq</span><span class="o">.</span><span class="n">get_end</span><span class="p">(),</span>
+            <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
+            <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
+            <span class="s2">&quot;original_start&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
+            <span class="s2">&quot;original_end&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_end</span><span class="p">(),</span>
+            <span class="s2">&quot;rejected_start&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_start</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">rej_seq</span><span class="p">]),</span>
+            <span class="s2">&quot;rejected_end&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_end</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">rej_seq</span><span class="p">])}</span>
+
+    <span class="n">export</span><span class="o">.</span><span class="n">export_fasta</span><span class="p">(</span><span class="n">cons_sequences</span><span class="p">,</span> <span class="n">cons_pot_pyl_seq_filepath</span><span class="p">)</span>
+    <span class="n">export</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
+        <span class="n">info</span><span class="p">,</span>
+        <span class="n">info_filepath</span><span class="p">,</span></div>
+        <span class="p">[</span><span class="s2">&quot;conserved_start&quot;</span><span class="p">,</span> <span class="s2">&quot;conserved_end&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">,</span> <span class="s2">&quot;original_start&quot;</span><span class="p">,</span> <span class="s2">&quot;original_end&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected_start&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected_end&quot;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="check_pyl_proteins"><a class="viewcode-back" href="../../code.html#pylprotpredictor.check.check_pyl_proteins">[docs]</a><span class="k">def</span> <span class="nf">check_pyl_proteins</span><span class="p">(</span>
+        <span class="n">pot_pyl_similarity_search</span><span class="p">,</span> <span class="n">pot_pyl_cds_filepath</span><span class="p">,</span>
+        <span class="n">cons_pot_pyl_seq</span><span class="p">,</span> <span class="n">info_filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check predicted PYL CDS:</span>
+
+<span class="sd">    - Get the potential PYL CDS</span>
+<span class="sd">    - Parse the similarity search report</span>
+<span class="sd">    - Identify and extract the correct CDS sequence (the one with the lowest evalue)</span>
+
+<span class="sd">    :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database</span>
+<span class="sd">    :param pot_pyl_cds_filepath: path to JSON file with collection of potential PYL CDS</span>
+<span class="sd">    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS</span>
+<span class="sd">    :param info_filepath: path to a CSV file with final information about the CDS</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pot_pyl_cds</span> <span class="o">=</span> <span class="n">import_cds</span><span class="p">(</span><span class="n">pot_pyl_cds_filepath</span><span class="p">)</span>
+    <span class="n">parse_similarity_search_report</span><span class="p">(</span><span class="n">pot_pyl_similarity_search</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">)</span></div>
+    <span class="n">extract_correct_cds</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="p">,</span> <span class="n">cons_pot_pyl_seq</span><span class="p">,</span> <span class="n">info_filepath</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Bérénice Batut, Kévin Gravouil, Jean-Francois Brugère.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

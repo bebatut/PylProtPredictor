@@ -6,6 +6,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 from pylprotpredictor import cds
+from pylprotpredictor import alignment
 
 
 data_dir = Path("tests/data")
@@ -18,6 +19,9 @@ for record in SeqIO.parse(input_cds_filepath, "fasta"):
     records.append(record)
 for record in SeqIO.parse(input_scaffold_genome_filepath, "fasta"):
     seqs[record.id] = record
+al1 = alignment.Alignment("sseqid", 99, 100, 1, 1, 10, 200, 30, 220, 0.005, 333.1)
+al2 = alignment.Alignment("sseqid", 99, 200, 1, 1, 10, 200, 30, 220, 1e-20, 336.2)
+al3 = alignment.Alignment("sseqid", 99, 200, 1, 1, 10, 200, 30, 220, 0.05, 333.1)
 
 
 def test_extract_seq_desc():
@@ -492,16 +496,36 @@ def test_init_from_dict():
         assert new_cds.is_potential_pyl_cds()
 
 
-def test_set_evalue():
-    """Test set_evalue from CDS class"""
-    cds_list[0].set_evalue(0.1)
-    assert cds_list[0].evalue == 0.1
+def test_add_alignment():
+    """Test add_alignment from CDS class"""
+    cds_list[0].add_alignment(al1)
+    cds_list[0].add_alignment(al2)
+    assert len(cds_list[0].alignments) == 2
 
 
-def test_get_evalue():
-    """Test get_evalue from CDS class"""
-    assert cds_list[0].get_evalue() == 0.1
-    assert cds_list[2].get_evalue() == 10
+def test_get_alignments():
+    """Test get_alignments from CDS class"""
+    al_bis = cds_list[0].get_alignments()
+    assert len(al_bis) == 2
+    assert al1.get_sseqid() == al_bis[0].get_sseqid()
+
+
+def test_reset_alignments():
+    """Test reset_alignments from CDS class"""
+    cds_list[0].reset_alignments()
+    assert len(cds_list[0].get_alignments()) == 0
+
+
+def test_get_lowest_evalue():
+    """Test get_lowest_evalue from CDS class"""
+    cds_list[0].add_alignment(al1)
+    cds_list[0].add_alignment(al2)
+    assert cds_list[0].get_lowest_evalue() == min(al1.get_evalue(), al2.get_evalue())
+
+
+def test_get_highest_bitscore():
+    """Test get_highest_bitscore from CDS class"""
+    assert cds_list[0].get_highest_bitscore() == 336.2
 
 
 def test_set_conserved_cds():
@@ -535,20 +559,49 @@ def test_reset_rejected_cds():
     assert len(cds_list[0].get_rejected_cds()) == 0
 
 
-def test_add_evalue():
-    """Test add_evalue from CDS class"""
-    cds_list[0].add_evalue(cds_list[0].get_id(), 0.02)
-    assert cds_list[0].get_evalue() == 0.02
-    cds_list[4].add_evalue("scaffold_1220_19-1", 0.02)
-    for alt_cds in cds_list[4].get_alternative_cds():
-        assert alt_cds.get_evalue() == 0.02
+def test_add_id_alignment():
+    """Test add_id_alignment from CDS class"""
+    cds_list[0].add_id_alignment(cds_list[0].get_id(), al1)
+    assert cds_list[0].get_alignments()[0].get_sseqid() == al1.get_sseqid()
+    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
+    cds_list[4].get_alternative_cds()[0].get_alignments()[0].get_sseqid() == al2.get_sseqid()
+
+
+def test_identify_lowest_evalue():
+    """Test identify_lowest_evalue from CDS class"""
+    cds_list[4].reset_alignments()
+    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
+    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
+    assert cds_list[4].identify_lowest_evalue() == al2.get_evalue()
+    assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
+
+
+def test_identify_highest_bitscore():
+    """Test identify_highest_bitscore from CDS class"""
+    cds_list[4].reset_alignments()
+    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
+    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
+    assert cds_list[4].identify_highest_bitscore() == al2.get_bitscore()
+    assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
 
 
 def test_identify_cons_rej_cds():
     """Test identify_cons_rej_cds from CDS class"""
-    cds_list[3].identify_cons_rej_cds()
-    assert cds_list[3].get_conserved_cds().get_id() == cds_list[3].get_id()
-    assert len(cds_list[3].get_rejected_cds()) == 1
+    cds_list[4].reset_alignments()
+    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
+    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
     cds_list[4].identify_cons_rej_cds()
     assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
-    assert cds_list[4].get_rejected_cds()[0].get_id() == cds_list[4].get_id()
+    assert len(cds_list[4].get_rejected_cds()) == 1
+
+    cds_list[3].reset_alignments()
+    cds_list[3].add_id_alignment(cds_list[3].get_id(), al2)
+    cds_list[3].add_id_alignment("scaffold_1220_19-1", al1)
+    cds_list[3].identify_cons_rej_cds()
+    assert cds_list[3].get_conserved_cds().get_id() == cds_list[3].get_id()
+
+    cds_list[4].reset_alignments()
+    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
+    cds_list[4].add_id_alignment("scaffold_1220_19-1", al3)
+    cds_list[4].identify_cons_rej_cds()
+    assert cds_list[4].get_conserved_cds() is None
