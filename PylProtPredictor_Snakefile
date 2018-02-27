@@ -48,6 +48,21 @@ rule prepare_database:
         " --quiet"
 
 
+rule predict_trna:
+    '''Predict tRNA from the input genome using tRNAScan-SE'''
+    input:
+        config["genome"]
+    output:
+        trna=expand(
+            "{output_dir}/{file}",
+            output_dir=config["output_dir"],
+            file="trna.fasta")
+    shell:
+        "tRNAscan-SE"
+        " -A {input}"
+        " -o {output.trna}"
+
+
 rule predict_cds:
     '''Predict CDS from the input genome using Prodigal'''
     input:
