@@ -17,16 +17,19 @@ def extract_row_number(csv_filepath):
 def write_report(pred_cds, tag_ending_cds, pot_pyl_cds, final_cds, report_filepath):
     """Write HTML report to summarize the full analysis
 
-    :param pred_cds:
-    :param tag_ending_cds:
-    :param pot_pyl_cds:
-    :param final_cds_info:
-    :param report_filepath:
+    :param pred_cds: path to CSV file with predicted CDS info
+    :param tag_ending_cds: path to CSV file with TAG-ending CDS info
+    :param pot_pyl_cds: path to CSV file with potential PYL CDS info
+    :param final_cds_info: path to a CSV file with final information about the CDS
+    :param report_filepath: path to HTML file in which writing the report
     """
     pred_cds_nb = extract_row_number(pred_cds)
     tag_ending_cds_nb = extract_row_number(tag_ending_cds)
     pot_pyl_cds_nb = extract_row_number(pot_pyl_cds)
-    final_cds_nb = extract_row_number(final_cds)
+
+    df = pd.read_csv(final_cds, index_col=0, header=0)
+    rej_nb = len(df.query("conserved_start == original_start and conserved_end == original_end"))
+    final_cds_nb = pot_pyl_cds_nb - rej_nb
 
     print("%s %s %s %s" % (pred_cds_nb, tag_ending_cds_nb, pot_pyl_cds_nb, final_cds_nb))
 
@@ -44,8 +47,8 @@ def write_report(pred_cds, tag_ending_cds, pot_pyl_cds, final_cds, report_filepa
         Table potential_pyl_cds_).
 
         After similarity search, {final_cds_nb} sequences (of
-        {pot_pyl_cds_nb} predicted PYL sequences) are conserved as
-        potential PYL proteins (see Table final_cds_).
+        {pot_pyl_cds_nb} predicted PYL sequences) are conserved ({rej_nb}
+        rejected) as potential PYL proteins (see Table final_cds_).
         """,
         report_filepath,
         predicted_cds=pred_cds,
