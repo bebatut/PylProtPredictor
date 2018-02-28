@@ -1,11 +1,11 @@
-from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from snakemake.utils import available_cpu_count
 from snakemake.utils import makedirs
+from pylprotpredictor.predict import predict_pyl_proteins
+from pylprotpredictor.check import check_pyl_proteins
+from pylprotpredictor.write_report import write_report
 
-FTP = FTPRemoteProvider()
 
 ref_database = "uniref90"
-ref_database_url = "ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
 data_dir = "data"
 
 makedirs(data_dir)
@@ -30,12 +30,24 @@ rule purge:
     shell: "rm -rf {input}"
 
 
+rule download_database:
+    '''Download the UniRef90 database'''
+    output:
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=data_dir,
+            ref_database=ref_database)
+    shell:
+        "wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz | gunzip"
+
+
 rule prepare_database:
-    '''Download and format the Uniref90 database for Diamond'''
+    '''Format the Uniref90 database for Diamond'''
     input:
-        FTP.remote(
-            ref_database_url,
-            keep_local=False)
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=data_dir,
+            ref_database=ref_database)
     output:
         expand(
             "{data_dir}/{ref_database}.dmnd",
