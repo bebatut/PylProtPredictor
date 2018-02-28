@@ -103,7 +103,7 @@ rule predict_potential_pyl_proteins:
         pyl_protein_prediction_log=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="pyl_protein_prediction_log.txt"),
+            file="pyl_protein_prediction.log"),
         predicted_cds_info=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
