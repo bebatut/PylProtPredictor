@@ -1,11 +1,11 @@
-from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from snakemake.utils import available_cpu_count
 from snakemake.utils import makedirs
+from pylprotpredictor.predict import predict_pyl_proteins
+from pylprotpredictor.check import check_pyl_proteins
+from pylprotpredictor.write_report import write_report
 
-FTP = FTPRemoteProvider()
 
 ref_database = "uniref90"
-ref_database_url = "ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
 data_dir = "data"
 
 makedirs(data_dir)
@@ -30,12 +30,24 @@ rule purge:
     shell: "rm -rf {input}"
 
 
+rule download_database:
+    '''Download the UniRef90 database'''
+    output:
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=data_dir,
+            ref_database=ref_database)
+    shell:
+        "wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz | gunzip"
+
+
 rule prepare_database:
-    '''Download and format the Uniref90 database for Diamond'''
+    '''Format the Uniref90 database for Diamond'''
     input:
-        FTP.remote(
-            ref_database_url,
-            keep_local=False)
+        expand(
+            "{data_dir}/{ref_database}.fasta",
+            data_dir=data_dir,
+            ref_database=ref_database)
     output:
         expand(
             "{data_dir}/{ref_database}.dmnd",
@@ -91,7 +103,7 @@ rule predict_potential_pyl_proteins:
         pyl_protein_prediction_log=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="pyl_protein_prediction_log.txt"),
+            file="pyl_protein_prediction.log"),
         predicted_cds_info=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
@@ -108,8 +120,16 @@ rule predict_potential_pyl_proteins:
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="potential_pyl_cds_objects")
-    script:
-        "bin/predict"
+    run:
+        predict_pyl_proteins(
+            genome_filepath=str(input.genome),
+            pred_cds_filepath=str(input.predicted_cds),
+            pot_pyl_seq_filepath=str(output.potential_pyl_sequences),
+            log_filepath=str(output.pyl_protein_prediction_log),
+            pred_cds_info_filepath=str(output.predicted_cds_info),
+            tag_ending_cds_info_filepath=str(output.tag_ending_cds_info),
+            pot_pyl_seq_info_filepath=str(output.potential_pyl_protein_info),
+            pot_pyl_cds_obj_filepath=str(output.pot_pyl_cds_obj))
 
 
 rule search_similarity:
@@ -145,25 +165,29 @@ rule search_similarity:
 rule check_pyl_proteins:
     '''Validate potential Pyl protein by analysing the alignments'''
     input:
-        potential_pyl_similarity_search=expand(
+        pot_pyl_similarity_search=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="potential_pyl_similarity_search.txt"),
-        potential_pyl_sequences=expand(
+        pot_pyl_cds_filepath=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
-            file="potential_pyl_sequences.fasta")
+            file="potential_pyl_cds_objects")
     output:
-        conserved_potential_pyl_seq=expand(
+        cons_pot_pyl_seq=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="conserved_potential_pyl_sequences.fasta"),
-        final_cds_info=expand(
+        info_filepath=expand(
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="final_cds.csv")
-    script:
-        "bin/check"
+    run:
+        check_pyl_proteins(
+            pot_pyl_similarity_search=str(input.pot_pyl_similarity_search),
+            pot_pyl_cds_filepath=str(input.pot_pyl_cds_filepath),
+            cons_pot_pyl_seq=str(output.cons_pot_pyl_seq),
+            info_filepath=str(output.info_filepath))
 
 
 rule report:
@@ -190,5 +214,10 @@ rule report:
             "{output_dir}/{file}",
             output_dir=config["output_dir"],
             file="report.html")
-    script:
-        "bin/write_report"
+    run:
+        write_report(
+            pred_cds=str(input.pred_cds),
+            tag_ending_cds=str(input.tag_ending_cds),
+            pot_pyl_cds=str(input.pot_pyl_cds),
+            final_cds=str(input.final_cds),
+            report_filepath=str(output.report))
