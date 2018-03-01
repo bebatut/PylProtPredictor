@@ -65,17 +65,15 @@ def transform_strand(strand_id):
         raise ValueError("Wrong strand_id: {}".format(strand_id))
 
 
-def test_to_continue(end, origin_seq_size, next_cds_limit):
-    """Test if possible to extract next codon: position still in the genome and
-    lower than the end of the next CDS
+def test_to_continue(end, origin_seq_size):
+    """Test if possible to extract next codon: position still in the genome
 
     :param end: int corresponding to the current end
     :param origin_seq_size: size of the origin sequence
-    :param next_cds_limit: int corresponding to the end of the next CDS on the same strand
 
     :return: boolean
     """
-    return (end + 3) < origin_seq_size and (end + 3) < next_cds_limit
+    return (end + 3) < origin_seq_size
 
 
 def find_stop_codon_pos_in_seq(seq):
@@ -584,19 +582,19 @@ class CDS:
             new_end = (origin_seq_size - self.get_start() + 1)
 
         stop_codons = CodonTable.unambiguous_dna_by_id[1].stop_codons
-        to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+        to_continue = test_to_continue(new_end, origin_seq_size)
         new_ends = []
         while to_continue:
             codon = origin_seq[new_end:(new_end + 3)]
             new_end += 3
             if codon not in stop_codons:
-                to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+                to_continue = test_to_continue(new_end, origin_seq_size)
             else:
                 new_ends.append(new_end)
                 if codon != 'TAG':
                     to_continue = False
                 else:
-                    to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+                    to_continue = test_to_continue(new_end, origin_seq_size)
         self.set_alternative_ends(new_ends)
 
     def extract_possible_alternative_seq(self):
