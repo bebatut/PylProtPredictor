@@ -61,19 +61,22 @@ def extract_correct_cds(
     """Identify and extract the correct CDS sequence
 
     :param pot_pyl_cds: dictionary of the potential PYL CDS
-    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS
+    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved potential PYL CDS
     :param info_filepath: path to a CSV file with final information about the CDS
     """
-    cons_sequences = []
+    cons_pot_pyl_sequences = []
     info = {}
     keys = list(pot_pyl_cds.keys())
     keys.sort()
+
     for cds_id in keys:
         cds_obj = pot_pyl_cds[cds_id]
         cds_obj.identify_cons_rej_cds()
 
         cons_seq = cds_obj.get_conserved_cds()
-        cons_sequences.append(cons_seq.get_seqrecord())
+
+        if cons_seq != cds_obj:
+            cons_pot_pyl_sequences.append(cons_seq.get_seqrecord())
 
         rej_seq = cds_obj.get_rejected_cds()
         info[cds_id] = {
@@ -86,7 +89,7 @@ def extract_correct_cds(
             "rejected_start": ";".join([str(s.get_start()) for s in rej_seq]),
             "rejected_end": ";".join([str(s.get_end()) for s in rej_seq])}
 
-    export.export_fasta(cons_sequences, cons_pot_pyl_seq_filepath)
+    export.export_fasta(cons_pot_pyl_sequences, cons_pot_pyl_seq_filepath)
     export.export_csv(
         info,
         info_filepath,
@@ -105,7 +108,7 @@ def check_pyl_proteins(
 
     :param pot_pyl_similarity_search: path to similarity search report of potential PYL CDS against a reference database
     :param pot_pyl_cds_filepath: path to JSON file with collection of potential PYL CDS
-    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved CDS
+    :param cons_pot_pyl_seq_filepath: path to a FASTA file for the conserved PYL CDS
     :param info_filepath: path to a CSV file with final information about the CDS
     """
     pot_pyl_cds = import_cds(pot_pyl_cds_filepath)
