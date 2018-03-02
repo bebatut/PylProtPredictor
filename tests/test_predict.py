@@ -27,7 +27,7 @@ genome = []
 for record in SeqIO.parse(input_genome_filepath, "fasta"):
     genome.append(record)
 
-pred_cds, ordered_pred_cds, tag_ending_cds = predict.extract_predicted_cds(
+pred_cds, tag_ending_cds = predict.extract_predicted_cds(
     input_cds_filepath,
     "pred_cds",
     "tag_ending_cds",
@@ -42,18 +42,6 @@ def test_extract_predicted_cds():
     assert "scaffold_0_1" in pred_cds
     assert "scaffold_117_243" in pred_cds
     assert "scaffold_1220_19" in pred_cds
-    assert 'gi|477554117|gb|CP004049.1|' in ordered_pred_cds
-    assert 'forward' in ordered_pred_cds['gi|477554117|gb|CP004049.1|']
-    assert 'reverse' not in ordered_pred_cds['gi|477554117|gb|CP004049.1|']
-    assert 'scaffold_0' in ordered_pred_cds
-    assert 'forward' in ordered_pred_cds['scaffold_0']
-    assert 'reverse' in ordered_pred_cds['scaffold_0']
-    assert 'scaffold_117' in ordered_pred_cds
-    assert 'forward' not in ordered_pred_cds['scaffold_117']
-    assert 'reverse' in ordered_pred_cds['scaffold_117']
-    assert 'scaffold_1220' in ordered_pred_cds
-    assert 'forward' in ordered_pred_cds['scaffold_1220']
-    assert 'reverse' not in ordered_pred_cds['scaffold_1220']
     assert filecmp.cmp("tag_ending_cds", output_tag_ending_cds_filepath)
     assert 'scaffold_117_243' in tag_ending_cds
     assert 'scaffold_1220_19' in tag_ending_cds
@@ -75,7 +63,6 @@ def test_extract_potential_pyl_cds():
     predict.extract_potential_pyl_cds(
         tag_ending_cds,
         pred_cds,
-        ordered_pred_cds,
         "pot_pyl_cds.fasta",
         "pot_pyl_cds",
         "pot_pyl_obj")

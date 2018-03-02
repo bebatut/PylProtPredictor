@@ -65,17 +65,15 @@ def transform_strand(strand_id):
         raise ValueError("Wrong strand_id: {}".format(strand_id))
 
 
-def test_to_continue(end, origin_seq_size, next_cds_limit):
-    """Test if possible to extract next codon: position still in the genome and
-    lower than the end of the next CDS
+def test_to_continue(end, origin_seq_size):
+    """Test if possible to extract next codon: position still in the genome
 
     :param end: int corresponding to the current end
     :param origin_seq_size: size of the origin sequence
-    :param next_cds_limit: int corresponding to the end of the next CDS on the same strand
 
     :return: boolean
     """
-    return (end + 3) < origin_seq_size and (end + 3) < next_cds_limit
+    return (end + 3) < origin_seq_size
 
 
 def find_stop_codon_pos_in_seq(seq):
@@ -113,8 +111,8 @@ class CDS:
 
     def __init__(
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
-            end=-1, strand="forward", seq=None, order=-1, next_cds_limit=-1,
-            alternative_ends=[], alternative_cds=[], alignments=[],
+            end=-1, strand="forward", seq=None, alternative_ends=[],
+            alternative_cds=[], alignments=[],
             conserved_cds=None, rejected_cds=[]):
         """Initiate a CDS instance"""
         self.id = seq_id
@@ -124,8 +122,6 @@ class CDS:
         self.end = end
         self.strand = strand
         self.seq = seq
-        self.order = order
-        self.next_cds_limit = next_cds_limit
         self.alternative_ends = alternative_ends
         self.alternative_cds = alternative_cds
         self.alignments = alignments
@@ -159,15 +155,12 @@ class CDS:
         self.set_end(in_dict["end"])
         self.set_strand(in_dict["strand"])
         self.set_seq(Seq(in_dict["seq"]))
-        self.set_order(in_dict["order"])
-        self.set_next_cds_limit(in_dict["next_cds_limit"])
         self.set_alternative_ends(in_dict["alternative_ends"])
 
         self.reset_alternative_cds()
         self.reset_alignments()
         self.reset_rejected_cds()
         for cds_id in in_dict["alternative_cds"]:
-            print(cds_id)
             new_cds = CDS()
             new_cds.init_from_dict(in_dict["alternative_cds"][cds_id])
             self.add_alternative_cds(new_cds)
@@ -220,20 +213,6 @@ class CDS:
         :return: string with the sequence
         """
         return self.seq
-
-    def get_order(self):
-        """Return the order of the CDS on the strand on the origin sequence
-
-        :return: int corresponding to the order value
-        """
-        return self.order
-
-    def get_next_cds_limit(self):
-        """Return the end or start (if reverse strand) of next CDS on the strand on the origin sequence
-
-        :return: int corresponding to the end or start of the next CDS
-        """
-        return self.next_cds_limit
 
     def get_alternative_ends(self):
         """Return the list of possible alternative ends if the CDS is ending with TAG STOP codon
@@ -367,14 +346,14 @@ class CDS:
     def set_id(self, seq_id):
         """Change the id of the CDS
 
-        :param order: new id value
+        :param seq_id: new seq id value
         """
         self.id = seq_id
 
     def set_origin_seq_id(self, origin_seq_id):
         """Change the id of the origin sequence of the CDS
 
-        :param order: new origin seq id value
+        :param origin_seq_id: new origin seq id value
         """
         self.origin_seq_id = origin_seq_id
 
@@ -407,20 +386,6 @@ class CDS:
         :param seq: new Seq object with the sequence of the CDS
         """
         self.seq = seq
-
-    def set_order(self, order):
-        """Change the order of the CDS on the strand on the origin sequence
-
-        :param order: new order value
-        """
-        self.order = order
-
-    def set_next_cds_limit(self, next_cds_limit):
-        """Change the end or start (if reverse strand) of next CDS on the strand on the origin sequence
-
-        :param next_cds_limit: int corresponding to the end or start of next CDS
-        """
-        self.next_cds_limit = next_cds_limit
 
     def set_origin_seq(self, origin_seq):
         """Change the SeqRecord object corresponding to the origin seq of the CDS
@@ -505,13 +470,6 @@ class CDS:
         """
         return self.get_seq().endswith("TAG")
 
-    def has_next_cds_limit(self):
-        """Test if the limit of next CDS is set
-
-        :return: boolean
-        """
-        return self.get_next_cds_limit() != -1
-
     def has_alternative_ends(self):
         """Test if the list of alternative ends is not empty
 
@@ -533,38 +491,6 @@ class CDS:
         """
         return self.get_origin_seq() is not None
 
-    def find_next_cds_limit(self, ordered_pred_cds, pred_cds):
-        """Determine the end of the next CDS on the strand on the origin sequence
-
-        If the stand is reverse, we need to take the start of the previous CDS
-
-        :param ordered_pred_cds: ordered ids of the CDS on the same strand on the origin sequence
-        :param pred_cds: a dictionary with the predicted CDS represented as CDS objects
-        """
-        if ordered_pred_cds[self.get_order()] != self.get_id():
-            raise ValueError("Incorrect order for %s" % (self.get_id()))
-
-        if not self.has_origin_seq():
-            raise ValueError("No origin sequence provided")
-
-        origin_seq_size = self.get_origin_seq_size()
-
-        if self.is_reverse_strand():
-            next_id = self.get_order() - 1
-            next_cds_limit = 0
-            if next_id >= 0:
-                next_cds_id = ordered_pred_cds[next_id]
-                next_cds_limit = pred_cds[next_cds_id].get_start()
-            next_cds_limit = (origin_seq_size - next_cds_limit + 1)
-        else:
-            next_id = self.get_order() + 1
-            next_cds_limit = origin_seq_size
-            if next_id < len(ordered_pred_cds):
-                next_cds_id = ordered_pred_cds[next_id]
-                next_cds_limit = pred_cds[next_cds_id].get_end()
-
-        self.set_next_cds_limit(next_cds_limit)
-
     def find_alternative_ends(self):
         """
         Find alternative ends (on the same ORF) for a CDS until the next found STOP
@@ -572,9 +498,6 @@ class CDS:
         """
         if not self.has_origin_seq():
             raise ValueError("No origin sequence provided")
-
-        if not self.has_next_cds_limit():
-            raise ValueError("No next CDS limit provided")
 
         origin_seq = self.get_origin_seq_string()
         origin_seq_size = self.get_origin_seq_size()
@@ -584,19 +507,19 @@ class CDS:
             new_end = (origin_seq_size - self.get_start() + 1)
 
         stop_codons = CodonTable.unambiguous_dna_by_id[1].stop_codons
-        to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+        to_continue = test_to_continue(new_end, origin_seq_size)
         new_ends = []
         while to_continue:
             codon = origin_seq[new_end:(new_end + 3)]
             new_end += 3
             if codon not in stop_codons:
-                to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+                to_continue = test_to_continue(new_end, origin_seq_size)
             else:
                 new_ends.append(new_end)
                 if codon != 'TAG':
                     to_continue = False
                 else:
-                    to_continue = test_to_continue(new_end, origin_seq_size, self.get_next_cds_limit())
+                    to_continue = test_to_continue(new_end, origin_seq_size)
         self.set_alternative_ends(new_ends)
 
     def extract_possible_alternative_seq(self):
@@ -728,8 +651,6 @@ class CDS:
             'end': self.get_end(),
             'strand': self.get_strand(),
             'seq': str(self.get_seq()),
-            'order': self.get_order(),
-            'next_cds_limit': self.get_next_cds_limit(),
             'alternative_ends': self.get_alternative_ends(),
             'alternative_cds': {}}
         }

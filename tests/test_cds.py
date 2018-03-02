@@ -218,17 +218,6 @@ def test_is_tag_ending_seq():
     assert cds_list[4].is_tag_ending_seq()
 
 
-def test_set_order():
-    """Test set_order from CDS class"""
-    cds_list[0].set_order(2)
-    assert cds_list[0].order == 2
-
-
-def test_get_order():
-    """Test get_order from CDS class"""
-    assert cds_list[0].get_order() == 2
-
-
 def test_set_origin_seq():
     """Test set_origin_seq from CDS class"""
     origin_seq = cds_list[3].get_origin_seq_id()
@@ -281,49 +270,6 @@ def test_is_reverse_strand():
     assert not cds_list[4].is_reverse_strand()
 
 
-def test_set_next_cds_limit():
-    """Test set_next_cds_limit from CDS class"""
-    cds_list[0].set_next_cds_limit(2)
-    assert cds_list[0].next_cds_limit == 2
-
-
-def test_get_next_cds_limit():
-    """Test get_next_cds_limit from CDS class"""
-    assert cds_list[0].get_next_cds_limit() == 2
-
-
-def test_has_next_cds_limit():
-    """Test has_next_cds_limit from CDS class"""
-    assert cds_list[0].has_next_cds_limit()
-    assert not cds_list[1].has_next_cds_limit()
-
-
-def test_find_next_cds_limit():
-    """Test find_next_cds_limit from CDS class"""
-    ordered_pred_cds = ['cds_1', 'scaffold_0_3', 'scaffold_0_1', 'scaffold_117_243', 'scaffold_1220_19']
-    pred_cds = {
-        'cds_1': cds_list[0],
-        'scaffold_0_3': cds_list[1],
-        'scaffold_0_1': cds_list[2],
-        'scaffold_117_243': cds_list[3],
-        'scaffold_1220_19': cds_list[4]
-    }
-    with pytest.raises(ValueError, match=r'Incorrect order for scaffold_0_1'):
-        cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
-    cds_list[2].set_order(2)
-    with pytest.raises(ValueError, match=r'No origin sequence provided'):
-        cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
-    cds_list[2].set_origin_seq(seqs[cds_list[3].get_origin_seq_id()])
-    cds_list[2].find_next_cds_limit(ordered_pred_cds, pred_cds)
-    assert cds_list[2].get_next_cds_limit() == 228441
-    cds_list[3].set_order(3)
-    cds_list[3].find_next_cds_limit(ordered_pred_cds, pred_cds)
-    assert cds_list[3].get_next_cds_limit() == 245464
-    cds_list[4].set_order(4)
-    cds_list[4].find_next_cds_limit(ordered_pred_cds, pred_cds)
-    assert cds_list[4].get_next_cds_limit() == len(cds_list[4].get_origin_seq().seq)
-
-
 def test_set_alternative_ends():
     """Test set_alternative_ends from CDS class"""
     cds_list[0].set_alternative_ends([2, 25533])
@@ -348,10 +294,7 @@ def test_find_alternative_ends():
     """Test find_alternation_ends from CDS class"""
     with pytest.raises(ValueError, match=r'No origin sequence provided'):
         cds_list[0].find_alternative_ends()
-    cds_list[1].set_origin_seq(seqs[cds_list[3].get_origin_seq_id()])
-    cds_list[1].set_next_cds_limit(-1)
-    with pytest.raises(ValueError, match=r'No next CDS limit provided'):
-        cds_list[1].find_alternative_ends()
+    cds_list[2].set_origin_seq(seqs[cds_list[3].get_origin_seq_id()])
     cds_list[2].find_alternative_ends()
     alt_end = cds_list[2].get_alternative_ends()
     assert len(alt_end) == 1
@@ -453,8 +396,6 @@ def test_export_to_dict():
     assert d[cds_id]['end'] == cds_list[0].get_end()
     assert d[cds_id]['strand'] == cds_list[0].get_strand()
     assert d[cds_id]['seq'] == str(cds_list[0].get_seq())
-    assert d[cds_id]['order'] == cds_list[0].get_order()
-    assert d[cds_id]['next_cds_limit'] == cds_list[0].get_next_cds_limit()
     assert d[cds_id]['alternative_ends'] == cds_list[0].get_alternative_ends()
     assert d[cds_id]['alternative_cds'] == {}
 
@@ -480,8 +421,6 @@ def test_init_from_dict():
         assert new_cds.get_end() == cds_list[0].get_end()
         assert new_cds.get_strand() == cds_list[0].get_strand()
         assert str(new_cds.get_seq()) == str(cds_list[0].get_seq())
-        assert new_cds.get_order() == cds_list[0].get_order()
-        assert new_cds.get_next_cds_limit() == cds_list[0].get_next_cds_limit()
         assert new_cds.has_alternative_ends()
         assert new_cds.get_alternative_ends() == cds_list[0].get_alternative_ends()
         assert not new_cds.is_potential_pyl_cds()
