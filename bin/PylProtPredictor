@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
 
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PYLPROTPREDICTOR_DIR="$CURRENT_DIR/../pylprotpredictor"
+DATA_DIR="$CURRENT_DIR/../data"
+REF_DB="uniref90"
+GENOME="$2"
+OUTPUT_DIR="$4"
+
 display_help() {
     echo "PylProtPredictor Pipeline (powered by Snakemake)"
     echo ""
     echo "Usage: $0 --genome FILE --output PATH [options]"
-    echo
-    echo " PylProtPredictor options:"
-    echo "   -p predict_potential_pyl_proteins   predict potential Pyl proteins (does not check predictions)"
-    echo "   -p purge                            clean the output directory"
-    echo
-    echo " Useful Snakemake options:"
-    echo "   -j, --cores            number of cores"
-    echo "   -k, --keep-going       go on with independent jobs if a job fails"
-    echo "   -n, --dryrun           do not execute anything"
-    echo "   -p, --printshellcmds   print out the shell commands that will be executed"
-    echo "   -t, --timestamp  		add a timestamp to all logging output"
     echo
     echo " More:"
     echo "   --help                 show this help"
@@ -32,4 +28,94 @@ if [[ "$1" == "" || "$1" == "-h" || "$1" == "--help" || "$1" != "--genome" || "$
   exit 0
 fi
 
-snakemake -s PylProtPredictor_Snakefile --cores --config genome="$2" output_dir="$4" "${@:5}"
+mkdir -p $DATA_DIR
+mkdir -p $OUTPUT_DIR
+
+
+REF_DB_DMND="${DATA_DIR}/${REF_DB}.dmnd"
+if [ ! -f $REF_DB_DMND ]; then
+    REF_DB_FASTA="${DATA_DIR}/${REF_DB}.fasta"
+    if [ ! -f $REF_DB_FASTA ]; then
+       echo "Download the UniRef90 database"
+       wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz" | gunzip 
+    fi
+    echo "Format the Uniref90 database for Diamond"
+    diamond makedb \
+        --in $REF_DB_FASTA \
+        --db $REF_DB_DMND \
+        --quiet
+fi
+
+echo "Predict CDS from the input genome using Prodigal"
+PREDICTED_CDS="${OUTPUT_DIR}/predicted_cds.fasta"
+PREDICTED_CDS_INFO="${OUTPUT_DIR}/cds_prediction_info.txt"
+PREDICTED_CDS_LOG="${OUTPUT_DIR}/cds_prediction.log"
+if [ ! -f $PREDICTED_CDS ]; then
+    prodigal \
+        -i $GENOME \
+        -d $PREDICTED_CDS \
+        -f gbk \
+        -g 11 \
+        -o $PREDICTED_CDS_INFO \
+        2> $PREDICTED_CDS_LOG
+fi
+
+
+echo "Predict potential PYL-contrainin proteins from predicted CDS"
+POT_PYL_SEQUENCES="${OUTPUT_DIR}/potential_pyl_sequences.fasta"
+PYL_PROTEIN_PREDICTION_LOG="${OUTPUT_DIR}/pyl_protein_prediction.log"
+PREDICTED_CDS_INFO="${OUTPUT_DIR}/predicted_cds.csv"
+TAG_ENDING_CDS_INFO="${OUTPUT_DIR}/tag_ending_cds.csv"
+POT_PYL_PROTEIN_INFO="${OUTPUT_DIR}/potential_pyl_proteins.csv"
+POT_PYL_CDS_OBJ="${OUTPUT_DIR}/potential_pyl_cds_objects"
+if [ ! -f $PREDICTED_CDS_INFO ]; then
+    python $PYLPROTPREDICTOR_DIR/predict.py \
+        --genome $GENOME \
+        --pred_cds $PREDICTED_CDS \
+        --pot_pyl_seq $POT_PYL_SEQUENCES \
+        --log $PYL_PROTEIN_PREDICTION_LOG \
+        --pred_cds_info $PREDICTED_CDS_INFO \
+        --tag_ending_cds_info $TAG_ENDING_CDS_INFO \
+        --pot_pyl_seq_info $POT_PYL_PROTEIN_INFO \
+        --pot_pyl_cds_obj $POT_PYL_CDS_OBJ
+fi
+
+
+echo "Align predicted Pyl proteins on Uniref90 using Diamond"
+POT_PYL_SIMILARITY_SEARCH="${OUTPUT_DIR}/potential_pyl_similarity_search.txt"
+if [ ! -f $POT_PYL_SIMILARITY_SEARCH ]; then
+    diamond blastp \
+        -d $REF_DB_DMND \
+        -q $POT_PYL_SEQUENCES \
+        -o $POT_PYL_SIMILARITY_SEARCH \
+        -k 5 \
+        -e 1e-10 \
+        -f 6 \
+        -b 0.5 \
+        -p 4 \
+        --quiet
+fi
+
+
+echo "Validate potential Pyl protein by analysing the alignments"
+CONS_POT_PYL_SEQ="${OUTPUT_DIR}/conserved_potential_pyl_sequences.fasta"
+FINAL_CDS_INFO="${OUTPUT_DIR}/final_cds.csv"
+if [ ! -f $FINAL_CDS_INFO ]; then
+    python $PYLPROTPREDICTOR_DIR/check.py \
+        --pot_pyl_similarity_search $POT_PYL_SIMILARITY_SEARCH \
+        --pot_pyl_cds_filepath $POT_PYL_CDS_OBJ \
+        --cons_pot_pyl_seq_filepath $CONS_POT_PYL_SEQ \
+        --info_filepath $FINAL_CDS_INFO 
+fi
+
+
+echo "Print a quick HTML report"
+REPORT="${OUTPUT_DIR}/report.html"
+if [ ! -f $REPORT ]; then
+    python $PYLPROTPREDICTOR_DIR/write_report.py \
+        --pred_cds $PREDICTED_CDS_INFO \
+        --tag_ending_cds $TAG_ENDING_CDS_INFO \
+        --pot_pyl_cds $POT_PYL_PROTEIN_INFO \
+        --final_cds_info $FINAL_CDS_INFO \
+        --report_filepath $REPORT
+fi

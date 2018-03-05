@@ -1,8 +1,9 @@
+import argparse
 import pandas as pd
 
-from pylprotpredictor import alignment
-from pylprotpredictor import cds
-from pylprotpredictor import export
+import alignment
+import cds
+import export
 
 
 def import_cds(pot_pyl_cds_filepath):
@@ -75,6 +76,9 @@ def extract_correct_cds(
 
         cons_seq = cds_obj.get_conserved_cds()
 
+        if cons_seq is None:
+            continue
+
         if cons_seq != cds_obj:
             cons_pot_pyl_sequences.append(cons_seq.get_seqrecord())
 
@@ -114,3 +118,19 @@ def check_pyl_proteins(
     pot_pyl_cds = import_cds(pot_pyl_cds_filepath)
     parse_similarity_search_report(pot_pyl_similarity_search, pot_pyl_cds)
     extract_correct_cds(pot_pyl_cds, cons_pot_pyl_seq, info_filepath)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Check predicted PYL CDS')
+    parser.add_argument('--pot_pyl_similarity_search', help='path to similarity search report of potential PYL CDS against a reference database')
+    parser.add_argument('--pot_pyl_cds_filepath', help='path to JSON file with collection of potential PYL CDS')
+    parser.add_argument('--cons_pot_pyl_seq_filepath', help='path to a FASTA file for the conserved PYL CDS')
+    parser.add_argument('--info_filepath', help='path to a CSV file with final information about the CDS')
+        
+    args = parser.parse_args()
+
+    check_pyl_proteins(
+        pot_pyl_similarity_search=args.pot_pyl_similarity_search,
+        pot_pyl_cds_filepath=args.pot_pyl_cds_filepath,
+        cons_pot_pyl_seq=args.cons_pot_pyl_seq_filepath,
+        info_filepath=args.info_filepath)

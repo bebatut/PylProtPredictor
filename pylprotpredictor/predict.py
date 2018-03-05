@@ -1,9 +1,10 @@
+import argparse
 import logging
 
 from Bio import SeqIO
 
-from pylprotpredictor import cds
-from pylprotpredictor import export
+import cds
+import export
 
 
 def extract_seqs(seq_filepath):
@@ -141,3 +142,27 @@ def predict_pyl_proteins(
         pot_pyl_seq_filepath,
         pot_pyl_seq_info_filepath,
         pot_pyl_cds_obj_filepath)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Predict potential PYL CDS')
+    parser.add_argument('--genome', help='path to FASTA file with genome (whole or scaffold) on which predict proteins')
+    parser.add_argument('--pred_cds', help='path to FASTA file with predicted CDS of the genome')
+    parser.add_argument('--pot_pyl_seq', help='path to generated FASTA file with potential PYL CDS sequence')
+    parser.add_argument('--log', help='path to generated log file')
+    parser.add_argument('--pred_cds_info', help='path to generated CSV file with predicted CDS info')
+    parser.add_argument('--tag_ending_cds_info', help='path to generated CSV file with TAG-ending CDS info')
+    parser.add_argument('--pot_pyl_seq_info', help='path to generated CSV file with potential PYL CDS info')
+    parser.add_argument('--pot_pyl_cds_obj', help='path to generated JSON file to store the list of potential PYL CDS object')
+
+    args = parser.parse_args()
+
+    predict_pyl_proteins(
+        genome_filepath=args.genome,
+        pred_cds_filepath=args.pred_cds,
+        pot_pyl_seq_filepath=args.pot_pyl_seq,
+        log_filepath=args.log,
+        pred_cds_info_filepath=args.pred_cds_info,
+        tag_ending_cds_info_filepath=args.tag_ending_cds_info,
+        pot_pyl_seq_info_filepath=args.pot_pyl_seq_info,
+        pot_pyl_cds_obj_filepath=args.pot_pyl_cds_obj)

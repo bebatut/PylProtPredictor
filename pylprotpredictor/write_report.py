@@ -1,3 +1,4 @@
+import argparse
 import pandas as pd
 
 from snakemake.utils import report
@@ -55,3 +56,21 @@ def write_report(pred_cds, tag_ending_cds, pot_pyl_cds, final_cds, report_filepa
         tag_ending_cds=tag_ending_cds,
         potential_pyl_cds=pot_pyl_cds,
         final_cds=final_cds)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Write HTML report to summarize the full analysis')
+    parser.add_argument('--pred_cds', help='path to CSV file with predicted CDS info')
+    parser.add_argument('--tag_ending_cds', help='path to CSV file with TAG-ending CDS info')
+    parser.add_argument('--pot_pyl_cds', help='path to CSV file with potential PYL CDS info')
+    parser.add_argument('--final_cds_info', help='path to a CSV file with final information about the CDS')
+    parser.add_argument('--report_filepath', help='path to HTML file in which writing the report')
+
+    args = parser.parse_args()
+
+    write_report(
+        pred_cds=args.pred_cds,
+        tag_ending_cds=args.tag_ending_cds,
+        pot_pyl_cds=args.pot_pyl_cds,
+        final_cds=args.final_cds_info,
+        report_filepath=args.report_filepath)
