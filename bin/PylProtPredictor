@@ -8,11 +8,11 @@ GENOME="$2"
 OUTPUT_DIR="$4"
 
 display_help() {
-    echo "PylProtPredictor Pipeline (powered by Snakemake)"
+    echo "PylProtPredictor Pipeline"
     echo ""
     echo "Usage: $0 --genome FILE --output PATH [options]"
     echo
-    echo " More:"
+    echo "More:"
     echo "   --help                 show this help"
     echo "   --version              show version"
     exit 0
@@ -61,7 +61,7 @@ if [ ! -f $PREDICTED_CDS ]; then
 fi
 
 
-echo "Predict potential PYL-contrainin proteins from predicted CDS"
+echo "Predict potential PYL-containing proteins from predicted CDS"
 POT_PYL_SEQUENCES="${OUTPUT_DIR}/potential_pyl_sequences.fasta"
 PYL_PROTEIN_PREDICTION_LOG="${OUTPUT_DIR}/pyl_protein_prediction.log"
 PREDICTED_CDS_INFO="${OUTPUT_DIR}/predicted_cds.csv"

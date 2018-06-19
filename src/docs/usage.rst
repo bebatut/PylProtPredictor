@@ -1,7 +1,7 @@
 Usage
 =====
 
-PylProtPredictor is using `Snakemake <http://snakemake.readthedocs.io/>`_ to run the different steps of the workflow to identify potential PYL proteins.
+To run the different steps of the workflow to identify potential PYL proteins:
 
 .. code-block:: bash
 
@@ -18,7 +18,6 @@ If you already have the Uniref90 database on your machine, you can simply symlin
 .. code-block:: bash
 
     $ ln -s /path/to/uniref90.dmnd data/uniref90.dmnd
-    $ snakemake --cleanup-metadata data.uniref90.dmnd
 
 Otherwise, the pipeline will download and format it. Make sure you have at least 25GB available for the reference database. It can take several hours, depending on your connection.
 
