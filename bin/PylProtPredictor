@@ -99,7 +99,7 @@ fi
 
 echo "Validate potential Pyl protein by analysing the alignments"
 CONS_POT_PYL_SEQ="${OUTPUT_DIR}/conserved_potential_pyl_sequences.fasta"
-FINAL_CDS_INFO="${OUTPUT_DIR}/final_cds.csv"
+FINAL_CDS_INFO="${OUTPUT_DIR}/potential_pyl_cds_status.csv"
 if [ ! -f $FINAL_CDS_INFO ]; then
     python $PYLPROTPREDICTOR_DIR/check.py \
         --pot_pyl_similarity_search $POT_PYL_SIMILARITY_SEARCH \

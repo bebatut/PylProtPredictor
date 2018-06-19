@@ -73,17 +73,20 @@ def extract_correct_cds(
     for cds_id in keys:
         cds_obj = pot_pyl_cds[cds_id]
         cds_obj.identify_cons_rej_cds()
+        status = 'non-pyl'
 
         cons_seq = cds_obj.get_conserved_cds()
+        rej_seq = cds_obj.get_rejected_cds()
 
         if cons_seq is None:
-            continue
-
-        if cons_seq != cds_obj:
+            status = 'no-homologous'
+            cons_seq = cds_obj
+        elif cons_seq != cds_obj:
+            status = 'pyl'
             cons_pot_pyl_sequences.append(cons_seq.get_seqrecord())
 
-        rej_seq = cds_obj.get_rejected_cds()
         info[cds_id] = {
+            "status": status,
             "conserved_start": cons_seq.get_start(),
             "conserved_end": cons_seq.get_end(),
             "strand": cds_obj.get_strand(),
@@ -97,7 +100,7 @@ def extract_correct_cds(
     export.export_csv(
         info,
         info_filepath,
-        ["conserved_start", "conserved_end", "strand", "origin_seq", "original_start", "original_end", "rejected_start", "rejected_end"])
+        ["status", "conserved_start", "conserved_end", "strand", "origin_seq", "original_start", "original_end", "rejected_start", "rejected_end"])
 
 
 def check_pyl_proteins(
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     parser.add_argument('--pot_pyl_cds_filepath', help='path to JSON file with collection of potential PYL CDS')
     parser.add_argument('--cons_pot_pyl_seq_filepath', help='path to a FASTA file for the conserved PYL CDS')
     parser.add_argument('--info_filepath', help='path to a CSV file with final information about the CDS')
-        
+
     args = parser.parse_args()
 
     check_pyl_proteins(
