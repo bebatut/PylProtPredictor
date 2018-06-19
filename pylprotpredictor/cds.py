@@ -99,10 +99,8 @@ def translate(seq):
     :return: string with the corresponding amino acid sequence with the TAG encoded STOP are replaced by Pyl amino acid
     """
     translated_seq = seq.translate(66)
-    if translated_seq[-1] == 'O':
-        mutable_seq = translated_seq.tomutable()
-        mutable_seq[-1] = "*"
-        translated_seq = mutable_seq.toseq()
+    mutable_seq = translated_seq.tomutable()[:-1]
+    translated_seq = mutable_seq.toseq()
     return translated_seq
 
 
