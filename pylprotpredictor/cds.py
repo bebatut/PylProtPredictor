@@ -249,6 +249,13 @@ class CDS:
         """
         return self.rejected_cds
 
+    def get_stop_codon(self):
+        """Return the STOP codon of the CDS
+
+        :return: the STOP codon
+        """
+        return self.get_seq()[-3:]
+
     def get_origin_seq_size(self):
         """Return the length of the origin sequence
 
@@ -468,7 +475,7 @@ class CDS:
 
         :return: boolean
         """
-        return self.get_seq().endswith("TAG")
+        return self.get_stop_codon() == "TAG"
 
     def has_alternative_ends(self):
         """Test if the list of alternative ends is not empty

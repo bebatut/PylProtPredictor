@@ -49,17 +49,18 @@ def extract_predicted_cds(
         strand = cds_obj.get_strand()
         start = cds_obj.get_start()
         end = cds_obj.get_end()
+        stop_codon = cds_obj.get_stop_codon()
 
         pred_cds[cds_id] = cds_obj
 
-        pred_cds_info[cds_id] = {"start": start, "end": end, "strand": strand, "origin_seq": origin_seq_id}
+        pred_cds_info[cds_id] = {"start": start, "end": end, "strand": strand, "origin_seq": origin_seq_id, "stop_codon": stop_codon}
 
         if cds_obj.is_tag_ending_seq():
             tag_ending_cds.append(cds_id)
             tag_ending_cds_info[cds_id] = {"start": start, "end": end, "strand": strand, "origin_seq": origin_seq_id}
             cds_obj.set_origin_seq(origin_seqs[origin_seq_id])
 
-    export.export_csv(pred_cds_info, pred_cds_info_path, ["start", "end", "strand", "origin_seq"])
+    export.export_csv(pred_cds_info, pred_cds_info_path, ["start", "end", "strand", "origin_seq", "stop_codon"])
     export.export_csv(tag_ending_cds_info, tag_ending_cds_info_path, ["start", "end", "strand", "origin_seq"])
 
     logging.info("Number of predicted CDS: %s\n" % (len(pred_cds.keys())))
