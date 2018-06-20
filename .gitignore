@@ -8,3 +8,7 @@ data/uniref90.dmnd
 .cache
 .coverage
 .envrc
+.eggs
+build
+dist
+pylprotpredictor.egg-info/
