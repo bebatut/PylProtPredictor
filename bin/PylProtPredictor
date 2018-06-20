@@ -1,121 +1,219 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PYLPROTPREDICTOR_DIR="$CURRENT_DIR/../pylprotpredictor"
-DATA_DIR="$CURRENT_DIR/../data"
-REF_DB="uniref90"
-GENOME="$2"
-OUTPUT_DIR="$4"
+import argparse
+import gzip
+import logging
+import requests
+import shutil
+import subprocess
 
-display_help() {
-    echo "PylProtPredictor Pipeline"
-    echo ""
-    echo "Usage: $0 --genome FILE --output PATH [options]"
-    echo
-    echo "More:"
-    echo "   --help                 show this help"
-    echo "   --version              show version"
-    exit 0
-}
+from pathlib import Path
 
-if [[ "$1" == "--version" || "$1" == "-v" ]]; then
-  echo "PylProtPredictor Pipeline: v0.2"
-  exit 0
-fi
-
-if [[ "$1" == "" || "$1" == "-h" || "$1" == "--help" || "$1" != "--genome" || "$3" != "--output" ]]; then
-  display_help
-  exit 0
-fi
-
-mkdir -p $DATA_DIR
-mkdir -p $OUTPUT_DIR
+try:
+    from pylprotpredictor import check
+    from pylprotpredictor import export
+    from pylprotpredictor import predict
+except ImportError:
+    from . import check
+    from . import export
+    from . import predict
 
 
-REF_DB_DMND="${DATA_DIR}/${REF_DB}.dmnd"
-if [ ! -f $REF_DB_DMND ]; then
-    REF_DB_FASTA="${DATA_DIR}/${REF_DB}.fasta"
-    if [ ! -f $REF_DB_FASTA ]; then
-       echo "Download the UniRef90 database"
-       wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz" | gunzip 
-    fi
-    echo "Format the Uniref90 database for Diamond"
-    diamond makedb \
-        --in $REF_DB_FASTA \
-        --db $REF_DB_DMND \
-        --quiet
-fi
+def get_reference_database(args):
+    '''
+    Get the reference database given 3 cases:
+    1. Path to Diamond formatted file was given as argument: nothing to do
+    2. Path to FASTA file was given as argument: format this file with Diamond
+    3. Nothing in the argument: download UniRef90 and format it with Diamond
 
-echo "Predict CDS from the input genome using Prodigal"
-PREDICTED_CDS="${OUTPUT_DIR}/predicted_cds.fasta"
-PREDICTED_CDS_INFO="${OUTPUT_DIR}/cds_prediction_info.txt"
-PREDICTED_CDS_LOG="${OUTPUT_DIR}/cds_prediction.log"
-if [ ! -f $PREDICTED_CDS ]; then
-    prodigal \
-        -i $GENOME \
-        -d $PREDICTED_CDS \
-        -f gbk \
-        -g 11 \
-        -o $PREDICTED_CDS_INFO \
-        2> $PREDICTED_CDS_LOG
-fi
+    :param args: arguments of the script
 
+    :return: Path to Diamond formatted file with reference database
+    '''
+    if args.reference_dmnd_db and Path(args.reference_dmnd_db).is_file():
+        ref_db_dmnd = Path(args.reference_dmnd_db)
+    else:
+        if args.reference_fasta_db and Path(args.reference_fasta_db).is_file():
+            ref_db_fasta = Path(args.reference_fasta_db)
+            ref_db = ref_db_fasta.name.split(".")[1:]
+            ref_db_dmnd = ref_db_fasta.parent / Path("%s.dmnd" % ref_db)
+        else:
+            data_dir = Path("data")
+            data_dir.mkdir(parents=True, exist_ok=True)
+            ref_db="uniref90"
+            ref_db_dmnd = data_dir / Path("%s.dmnd" % ref_db)
+            ref_db_fasta = data_dir / Path("%s.fasta" % ref_db)
+            if not ref_db_dmnd.is_file() and not ref_db_fasta.is_file():
+                logging.info("Download the UniRef90 database")
+                url = "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
+                r = requests.get(url, stream=True)
+                fname = data_dir / Path("%s.fasta.gz" % ref_db)
+                with open(fname, 'wb') as f:
+                    total_length = int(r.headers.get('content-length'))
+                    for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1): 
+                        if chunk:
+                            f.write(chunk)
+                            f.flush()
 
-echo "Predict potential PYL-containing proteins from predicted CDS"
-POT_PYL_SEQUENCES="${OUTPUT_DIR}/potential_pyl_sequences.fasta"
-PYL_PROTEIN_PREDICTION_LOG="${OUTPUT_DIR}/pyl_protein_prediction.log"
-PREDICTED_CDS_INFO="${OUTPUT_DIR}/predicted_cds.csv"
-TAG_ENDING_CDS_INFO="${OUTPUT_DIR}/tag_ending_cds.csv"
-POT_PYL_PROTEIN_INFO="${OUTPUT_DIR}/potential_pyl_proteins.csv"
-POT_PYL_CDS_OBJ="${OUTPUT_DIR}/potential_pyl_cds_objects"
-if [ ! -f $PREDICTED_CDS_INFO ]; then
-    python $PYLPROTPREDICTOR_DIR/predict.py \
-        --genome $GENOME \
-        --pred_cds $PREDICTED_CDS \
-        --pot_pyl_seq $POT_PYL_SEQUENCES \
-        --log $PYL_PROTEIN_PREDICTION_LOG \
-        --pred_cds_info $PREDICTED_CDS_INFO \
-        --tag_ending_cds_info $TAG_ENDING_CDS_INFO \
-        --pot_pyl_seq_info $POT_PYL_PROTEIN_INFO \
-        --pot_pyl_cds_obj $POT_PYL_CDS_OBJ
-fi
+                logging.info("Unzip the downloaded file")
+                with open(fname, 'rb') as f_in, gzip.open(ref_db_fasta, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)            
 
-
-echo "Align predicted Pyl proteins on Uniref90 using Diamond"
-POT_PYL_SIMILARITY_SEARCH="${OUTPUT_DIR}/potential_pyl_similarity_search.txt"
-if [ ! -f $POT_PYL_SIMILARITY_SEARCH ]; then
-    diamond blastp \
-        -d $REF_DB_DMND \
-        -q $POT_PYL_SEQUENCES \
-        -o $POT_PYL_SIMILARITY_SEARCH \
-        -k 5 \
-        -e 1e-10 \
-        -f 6 \
-        -b 0.5 \
-        -p 4 \
-        --quiet
-fi
+        if not ref_db_dmnd.is_file():
+            logging.info("Format the Uniref90 database for Diamond")
+            cmd = "diamond makedb "
+            cmd += "--in %s " % ref_db_fasta
+            cmd += "--db %s " % ref_db_dmnd
+            cmd += "--quiet" 
+            subprocess.call(cmd, shell=True)
+    return ref_db_dmnd
 
 
-echo "Validate potential Pyl protein by analysing the alignments"
-CONS_POT_PYL_SEQ="${OUTPUT_DIR}/conserved_potential_pyl_sequences.fasta"
-FINAL_CDS_INFO="${OUTPUT_DIR}/potential_pyl_cds_status.csv"
-if [ ! -f $FINAL_CDS_INFO ]; then
-    python $PYLPROTPREDICTOR_DIR/check.py \
-        --pot_pyl_similarity_search $POT_PYL_SIMILARITY_SEARCH \
-        --pot_pyl_cds_filepath $POT_PYL_CDS_OBJ \
-        --cons_pot_pyl_seq_filepath $CONS_POT_PYL_SEQ \
-        --info_filepath $FINAL_CDS_INFO 
-fi
+def predict_cds(genome, out_dir):
+    '''
+    Predict CDS from the input genome using Prodigal
+
+    :param genome: Path to FASTA file with full or contig sequences of a genome
+    :param out_dir: Path to output dir
+
+    :return: Path to generated FASTA files
+    '''
+    pred_cds = out_dir / Path("predicted_cds.fasta")
+    pred_cds_info = out_dir / Path("predicted_cds_info.txt")
+    pred_cds_log = out_dir / Path("cds_prediction.log")
+    if not pred_cds.is_file():
+        cmd = "prodigal "
+        cmd += "-i %s " % genome
+        cmd += "-d %s " % pred_cds
+        cmd += "-f gbk "
+        cmd += "-g 11 "
+        cmd += "-o %s " % pred_cds_info
+        cmd += "2> %s " % pred_cds_log
+        subprocess.call(cmd, shell=True)
+    return pred_cds
 
 
-echo "Print a quick HTML report"
-REPORT="${OUTPUT_DIR}/report.html"
-if [ ! -f $REPORT ]; then
-    python $PYLPROTPREDICTOR_DIR/write_report.py \
-        --pred_cds $PREDICTED_CDS_INFO \
-        --tag_ending_cds $TAG_ENDING_CDS_INFO \
-        --pot_pyl_cds $POT_PYL_PROTEIN_INFO \
-        --final_cds_info $FINAL_CDS_INFO \
-        --report_filepath $REPORT
-fi
+def predict_pot_pyl_cds(pred_cds, genome, out_dir):
+    '''
+    Predict potential PYL-containing proteins from predicted CDS
+
+    :param pred_cds: Path to FASTA file with predicted CDS
+    :param genome: Path to FASTA file with full or contig sequences of a genome
+    :param out_dir: Path to output dir
+
+    :return: Tuple with paths to FASTA file with different sequences of the 
+    potential PYL proteins and to JSON file with the list of predicted CDS objects
+    '''
+    pot_pyl_seq = out_dir / Path("potential_pyl_sequences.fasta")
+    pyl_cds_pred_log = out_dir / Path("pyl_cds_pred.log")
+    pred_cds_info = out_dir / Path("predicted_cds.csv")
+    tag_ending_cds_info = out_dir / Path("tag_ending_cds.csv")
+    pot_pyl_cds_info = out_dir / Path("potential_pyl_cds.csv")
+    pred_cds_obj = out_dir / Path("predicted_pyl_cds_objects")
+    if not pred_cds_obj.is_file():
+        predict.predict_pyl_proteins(
+            genome_filepath=genome,
+            pred_cds_filepath=pred_cds,
+            pot_pyl_seq_filepath=pot_pyl_seq,
+            log_filepath=pyl_cds_pred_log,
+            pred_cds_info_filepath=pred_cds_info,
+            tag_ending_cds_info_filepath=tag_ending_cds_info,
+            pot_pyl_seq_info_filepath=pot_pyl_cds_info,
+            pred_cds_obj_filepath=pred_cds_obj)
+    return (pot_pyl_seq, pred_cds_obj)
+
+
+def align_pred_pyl_prot(pot_pyl_seq, ref_db_dmnd):
+    '''
+    Align predicted Pyl proteins on reference database using Diamond
+
+    :param pot_pyl_seq: Path to FASTA file with different sequences of the potential PYL proteins
+    :param ref_db_dmnd: Path to Diamond formatted file with reference database
+
+    :return: Path to Diamond output
+    '''
+    pot_pyl_sim_search = out_dir / Path("potential_pyl_similarity_search.txt")
+    if not pot_pyl_sim_search.is_file():
+        cmd = "diamond blastp "
+        cmd += "-d %s " % ref_db_dmnd
+        cmd += "-q %s " % pot_pyl_seq
+        cmd += "-o %s " % pot_pyl_sim_search
+        cmd += "-k 5 "
+        cmd += "-e 1e-10 "
+        cmd += "-f 6 "
+        cmd += "-b 0.5 "
+        cmd += "-p 4 "
+        cmd += "--quiet"
+        subprocess.call(cmd, shell=True)
+    return pot_pyl_sim_search
+
+
+def check_pred_cds(pot_pyl_sim_search, pred_cds_obj):
+    '''
+    Validate potential Pyl CDS by analysing the alignments and report information
+    about predicted CDS
+
+    :param pot_pyl_sim_search: Path to Diamond output
+    :param pred_cds_obj: Path to JSON file with the list of predicted CDS objects
+    '''
+    cons_cds_seq = out_dir / Path("conserved_cds_sequences.fasta")
+    pot_pyl_cds_status = out_dir / Path("potential_pyl_cds_status.csv")
+    pred_cds_status = out_dir / Path("final_predicted_cds_info.csv")
+    if not pred_cds_status.is_file():
+        check.check_pyl_proteins(
+            pot_pyl_similarity_search=pot_pyl_sim_search,
+            pred_cds_obj_filepath=pred_cds_obj,
+            cons_pred_cds_seq=cons_cds_seq,
+            info_filepath=pred_cds_status)
+#if [ ! -f $FINAL_CDS_INFO ]; then
+#    python $PYLPROTPREDICTOR_DIR/check.py \
+#        --pot_pyl_similarity_search $POT_PYL_SIMILARITY_SEARCH \
+#        --pot_pyl_cds_filepath $POT_PYL_CDS_OBJ \
+#        --cons_pot_pyl_seq_filepath $CONS_POT_PYL_SEQ \
+#        --info_filepath $FINAL_CDS_INFO 
+#fi
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='PylProtPredictor Pipeline')
+    parser.add_argument('--genome', help='path to a FASTA file with full or contig sequences of a genome to analyze', required=True)
+    parser.add_argument('--output', help='path to the output directory', required=True)
+    parser.add_argument('--reference_fasta_db', help='path to FASTA file with reference database', required=False)
+    parser.add_argument('--reference_dmnd_db', help='path to Diamond formatted file with reference database', required=False)
+    args = parser.parse_args()
+
+    genome = Path(args.genome)
+    if not genome.is_file():
+        raise ValueError("The genome file does not exists")
+
+    out_dir = Path(args.output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    log_filepath = out_dir / Path("log")
+    logging.basicConfig(filename=log_filepath.as_posix(), level=logging.INFO, filemode="w")
+
+    logging.info("Get reference database")
+    ref_db_dmnd = get_reference_database(args)
+
+    logging.info("Predict CDS from the input genome using Prodigal")
+    pred_cds = predict_cds(genome, out_dir)
+
+    logging.info("Predict potential PYL-containing proteins from predicted CDS")
+    (pot_pyl_seq, pred_cds_obj) = predict_pot_pyl_cds(pred_cds, genome, out_dir)
+
+    logging.info("Align predicted Pyl proteins on reference database using Diamond")
+    pot_pyl_sim_search = align_pred_pyl_prot(pot_pyl_seq, ref_db_dmnd)
+
+    logging.info("Validate potential Pyl CDS by analysing the alignments")
+    check_pred_cds(pot_pyl_sim_search, pred_cds_obj)
+#
+#
+#echo "Print a quick HTML report"
+#REPORT="${OUTPUT_DIR}/report.html"
+#if [ ! -f $REPORT ]; then
+#    python $PYLPROTPREDICTOR_DIR/write_report.py \
+#        --pred_cds $PREDICTED_CDS_INFO \
+#        --tag_ending_cds $TAG_ENDING_CDS_INFO \
+#        --pot_pyl_cds $POT_PYL_PROTEIN_INFO \
+#        --final_cds_info $FINAL_CDS_INFO \
+#        --report_filepath $REPORT
+#fi
+#

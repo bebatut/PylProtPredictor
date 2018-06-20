@@ -111,7 +111,7 @@ class CDS:
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
             end=-1, strand="forward", seq=None, alternative_ends=[],
             alternative_cds=[], alignments=[],
-            conserved_cds=None, rejected_cds=[]):
+            conserved_cds=None, rejected_cds=[], status=""):
         """Initiate a CDS instance"""
         self.id = seq_id
         self.origin_seq = origin_seq
@@ -125,6 +125,7 @@ class CDS:
         self.alignments = alignments
         self.conserved_cds = conserved_cds
         self.rejected_cds = rejected_cds
+        self.status = status
 
     def init_from_record(self, record):
         """Initiate a CDS instance with a SeqRecord object
@@ -148,6 +149,7 @@ class CDS:
         :param in_dict: dictionary with attribute for a CDS object
         """
         self.set_id(in_dict["id"])
+        self.set_status(in_dict["status"])
         self.set_origin_seq_id(in_dict["origin_seq_id"])
         self.set_start(in_dict["start"])
         self.set_end(in_dict["end"])
@@ -246,6 +248,13 @@ class CDS:
         :return: list of CDS objects
         """
         return self.rejected_cds
+
+    def get_status(self):
+        """Return the status
+
+        :return: string with the status of the CDS
+        """
+        return self.status
 
     def get_stop_codon(self):
         """Return the STOP codon of the CDS
@@ -421,6 +430,13 @@ class CDS:
         """
         self.evalue = evalue
 
+    def set_status(self, status):
+        """Change the status
+
+        :param status: new status
+        """
+        self.status = status
+
     def set_conserved_cds(self, conserved_cds):
         """Change the conserved CDS
 
@@ -477,6 +493,20 @@ class CDS:
         """
         return self.get_stop_codon() == "TAG"
 
+    def is_potential_pyl(self):
+        """Test if the sequence has a status for potential pyl
+
+        :return: boolean
+        """
+        return self.get_status() == "potential pyl"
+
+    def is_tag_ending(self):
+        """Test if the sequence has a status for tag-ending
+
+        :return: boolean
+        """
+        return self.get_status() == "tag-ending"
+
     def has_alternative_ends(self):
         """Test if the list of alternative ends is not empty
 
@@ -484,8 +514,8 @@ class CDS:
         """
         return len(self.get_alternative_ends()) > 0
 
-    def is_potential_pyl_cds(self):
-        """Test if the CDS is a potential PYL CDS: having alternative cds
+    def has_alternative_cds(self):
+        """Test if the CDS has alternative cds
 
         :return: boolean
         """
@@ -591,13 +621,16 @@ class CDS:
         """Identify which alternative CDS to converse or reject based on the
         evalue and the alignment length: Keep the sequence with a lowest evalue
         and a longer alignment
+
+        :return: better alignment
         """
         self.reset_rejected_cds()
 
         ref_al = self.get_lowest_evalue_alignment()
 
         if ref_al is None:
-            self.set_conserved_cds(None)
+            cds_obj.set_status('potential pyl - no homologous found')
+            self.set_conserved_cds(self)
             return
 
         self.set_conserved_cds(self)
@@ -611,6 +644,13 @@ class CDS:
                 self.set_conserved_cds(alt_cds)
             else:
                 self.add_rejected_cds(alt_cds)
+
+        if self.get_conserved_cds() == self:
+            cds_obj.set_status('not confirmed potential pyl')
+        else:
+            cds_obj.set_status('confirmed potential pyl')
+
+        return ref_al
 
     def export_description(self):
         """Export the description of the CDS
@@ -632,6 +672,7 @@ class CDS:
         cds_id = self.get_id()
         d = {cds_id: {
             'id': self.get_id(),
+            'status': self.get_status(),
             'origin_seq_id': self.get_origin_seq_id(),
             'start': self.get_start(),
             'end': self.get_end(),
