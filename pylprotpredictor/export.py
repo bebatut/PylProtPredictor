@@ -3,7 +3,6 @@ import json
 import pandas as pd
 
 from Bio import SeqIO
-from pathlib import Path
 
 
 def export_csv(dictionary, csv_filepath, col):

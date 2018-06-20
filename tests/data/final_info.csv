@@ -1,3 +1,6 @@
-,conserved_start,conserved_end,strand,origin_seq,original_start,original_end,rejected_start,rejected_end
-scaffold_117_243,228199,228441,reverse,scaffold_117,228271,228441,228271,228441
-scaffold_1220_19,15451,15930,forward,scaffold_1220,15451,15930,15451,15957
+,status,conserved_start,conserved_end,strand,conserved_stop_codon,origin_seq,original_start,original_end,original_stop_codon,rejected_start,rejected_end,matched_RefSeq90
+cds_1,,694,1938,forward,TGA,gi|477554117|gb|CP004049.1|,694,1938,TGA,,,
+scaffold_0_1,,1,543,forward,TGA,scaffold_0,1,543,TGA,,,
+scaffold_0_3,,1581,2864,reverse,TAA,scaffold_0,1581,2864,TAA,,,
+scaffold_117_243,confirmed potential pyl,228199,228441,reverse,TGA,scaffold_117,228271,228441,TAG,228271,228441,UniRef90_M9SHP3
+scaffold_1220_19,not confirmed potential pyl,15451,15930,forward,TAG,scaffold_1220,15451,15930,TAG,15451,15957,UniRef90_R7PZ64

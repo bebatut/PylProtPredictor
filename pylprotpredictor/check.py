@@ -88,7 +88,7 @@ def extract_correct_cds(pred_cds, cons_pred_cds_seq, info_filepath):
 
         if cons_seq is None:
             cons_seq = cds_obj
-        
+
         cons_cds_sequences.append(cons_seq.get_seqrecord())
 
         info[cds_id] = {
@@ -109,7 +109,7 @@ def extract_correct_cds(pred_cds, cons_pred_cds_seq, info_filepath):
     export.export_csv(
         info,
         info_filepath,
-        ["status", "conserved_start","conserved_end","strand","conserved_stop_codon","origin_seq","original_start","original_end","original_stop_codon","rejected_start","rejected_end","matched_RefSeq90"])
+        ["status", "conserved_start", "conserved_end", "strand", "conserved_stop_codon", "origin_seq", "original_start", "original_end", "original_stop_codon", "rejected_start", "rejected_end", "matched_RefSeq90"])
 
 
 def check_pyl_proteins(
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     check_pyl_proteins(
-        pot_pyl_similarity_search=Path(aargs.pot_pyl_similarity_search),
-        pred_cds_obj_filepath=Path(aargs.pred_cds_obj_filepath),
-        cons_pred_cds_seq=Path(aargs.cons_pred_cds_seq_filepath),
-        info_filepath=Path(aargs.info_filepath))
+        pot_pyl_similarity_search=Path(args.pot_pyl_similarity_search),
+        pred_cds_obj_filepath=Path(args.pred_cds_obj_filepath),
+        cons_pred_cds_seq=Path(args.cons_pred_cds_seq_filepath),
+        info_filepath=Path(args.info_filepath))
