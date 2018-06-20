@@ -61,11 +61,10 @@ def parse_similarity_search_report(pot_pyl_similarity_search, pred_cds):
         al.init_from_search_report_row(row)
         cds_obj.add_id_alignment(row[1], al)
 
-    return pot_pyl_cds
+    return pred_cds
 
 
-def extract_correct_cds(
-        pot_pyl_cds, cons_pot_pyl_seq_filepath, info_filepath):
+def extract_correct_cds(pred_cds, cons_pred_cds_seq, info_filepath):
     """Identify and extract the correct CDS sequence
 
     :param pred_cds: dictionary of the predicted CDS
@@ -86,6 +85,10 @@ def extract_correct_cds(
 
         cons_seq = cds_obj.get_conserved_cds()
         rej_seq = cds_obj.get_rejected_cds()
+
+        if cons_seq is None:
+            cons_seq = cds_obj
+        
         cons_cds_sequences.append(cons_seq.get_seqrecord())
 
         info[cds_id] = {
@@ -93,18 +96,20 @@ def extract_correct_cds(
             "conserved_start": cons_seq.get_start(),
             "conserved_end": cons_seq.get_end(),
             "strand": cds_obj.get_strand(),
+            "conserved_stop_codon": cons_seq.get_stop_codon(),
             "origin_seq": cds_obj.get_origin_seq_id(),
             "original_start": cds_obj.get_start(),
             "original_end": cds_obj.get_end(),
+            "original_stop_codon": cds_obj.get_stop_codon(),
             "rejected_start": ";".join([str(s.get_start()) for s in rej_seq]),
             "rejected_end": ";".join([str(s.get_end()) for s in rej_seq]),
             "matched_RefSeq90": cons_al.get_sseqid()}
 
-    export.export_fasta(cons_pot_pyl_sequences, cons_pot_pyl_seq_filepath)
+    export.export_fasta(cons_cds_sequences, cons_pred_cds_seq)
     export.export_csv(
         info,
         info_filepath,
-        ["status", "conserved_start", "conserved_end", "strand", "origin_seq", "original_start", "original_end", "rejected_start", "rejected_end" , "matched_RefSeq90"])
+        ["status", "conserved_start","conserved_end","strand","conserved_stop_codon","origin_seq","original_start","original_end","original_stop_codon","rejected_start","rejected_end","matched_RefSeq90"])
 
 
 def check_pyl_proteins(

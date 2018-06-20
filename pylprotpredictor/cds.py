@@ -3,6 +3,11 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Data import CodonTable
 from Bio.Data.CodonTable import register_ncbi_table
 
+try:
+    from pylprotpredictor import alignment
+except ImportError:
+    from . import alignment
+
 
 register_ncbi_table(
     name='PylProt CodonTable',
@@ -629,9 +634,9 @@ class CDS:
         ref_al = self.get_lowest_evalue_alignment()
 
         if ref_al is None:
-            cds_obj.set_status('potential pyl - no homologous found')
+            self.set_status('potential pyl - no homologous found')
             self.set_conserved_cds(self)
-            return
+            return alignment.Alignment()
 
         self.set_conserved_cds(self)
         for alt_cds in self.get_alternative_cds():
@@ -646,9 +651,9 @@ class CDS:
                 self.add_rejected_cds(alt_cds)
 
         if self.get_conserved_cds() == self:
-            cds_obj.set_status('not confirmed potential pyl')
+            self.set_status('not confirmed potential pyl')
         else:
-            cds_obj.set_status('confirmed potential pyl')
+            self.set_status('confirmed potential pyl')
 
         return ref_al
 
