@@ -162,19 +162,30 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>PylProtPredictor is using <a class="reference external" href="http://snakemake.readthedocs.io/">Snakemake</a> to run the different steps of the workflow to identify potential PYL proteins.</p>
+<p>To run the different steps of the workflow to identify potential PYL proteins:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">source</span> activate PylProtPredictor <span class="c1"># once to activate the conda environment</span>
-$ ./bin/PylProtPredictor --genome FILE --output PATH <span class="o">[</span>options<span class="o">]</span>
+$ pylprotpredictor --help
+usage: pylprotpredictor <span class="o">[</span>-h<span class="o">]</span> --genome GENOME --output OUTPUT
+                        <span class="o">[</span>--reference_fasta_db REFERENCE_FASTA_DB<span class="o">]</span>
+                        <span class="o">[</span>--reference_dmnd_db REFERENCE_DMND_DB<span class="o">]</span>
+
+PylProtPredictor Pipeline
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  --genome GENOME       path to a FASTA file with full or contig sequences of
+                        a genome to analyze
+  --output OUTPUT       path to the output directory
+  --reference_fasta_db REFERENCE_FASTA_DB
+                        path to FASTA file with reference database
+  --reference_dmnd_db REFERENCE_DMND_DB
+                        path to Diamond formatted file with reference database
 </pre></div>
 </div>
 <div class="section" id="database-setup">
 <h2>Database setup<a class="headerlink" href="#database-setup" title="Permalink to this headline">¶</a></h2>
 <p>The first run will be long: the reference database should be downloaded and prepare for the similarity search.</p>
-<p>If you already have the Uniref90 database on your machine, you can simply symlink it.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ln -s /path/to/uniref90.dmnd data/uniref90.dmnd
-$ snakemake --cleanup-metadata data.uniref90.dmnd
-</pre></div>
-</div>
+<p>If you already have the Uniref90 database on your machine, you can simply link it when running the main script.</p>
 <p>Otherwise, the pipeline will download and format it. Make sure you have at least 25GB available for the reference database. It can take several hours, depending on your connection.</p>
 </div>
 <div class="section" id="deactivate-conda-environment">

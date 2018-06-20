@@ -177,7 +177,7 @@
 <div class="section" id="checking">
 <h2>Checking<a class="headerlink" href="#checking" title="Permalink to this headline">¶</a></h2>
 <p>For each TAG-ending CDS, several potential sequences are extracted: the original identified CDS and possible extensions in which TAG would not be a STOP codon but a PYL.</p>
-<p>To identify which sequence for each CDS is the most likely, the sequences are searched against a reference database (<a class="reference external" href="http://www.uniprot.org/help/uniref">UniRef 90</a>) using <a class="reference external" href="https://github.com/bbuchfink/diamond">diamond</a>. To identify which sequence for each CDS to converse or reject, the diamond report is parsed. The sequence with the smallest evalue is extracted. If the conserved evalue is higher to a threshold to consider the alignement to be non-random, no sequence is not conserved for this CDS. On the other side, if the conserved sequence corresponds to the original CDS, we try to extract the sequence with the longest alignment (highest bitscore).</p>
+<p>To identify which sequence for each CDS is the most likely, the sequences are searched against a reference database (<a class="reference external" href="http://www.uniprot.org/help/uniref">UniRef 90</a> by default) using <a class="reference external" href="https://github.com/bbuchfink/diamond">diamond</a>. To identify which sequence for each CDS to converse or reject, the diamond report is parsed. For each potential PYL CDS, an extension is conserved if the evalue of its best match is smaller than the evalue of the best match of the original sequences and if the alignment is longer. It prevents cases where the alignment was similar but the evalue smaller for the extension.</p>
 </div>
 </div>
 

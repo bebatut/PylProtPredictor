@@ -158,12 +158,18 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pylprotpredictor.predict</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">Bio</span> <span class="k">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">cds</span>
-<span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">export</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">cds</span>
+    <span class="kn">from</span> <span class="nn">pylprotpredictor</span> <span class="k">import</span> <span class="n">export</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">cds</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">export</span>
 
 
 <div class="viewcode-block" id="extract_seqs"><a class="viewcode-back" href="../../code.html#pylprotpredictor.predict.extract_seqs">[docs]</a><span class="k">def</span> <span class="nf">extract_seqs</span><span class="p">(</span><span class="n">seq_filepath</span><span class="p">):</span>
@@ -174,7 +180,7 @@
 <span class="sd">    :return: a dictionary with all sequences indexed by their id, their length and their complement sequence</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">seqs</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">seq_filepath</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">seq_filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
         <span class="n">seqs</span><span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span></div>
     <span class="k">return</span> <span class="n">seqs</span>
 
@@ -190,18 +196,14 @@
 <span class="sd">    :param genome_filepath: path to reference genome</span>
 
 <span class="sd">    :return: a dictionary with the predicted CDS represented by CDS object</span>
-<span class="sd">    :return: a dictionary with per origin seq, per strand the list of the predicted CDS represented by CDS object</span>
-<span class="sd">    :return: a list of the id of TAG-ending CDS</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pred_cds</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">ordered_pred_cds</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">pred_cds_info</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">tag_ending_cds</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">tag_ending_cds_info</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">origin_seqs</span> <span class="o">=</span> <span class="n">extract_seqs</span><span class="p">(</span><span class="n">genome_filepath</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">pred_cds_path</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">pred_cds_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
         <span class="n">cds_obj</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">CDS</span><span class="p">()</span>
         <span class="n">cds_obj</span><span class="o">.</span><span class="n">init_from_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
         <span class="n">cds_id</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
@@ -209,81 +211,73 @@
         <span class="n">strand</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_strand</span><span class="p">()</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_start</span><span class="p">()</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_end</span><span class="p">()</span>
+        <span class="n">stop_codon</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_stop_codon</span><span class="p">()</span>
 
         <span class="n">pred_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cds_obj</span>
 
-        <span class="n">ordered_pred_cds</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">origin_seq_id</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">origin_seq_id</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">strand</span><span class="p">,</span> <span class="p">[])</span>
-
-        <span class="n">cds_obj</span><span class="o">.</span><span class="n">set_order</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">origin_seq_id</span><span class="p">][</span><span class="n">strand</span><span class="p">]))</span>
-        <span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">origin_seq_id</span><span class="p">][</span><span class="n">strand</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cds_id</span><span class="p">)</span>
-
-        <span class="n">pred_cds_info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">strand</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">origin_seq_id</span><span class="p">}</span>
+        <span class="n">pred_cds_info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">strand</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">origin_seq_id</span><span class="p">,</span> <span class="s2">&quot;stop_codon&quot;</span><span class="p">:</span> <span class="n">stop_codon</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">is_tag_ending_seq</span><span class="p">():</span>
-            <span class="n">tag_ending_cds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cds_id</span><span class="p">)</span>
             <span class="n">tag_ending_cds_info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">strand</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">origin_seq_id</span><span class="p">}</span>
             <span class="n">cds_obj</span><span class="o">.</span><span class="n">set_origin_seq</span><span class="p">(</span><span class="n">origin_seqs</span><span class="p">[</span><span class="n">origin_seq_id</span><span class="p">])</span>
+            <span class="n">cds_obj</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="s2">&quot;tag-ending&quot;</span><span class="p">)</span>
 
-    <span class="n">export</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span><span class="n">pred_cds_info</span><span class="p">,</span> <span class="n">pred_cds_info_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">])</span>
+    <span class="n">export</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span><span class="n">pred_cds_info</span><span class="p">,</span> <span class="n">pred_cds_info_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">,</span> <span class="s2">&quot;stop_codon&quot;</span><span class="p">])</span>
     <span class="n">export</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span><span class="n">tag_ending_cds_info</span><span class="p">,</span> <span class="n">tag_ending_cds_info_path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">])</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Number of predicted CDS: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_cds</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Number of TAG-ending predicted CDS: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tag_ending_cds</span><span class="p">)))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Number of TAG-ending predicted CDS: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tag_ending_cds_info</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
 </div>
-    <span class="k">return</span> <span class="n">pred_cds</span><span class="p">,</span> <span class="n">ordered_pred_cds</span><span class="p">,</span> <span class="n">tag_ending_cds</span>
+    <span class="k">return</span> <span class="n">pred_cds</span>
 
 
 <div class="viewcode-block" id="extract_potential_pyl_cds"><a class="viewcode-back" href="../../code.html#pylprotpredictor.predict.extract_potential_pyl_cds">[docs]</a><span class="k">def</span> <span class="nf">extract_potential_pyl_cds</span><span class="p">(</span>
-        <span class="n">tag_ending_cds</span><span class="p">,</span> <span class="n">pred_cds</span><span class="p">,</span> <span class="n">ordered_pred_cds</span><span class="p">,</span> <span class="n">pot_pyl_cds_filepath</span><span class="p">,</span>
-        <span class="n">pot_pyl_cds_info_filepath</span><span class="p">,</span> <span class="n">pot_pyl_cds_obj_filepath</span><span class="p">):</span>
+        <span class="n">pred_cds</span><span class="p">,</span> <span class="n">pot_pyl_cds_filepath</span><span class="p">,</span> <span class="n">pot_pyl_cds_info_filepath</span><span class="p">,</span> <span class="n">pred_cds_obj_filepath</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extract potential PYL CDS from TAG-ending CDS</span>
 
-<span class="sd">    :param tag_ending_cds: a list of the ids of the TAG-ending CDS</span>
 <span class="sd">    :param pred_cds: a dictionary with the predicted CDS represented as CDS objects</span>
-<span class="sd">    :param ordered_pred_cds: a dictionary with per origin seq, per strand the list of the predicted CDS represented by CDS object</span>
 <span class="sd">    :param pot_pyl_cds_filepath: path to fasta file in which the protein sequences of the potential PYL CDS are saved</span>
 <span class="sd">    :param pot_pyl_cds_info_filepath: path to a cvs file to get information about potential PYL CDS</span>
-<span class="sd">    :param pot_pyl_cds_obj_filepath: path to a JSON file to store the list of potential PYL CDS object</span>
+<span class="sd">    :param pred_cds_obj_filepath: path to generated JSON file to store the list of predicted CDS objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pot_pyl_cds</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">sequences</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">cds_id</span> <span class="ow">in</span> <span class="n">tag_ending_cds</span><span class="p">:</span>
+    <span class="n">json_pred_cds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cds_id</span> <span class="ow">in</span> <span class="n">pred_cds</span><span class="p">:</span>
         <span class="n">cds_obj</span> <span class="o">=</span> <span class="n">pred_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">is_tag_ending</span><span class="p">():</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">CDS: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cds_id</span><span class="p">))</span>
 
-        <span class="n">origin_seq_id</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">()</span>
-        <span class="n">strand</span> <span class="o">=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_strand</span><span class="p">()</span>
+            <span class="n">cds_obj</span><span class="o">.</span><span class="n">find_alternative_ends</span><span class="p">()</span>
+            <span class="n">cds_obj</span><span class="o">.</span><span class="n">extract_possible_alternative_seq</span><span class="p">()</span>
 
-        <span class="n">cds_obj</span><span class="o">.</span><span class="n">find_next_cds_limit</span><span class="p">(</span><span class="n">ordered_pred_cds</span><span class="p">[</span><span class="n">origin_seq_id</span><span class="p">][</span><span class="n">strand</span><span class="p">],</span> <span class="n">pred_cds</span><span class="p">)</span>
-        <span class="n">cds_obj</span><span class="o">.</span><span class="n">find_alternative_ends</span><span class="p">()</span>
-        <span class="n">cds_obj</span><span class="o">.</span><span class="n">extract_possible_alternative_seq</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">has_alternative_cds</span><span class="p">():</span>
+                <span class="n">info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
+                    <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_end</span><span class="p">(),</span>
+                    <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
+                    <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
+                    <span class="s2">&quot;alternative_start&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_alternative_start</span><span class="p">()]),</span>
+                    <span class="s2">&quot;alternative_end&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_alternative_end</span><span class="p">()])}</span>
+                <span class="n">sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cds_obj</span><span class="o">.</span><span class="n">get_translated_seq</span><span class="p">())</span>
+                <span class="n">sequences</span> <span class="o">+=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_translated_alternative_seq</span><span class="p">()</span>
+                <span class="n">cds_obj</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="s2">&quot;potential pyl&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">is_potential_pyl_cds</span><span class="p">():</span>
-            <span class="n">info</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_start</span><span class="p">(),</span>
-                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_end</span><span class="p">(),</span>
-                <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_strand</span><span class="p">(),</span>
-                <span class="s2">&quot;origin_seq&quot;</span><span class="p">:</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_origin_seq_id</span><span class="p">(),</span>
-                <span class="s2">&quot;alternative_start&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_alternative_start</span><span class="p">()]),</span>
-                <span class="s2">&quot;alternative_end&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_alternative_end</span><span class="p">()])}</span>
-            <span class="n">sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cds_obj</span><span class="o">.</span><span class="n">get_translated_seq</span><span class="p">())</span>
-            <span class="n">sequences</span> <span class="o">+=</span> <span class="n">cds_obj</span><span class="o">.</span><span class="n">get_translated_alternative_seq</span><span class="p">()</span>
-            <span class="n">pot_pyl_cds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cds_obj</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">())</span>
+        <span class="n">json_pred_cds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pred_cds</span><span class="p">[</span><span class="n">cds_id</span><span class="p">]</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">())</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Number of potential Pyl proteins: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Number of potential Pyl proteins: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
     <span class="n">export</span><span class="o">.</span><span class="n">export_fasta</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="n">pot_pyl_cds_filepath</span><span class="p">)</span>
     <span class="n">export</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
         <span class="n">info</span><span class="p">,</span>
         <span class="n">pot_pyl_cds_info_filepath</span><span class="p">,</span>
         <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;strand&quot;</span><span class="p">,</span> <span class="s2">&quot;origin_seq&quot;</span><span class="p">,</span> <span class="s2">&quot;alternative_start&quot;</span><span class="p">,</span> <span class="s2">&quot;alternative_end&quot;</span><span class="p">])</span></div>
-    <span class="n">export</span><span class="o">.</span><span class="n">export_json</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="p">,</span> <span class="n">pot_pyl_cds_obj_filepath</span><span class="p">)</span>
+    <span class="n">export</span><span class="o">.</span><span class="n">export_json</span><span class="p">(</span><span class="n">json_pred_cds</span><span class="p">,</span> <span class="n">pred_cds_obj_filepath</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="predict_pyl_proteins"><a class="viewcode-back" href="../../code.html#pylprotpredictor.predict.predict_pyl_proteins">[docs]</a><span class="k">def</span> <span class="nf">predict_pyl_proteins</span><span class="p">(</span>
         <span class="n">genome_filepath</span><span class="p">,</span> <span class="n">pred_cds_filepath</span><span class="p">,</span> <span class="n">pot_pyl_seq_filepath</span><span class="p">,</span> <span class="n">log_filepath</span><span class="p">,</span>
         <span class="n">pred_cds_info_filepath</span><span class="p">,</span> <span class="n">tag_ending_cds_info_filepath</span><span class="p">,</span>
-        <span class="n">pot_pyl_seq_info_filepath</span><span class="p">,</span> <span class="n">pot_pyl_cds_obj_filepath</span><span class="p">):</span>
+        <span class="n">pot_pyl_seq_info_filepath</span><span class="p">,</span> <span class="n">pred_cds_obj_filepath</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run prediction of potentila PYL CDS:</span>
 
@@ -298,21 +292,43 @@
 <span class="sd">    :param pred_cds_info_filepath: path to CSV file with predicted CDS info</span>
 <span class="sd">    :param tag_ending_cds_info_filepath: path to CSV file with TAG-ending CDS info</span>
 <span class="sd">    :param pot_pyl_seq_info_filepath: path to CSV file with potential PYL CDS info</span>
-<span class="sd">    :param pot_pyl_cds_obj_filepath: path to a JSON file to store the list of potential PYL CDS object</span>
+<span class="sd">    :param pred_cds_obj_filepath: path to generated JSON file to store the list of predicted CDS objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">log_filepath</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">filemode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">pred_cds</span><span class="p">,</span> <span class="n">ordered_pred_cds</span><span class="p">,</span> <span class="n">tag_ending_cds</span> <span class="o">=</span> <span class="n">extract_predicted_cds</span><span class="p">(</span>
+    <span class="n">pred_cds</span> <span class="o">=</span> <span class="n">extract_predicted_cds</span><span class="p">(</span>
         <span class="n">pred_cds_filepath</span><span class="p">,</span>
         <span class="n">pred_cds_info_filepath</span><span class="p">,</span>
         <span class="n">tag_ending_cds_info_filepath</span><span class="p">,</span>
         <span class="n">genome_filepath</span><span class="p">)</span>
     <span class="n">extract_potential_pyl_cds</span><span class="p">(</span>
-        <span class="n">tag_ending_cds</span><span class="p">,</span>
         <span class="n">pred_cds</span><span class="p">,</span>
-        <span class="n">ordered_pred_cds</span><span class="p">,</span>
         <span class="n">pot_pyl_seq_filepath</span><span class="p">,</span>
         <span class="n">pot_pyl_seq_info_filepath</span><span class="p">,</span></div>
-        <span class="n">pot_pyl_cds_obj_filepath</span><span class="p">)</span>
+        <span class="n">pred_cds_obj_filepath</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Predict potential PYL CDS&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--genome&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to FASTA file with genome (whole or scaffold) on which predict proteins&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pred_cds&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to FASTA file with predicted CDS of the genome&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pot_pyl_seq&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated FASTA file with potential PYL CDS sequence&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--log&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated log file&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pred_cds_info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated CSV file with predicted CDS info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pred_cds_obj&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated JSON file to store the list of predicted CDS object&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--tag_ending_cds_info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated CSV file with TAG-ending CDS info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pot_pyl_seq_info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to generated CSV file with potential PYL CDS info&#39;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">predict_pyl_proteins</span><span class="p">(</span>
+        <span class="n">genome_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">genome</span><span class="p">),</span>
+        <span class="n">pred_cds_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pred_cds</span><span class="p">),</span>
+        <span class="n">pot_pyl_seq_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pot_pyl_seq</span><span class="p">),</span>
+        <span class="n">log_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">log</span><span class="p">),</span>
+        <span class="n">pred_cds_info_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pred_cds_info</span><span class="p">),</span>
+        <span class="n">tag_ending_cds_info_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tag_ending_cds_info</span><span class="p">),</span>
+        <span class="n">pot_pyl_seq_info_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pot_pyl_seq_info</span><span class="p">),</span>
+        <span class="n">pred_cds_obj_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pred_cds_obj</span><span class="p">))</span>
 </pre></div>
 
            </div>

@@ -37,3 +37,16 @@ Install the tool
 .. code-block:: bash
 
     $ make create-env
+
+- Activate the conda environment
+
+.. code-block:: bash
+
+    $ source activate PylProtPredictor
+
+
+- Build the package
+
+.. code-block:: bash
+
+    $ make init

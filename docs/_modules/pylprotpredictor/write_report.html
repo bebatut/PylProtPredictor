@@ -158,7 +158,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pylprotpredictor.write_report</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">snakemake.utils</span> <span class="k">import</span> <span class="n">report</span>
 
@@ -177,16 +178,19 @@
 <div class="viewcode-block" id="write_report"><a class="viewcode-back" href="../../code.html#pylprotpredictor.write_report.write_report">[docs]</a><span class="k">def</span> <span class="nf">write_report</span><span class="p">(</span><span class="n">pred_cds</span><span class="p">,</span> <span class="n">tag_ending_cds</span><span class="p">,</span> <span class="n">pot_pyl_cds</span><span class="p">,</span> <span class="n">final_cds</span><span class="p">,</span> <span class="n">report_filepath</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write HTML report to summarize the full analysis</span>
 
-<span class="sd">    :param pred_cds:</span>
-<span class="sd">    :param tag_ending_cds:</span>
-<span class="sd">    :param pot_pyl_cds:</span>
-<span class="sd">    :param final_cds_info:</span>
-<span class="sd">    :param report_filepath:</span>
+<span class="sd">    :param pred_cds: path to CSV file with predicted CDS info</span>
+<span class="sd">    :param tag_ending_cds: path to CSV file with TAG-ending CDS info</span>
+<span class="sd">    :param pot_pyl_cds: path to CSV file with potential PYL CDS info</span>
+<span class="sd">    :param final_cds_info: path to a CSV file with final information about the CDS</span>
+<span class="sd">    :param report_filepath: path to HTML file in which writing the report</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pred_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">pred_cds</span><span class="p">)</span>
     <span class="n">tag_ending_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">tag_ending_cds</span><span class="p">)</span>
     <span class="n">pot_pyl_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">pot_pyl_cds</span><span class="p">)</span>
-    <span class="n">final_cds_nb</span> <span class="o">=</span> <span class="n">extract_row_number</span><span class="p">(</span><span class="n">final_cds</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">final_cds</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">rej_nb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;conserved_start == original_start and conserved_end == original_end&quot;</span><span class="p">))</span>
+    <span class="n">final_cds_nb</span> <span class="o">=</span> <span class="n">pot_pyl_cds_nb</span> <span class="o">-</span> <span class="n">rej_nb</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pred_cds_nb</span><span class="p">,</span> <span class="n">tag_ending_cds_nb</span><span class="p">,</span> <span class="n">pot_pyl_cds_nb</span><span class="p">,</span> <span class="n">final_cds_nb</span><span class="p">))</span>
 
@@ -204,14 +208,32 @@
 <span class="sd">        Table potential_pyl_cds_).</span>
 
 <span class="sd">        After similarity search, {final_cds_nb} sequences (of</span>
-<span class="sd">        {pot_pyl_cds_nb} predicted PYL sequences) are conserved as</span>
-<span class="sd">        potential PYL proteins (see Table final_cds_).</span>
+<span class="sd">        {pot_pyl_cds_nb} predicted PYL sequences) are conserved ({rej_nb}</span>
+<span class="sd">        rejected) as potential PYL proteins (see Table final_cds_).</span>
 <span class="sd">        &quot;&quot;&quot;</span><span class="p">,</span>
         <span class="n">report_filepath</span><span class="p">,</span>
         <span class="n">predicted_cds</span><span class="o">=</span><span class="n">pred_cds</span><span class="p">,</span>
         <span class="n">tag_ending_cds</span><span class="o">=</span><span class="n">tag_ending_cds</span><span class="p">,</span>
         <span class="n">potential_pyl_cds</span><span class="o">=</span><span class="n">pot_pyl_cds</span><span class="p">,</span></div>
         <span class="n">final_cds</span><span class="o">=</span><span class="n">final_cds</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Write HTML report to summarize the full analysis&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pred_cds&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to CSV file with predicted CDS info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--tag_ending_cds&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to CSV file with TAG-ending CDS info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--pot_pyl_cds&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to CSV file with potential PYL CDS info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--final_cds_info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to a CSV file with final information about the CDS&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--report_filepath&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;path to HTML file in which writing the report&#39;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">write_report</span><span class="p">(</span>
+        <span class="n">pred_cds</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pred_cds</span><span class="p">,</span>
+        <span class="n">tag_ending_cds</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tag_ending_cds</span><span class="p">,</span>
+        <span class="n">pot_pyl_cds</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pot_pyl_cds</span><span class="p">,</span>
+        <span class="n">final_cds</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">final_cds_info</span><span class="p">,</span>
+        <span class="n">report_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">report_filepath</span><span class="p">)</span>
 </pre></div>
 
            </div>
