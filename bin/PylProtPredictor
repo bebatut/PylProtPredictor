@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import logging
+import pandas as pd
 import requests
 import shutil
 import subprocess
@@ -17,6 +18,17 @@ except ImportError:
     from . import check
     from . import export
     from . import predict
+
+
+def extract_row_number(csv_filepath):
+    """Extract row number of a CSV file
+
+    :param csv_filepath: path to a CSV file
+
+    :return: an integer corresponding to the number of lines in the CSV file
+    """
+    df = pd.read_csv(csv_filepath, index_col=0, header=0)
+    return df.shape[0]
 
 
 def get_reference_database(args):
@@ -120,6 +132,11 @@ def predict_pot_pyl_cds(pred_cds, genome, out_dir):
             tag_ending_cds_info_filepath=tag_ending_cds_info,
             pot_pyl_seq_info_filepath=pot_pyl_cds_info,
             pred_cds_obj_filepath=pred_cds_obj)
+
+    logging.info("\tPredicted CDS:%s" % extract_row_number(pred_cds_info))
+    logging.info("\tTAG-ending CDS:%s" % extract_row_number(tag_ending_cds_info))
+    logging.info("\tPotentiel PYL CDS:%s" % extract_row_number(pot_pyl_cds_info))
+    
     return (pot_pyl_seq, pred_cds_obj)
 
 
@@ -165,13 +182,14 @@ def check_pred_cds(pot_pyl_sim_search, pred_cds_obj):
             pred_cds_obj_filepath=pred_cds_obj,
             cons_pred_cds_seq=cons_cds_seq,
             info_filepath=pred_cds_status)
-#if [ ! -f $FINAL_CDS_INFO ]; then
-#    python $PYLPROTPREDICTOR_DIR/check.py \
-#        --pot_pyl_similarity_search $POT_PYL_SIMILARITY_SEARCH \
-#        --pot_pyl_cds_filepath $POT_PYL_CDS_OBJ \
-#        --cons_pot_pyl_seq_filepath $CONS_POT_PYL_SEQ \
-#        --info_filepath $FINAL_CDS_INFO 
-#fi
+
+    df = pd.read_csv(pred_cds_status, index_col=0, header=0)
+    pot_pyl_cds_wo_homologous = len(df[df['status'] == "potential pyl - no homologous found"])
+    cons_pyl_cds = len(df[df['status'] == "confirmed potential pyl"])
+
+    logging.info("\tPotentiel PYL CDS without homologous:%s" % pot_pyl_cds_wo_homologous)
+    logging.info("\tConserved potentiel PYL CDS:%s" % cons_pyl_cds)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PylProtPredictor Pipeline')
@@ -204,16 +222,3 @@ if __name__ == "__main__":
 
     logging.info("Validate potential Pyl CDS by analysing the alignments")
     check_pred_cds(pot_pyl_sim_search, pred_cds_obj)
-#
-#
-#echo "Print a quick HTML report"
-#REPORT="${OUTPUT_DIR}/report.html"
-#if [ ! -f $REPORT ]; then
-#    python $PYLPROTPREDICTOR_DIR/write_report.py \
-#        --pred_cds $PREDICTED_CDS_INFO \
-#        --tag_ending_cds $TAG_ENDING_CDS_INFO \
-#        --pot_pyl_cds $POT_PYL_PROTEIN_INFO \
-#        --final_cds_info $FINAL_CDS_INFO \
-#        --report_filepath $REPORT
-#fi
-#
