@@ -41,7 +41,7 @@ create-env: ## create conda environment
 .PHONY: create-env
 
 test: ## run the tests
-	flake8 --exclude=.git,build --ignore=E501 .
+	flake8 --exclude=.git,build,.eggs --ignore=E501 .
 	pytest --cov=pylprotpredictor tests/
 .PHONY: test
 
