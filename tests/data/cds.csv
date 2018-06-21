@@ -1,6 +1,6 @@
-,start,end,strand,origin_seq
-cds_1,694,1938,forward,gi|477554117|gb|CP004049.1|
-scaffold_0_1,1,543,forward,scaffold_0
-scaffold_0_3,1581,2864,reverse,scaffold_0
-scaffold_117_243,228271,228441,reverse,scaffold_117
-scaffold_1220_19,15451,15930,forward,scaffold_1220
+,start,end,strand,origin_seq,stop_codon
+cds_1,694,1938,forward,gi|477554117|gb|CP004049.1|,TGA
+scaffold_0_1,1,543,forward,scaffold_0,TGA
+scaffold_0_3,1581,2864,reverse,scaffold_0,TAA
+scaffold_117_243,228271,228441,reverse,scaffold_117,TAG
+scaffold_1220_19,15451,15930,forward,scaffold_1220,TAG

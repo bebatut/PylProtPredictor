@@ -1,7 +1,7 @@
 Detection of pyrrolysine proteins
 =================================
 
-[![CircleCI](https://circleci.com/gh/bebatut/PylProtPredictor.svg?style=svg)](https://circleci.com/gh/bebatut/PylProtPredictor)
+[![CircleCI](https://circleci.com/gh/bebatut/PylProtPredictor/tree/master.svg?style=svg)](https://circleci.com/gh/bebatut/PylProtPredictor/tree/master)
 [![codecov](https://codecov.io/gh/bebatut/PylProtPredictor/branch/master/graph/badge.svg?token=6KyTn6n8Bp)](https://codecov.io/gh/bebatut/PylProtPredictor)
 
 # Context
@@ -49,11 +49,38 @@ $ cd pyl_protein_prediction
 $ make create-env
 ```
 
+- Activate the conda environment
+
+```
+$ source activate PylProtPredictor
+```
+
+- Build the package
+
+```
+$ make init
+```
+
 # Usage
 
 ```
 $ source activate PylProtPredictor # once to activate the conda environment
-$ ./bin/PylProtPredictor --genome FILE --output PATH [options]
+$ pylprotpredictor --help
+usage: pylprotpredictor [-h] --genome GENOME --output OUTPUT
+                        [--reference_fasta_db REFERENCE_FASTA_DB]
+                        [--reference_dmnd_db REFERENCE_DMND_DB]
+
+PylProtPredictor Pipeline
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --genome GENOME       path to a FASTA file with full or contig sequences of
+                        a genome to analyze
+  --output OUTPUT       path to the output directory
+  --reference_fasta_db REFERENCE_FASTA_DB
+                        path to FASTA file with reference database
+  --reference_dmnd_db REFERENCE_DMND_DB
+                        path to Diamond formatted file with reference database
 ```
 
 > To exit the environment, you can execute
@@ -66,12 +93,7 @@ $ ./bin/PylProtPredictor --genome FILE --output PATH [options]
 
 The first run will be long: the reference database should be downloaded and prepare for the similarity search.
 
-If you already have the Uniref90 database on your machine, you can simply symlink it.
-
-``` bash
-ln -s /path/to/uniref90.dmnd data/uniref90.dmnd
-snakemake --cleanup-metadata data.uniref90.dmnd
-```
+If you already have the Uniref90 database on your machine, you can simply link it when running the main script.
 
 Otherwise, the pipeline will download and format it. Make sure you have at least 25GB available for the reference database. It can take several hours, depending on your connection.
 

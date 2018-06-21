@@ -169,7 +169,7 @@
 <span id="cds-class"></span><h2>CDS class<a class="headerlink" href="#module-pylprotpredictor.cds" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pylprotpredictor.cds.CDS">
-<em class="property">class </em><code class="descclassname">pylprotpredictor.cds.</code><code class="descname">CDS</code><span class="sig-paren">(</span><em>seq_id=''</em>, <em>origin_seq=None</em>, <em>origin_seq_id=''</em>, <em>start=-1</em>, <em>end=-1</em>, <em>strand='forward'</em>, <em>seq=None</em>, <em>order=-1</em>, <em>next_cds_limit=-1</em>, <em>alternative_ends=[]</em>, <em>alternative_cds=[]</em>, <em>alignments=[]</em>, <em>conserved_cds=None</em>, <em>rejected_cds=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pylprotpredictor.cds.</code><code class="descname">CDS</code><span class="sig-paren">(</span><em>seq_id=''</em>, <em>origin_seq=None</em>, <em>origin_seq_id=''</em>, <em>start=-1</em>, <em>end=-1</em>, <em>strand='forward'</em>, <em>seq=None</em>, <em>alternative_ends=[]</em>, <em>alternative_cds=[]</em>, <em>alignments=[]</em>, <em>conserved_cds=None</em>, <em>rejected_cds=[]</em>, <em>status=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to describe a CDS</p>
 <dl class="method">
 <dt id="pylprotpredictor.cds.CDS.add_alignment">
@@ -271,25 +271,6 @@ potential PYL CDS</p>
 <code class="descname">find_alternative_ends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.find_alternative_ends"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.find_alternative_ends" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find alternative ends (on the same ORF) for a CDS until the next found STOP
 codon on the genome (or its complement if the CDS is on the reverse strand)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.find_next_cds_limit">
-<code class="descname">find_next_cds_limit</code><span class="sig-paren">(</span><em>ordered_pred_cds</em>, <em>pred_cds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.find_next_cds_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.find_next_cds_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the end of the next CDS on the strand on the origin sequence</p>
-<p>If the stand is reverse, we need to take the start of the previous CDS</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ordered_pred_cds</strong> – ordered ids of the CDS on the same strand on the origin sequence</li>
-<li><strong>pred_cds</strong> – a dictionary with the predicted CDS represented as CDS objects</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
@@ -419,42 +400,14 @@ codon on the genome (or its complement if the CDS is on the reverse strand)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pylprotpredictor.cds.CDS.get_lowest_evalue">
-<code class="descname">get_lowest_evalue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_lowest_evalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_lowest_evalue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the lowest evalue for all alignments</p>
+<dt id="pylprotpredictor.cds.CDS.get_lowest_evalue_alignment">
+<code class="descname">get_lowest_evalue_alignment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_lowest_evalue_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_lowest_evalue_alignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the alignment with the lowest evalue</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">float</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.get_next_cds_limit">
-<code class="descname">get_next_cds_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_next_cds_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_next_cds_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the end or start (if reverse strand) of next CDS on the strand on the origin sequence</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int corresponding to the end or start of the next CDS</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.get_order">
-<code class="descname">get_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the order of the CDS on the strand on the origin sequence</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int corresponding to the order value</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">alignment</td>
 </tr>
 </tbody>
 </table>
@@ -573,6 +526,34 @@ codon on the genome (or its complement if the CDS is on the reverse strand)</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pylprotpredictor.cds.CDS.get_status">
+<code class="descname">get_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the status</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string with the status of the CDS</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylprotpredictor.cds.CDS.get_stop_codon">
+<code class="descname">get_stop_codon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_stop_codon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_stop_codon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the STOP codon of the CDS</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the STOP codon</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pylprotpredictor.cds.CDS.get_strand">
 <code class="descname">get_strand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.get_strand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.get_strand" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the strand of the CDS on the origin sequence</p>
@@ -615,9 +596,9 @@ codon on the genome (or its complement if the CDS is on the reverse strand)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pylprotpredictor.cds.CDS.has_alternative_ends">
-<code class="descname">has_alternative_ends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.has_alternative_ends"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.has_alternative_ends" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if the list of alternative ends is not empty</p>
+<dt id="pylprotpredictor.cds.CDS.has_alternative_cds">
+<code class="descname">has_alternative_cds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.has_alternative_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.has_alternative_cds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the CDS has alternative cds</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -629,9 +610,9 @@ codon on the genome (or its complement if the CDS is on the reverse strand)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pylprotpredictor.cds.CDS.has_next_cds_limit">
-<code class="descname">has_next_cds_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.has_next_cds_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.has_next_cds_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if the limit of next CDS is set</p>
+<dt id="pylprotpredictor.cds.CDS.has_alternative_ends">
+<code class="descname">has_alternative_ends</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.has_alternative_ends"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.has_alternative_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the list of alternative ends is not empty</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -660,26 +641,16 @@ codon on the genome (or its complement if the CDS is on the reverse strand)</p>
 <dt id="pylprotpredictor.cds.CDS.identify_cons_rej_cds">
 <code class="descname">identify_cons_rej_cds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.identify_cons_rej_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.identify_cons_rej_cds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify which alternative CDS to converse or reject based on the
-evalue or the bitscore:</p>
-<ul class="simple">
-<li>Extract the CDS (current and possible alternative sequence) with the lowest evalue</li>
-<li>Reset if the lowest evalue is too high and could be due to random alignment</li>
-<li>Extract the CDS (current and possible alternative sequence) with the highest bitscore</li>
-</ul>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.identify_highest_bitscore">
-<code class="descname">identify_highest_bitscore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.identify_highest_bitscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.identify_highest_bitscore" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identify which alternative CDS to converse or reject based on the
-bitscore</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.identify_lowest_evalue">
-<code class="descname">identify_lowest_evalue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.identify_lowest_evalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.identify_lowest_evalue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identify which alternative CDS to converse or reject based on the
-evalue</p>
+evalue and the alignment length: Keep the sequence with a lowest evalue
+and a longer alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">better alignment</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -711,9 +682,9 @@ evalue</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pylprotpredictor.cds.CDS.is_potential_pyl_cds">
-<code class="descname">is_potential_pyl_cds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.is_potential_pyl_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.is_potential_pyl_cds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if the CDS is a potential PYL CDS: having alternative cds</p>
+<dt id="pylprotpredictor.cds.CDS.is_potential_pyl">
+<code class="descname">is_potential_pyl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.is_potential_pyl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.is_potential_pyl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the sequence has a status for potential pyl</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -728,6 +699,20 @@ evalue</p>
 <dt id="pylprotpredictor.cds.CDS.is_reverse_strand">
 <code class="descname">is_reverse_strand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.is_reverse_strand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.is_reverse_strand" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if the strand is reverse</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylprotpredictor.cds.CDS.is_tag_ending">
+<code class="descname">is_tag_ending</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.is_tag_ending"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.is_tag_ending" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the sequence has a status for tag-ending</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -834,35 +819,7 @@ evalue</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> – new id value</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.set_next_cds_limit">
-<code class="descname">set_next_cds_limit</code><span class="sig-paren">(</span><em>next_cds_limit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.set_next_cds_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.set_next_cds_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the end or start (if reverse strand) of next CDS on the strand on the origin sequence</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>next_cds_limit</strong> – int corresponding to the end or start of next CDS</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylprotpredictor.cds.CDS.set_order">
-<code class="descname">set_order</code><span class="sig-paren">(</span><em>order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.set_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.set_order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change the order of the CDS on the strand on the origin sequence</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> – new order value</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seq_id</strong> – new seq id value</td>
 </tr>
 </tbody>
 </table>
@@ -890,7 +847,7 @@ evalue</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>order</strong> – new origin seq id value</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>origin_seq_id</strong> – new origin seq id value</td>
 </tr>
 </tbody>
 </table>
@@ -919,6 +876,20 @@ evalue</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start</strong> – new start value (int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylprotpredictor.cds.CDS.set_status">
+<code class="descname">set_status</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#CDS.set_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.CDS.set_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the status</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>status</strong> – new status</td>
 </tr>
 </tbody>
 </table>
@@ -983,9 +954,8 @@ strand from a predicted CDS</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.cds.test_to_continue">
-<code class="descclassname">pylprotpredictor.cds.</code><code class="descname">test_to_continue</code><span class="sig-paren">(</span><em>end</em>, <em>origin_seq_size</em>, <em>next_cds_limit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#test_to_continue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.test_to_continue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if possible to extract next codon: position still in the genome and
-lower than the end of the next CDS</p>
+<code class="descclassname">pylprotpredictor.cds.</code><code class="descname">test_to_continue</code><span class="sig-paren">(</span><em>end</em>, <em>origin_seq_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/cds.html#test_to_continue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.cds.test_to_continue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if possible to extract next codon: position still in the genome</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -993,7 +963,6 @@ lower than the end of the next CDS</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>end</strong> – int corresponding to the current end</li>
 <li><strong>origin_seq_size</strong> – size of the origin sequence</li>
-<li><strong>next_cds_limit</strong> – int corresponding to the end of the next CDS on the same strand</li>
 </ul>
 </td>
 </tr>
@@ -1374,19 +1343,17 @@ BLAST/DIAMOND table</p>
 <span id="predict"></span><h2>Predict<a class="headerlink" href="#module-pylprotpredictor.predict" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pylprotpredictor.predict.extract_potential_pyl_cds">
-<code class="descclassname">pylprotpredictor.predict.</code><code class="descname">extract_potential_pyl_cds</code><span class="sig-paren">(</span><em>tag_ending_cds</em>, <em>pred_cds</em>, <em>ordered_pred_cds</em>, <em>pot_pyl_cds_filepath</em>, <em>pot_pyl_cds_info_filepath</em>, <em>pot_pyl_cds_obj_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/predict.html#extract_potential_pyl_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.predict.extract_potential_pyl_cds" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.predict.</code><code class="descname">extract_potential_pyl_cds</code><span class="sig-paren">(</span><em>pred_cds</em>, <em>pot_pyl_cds_filepath</em>, <em>pot_pyl_cds_info_filepath</em>, <em>pred_cds_obj_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/predict.html#extract_potential_pyl_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.predict.extract_potential_pyl_cds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract potential PYL CDS from TAG-ending CDS</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tag_ending_cds</strong> – a list of the ids of the TAG-ending CDS</li>
 <li><strong>pred_cds</strong> – a dictionary with the predicted CDS represented as CDS objects</li>
-<li><strong>ordered_pred_cds</strong> – a dictionary with per origin seq, per strand the list of the predicted CDS represented by CDS object</li>
 <li><strong>pot_pyl_cds_filepath</strong> – path to fasta file in which the protein sequences of the potential PYL CDS are saved</li>
 <li><strong>pot_pyl_cds_info_filepath</strong> – path to a cvs file to get information about potential PYL CDS</li>
-<li><strong>pot_pyl_cds_obj_filepath</strong> – path to a JSON file to store the list of potential PYL CDS object</li>
+<li><strong>pred_cds_obj_filepath</strong> – path to generated JSON file to store the list of predicted CDS objects</li>
 </ul>
 </td>
 </tr>
@@ -1410,13 +1377,7 @@ BLAST/DIAMOND table</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dictionary with the predicted CDS represented by CDS object</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a dictionary with per origin seq, per strand the list of the predicted CDS represented by CDS object</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of the id of TAG-ending CDS</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary with the predicted CDS represented by CDS object</p>
 </td>
 </tr>
 </tbody>
@@ -1441,7 +1402,7 @@ BLAST/DIAMOND table</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.predict.predict_pyl_proteins">
-<code class="descclassname">pylprotpredictor.predict.</code><code class="descname">predict_pyl_proteins</code><span class="sig-paren">(</span><em>genome_filepath</em>, <em>pred_cds_filepath</em>, <em>pot_pyl_seq_filepath</em>, <em>log_filepath</em>, <em>pred_cds_info_filepath</em>, <em>tag_ending_cds_info_filepath</em>, <em>pot_pyl_seq_info_filepath</em>, <em>pot_pyl_cds_obj_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/predict.html#predict_pyl_proteins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.predict.predict_pyl_proteins" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.predict.</code><code class="descname">predict_pyl_proteins</code><span class="sig-paren">(</span><em>genome_filepath</em>, <em>pred_cds_filepath</em>, <em>pot_pyl_seq_filepath</em>, <em>log_filepath</em>, <em>pred_cds_info_filepath</em>, <em>tag_ending_cds_info_filepath</em>, <em>pot_pyl_seq_info_filepath</em>, <em>pred_cds_obj_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/predict.html#predict_pyl_proteins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.predict.predict_pyl_proteins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run prediction of potentila PYL CDS:</p>
 <ul class="simple">
 <li>Extraction of predicted CDS into a dictionary</li>
@@ -1460,7 +1421,7 @@ BLAST/DIAMOND table</p>
 <li><strong>pred_cds_info_filepath</strong> – path to CSV file with predicted CDS info</li>
 <li><strong>tag_ending_cds_info_filepath</strong> – path to CSV file with TAG-ending CDS info</li>
 <li><strong>pot_pyl_seq_info_filepath</strong> – path to CSV file with potential PYL CDS info</li>
-<li><strong>pot_pyl_cds_obj_filepath</strong> – path to a JSON file to store the list of potential PYL CDS object</li>
+<li><strong>pred_cds_obj_filepath</strong> – path to generated JSON file to store the list of predicted CDS objects</li>
 </ul>
 </td>
 </tr>
@@ -1473,12 +1434,12 @@ BLAST/DIAMOND table</p>
 <span id="check"></span><h2>Check<a class="headerlink" href="#module-pylprotpredictor.check" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="pylprotpredictor.check.check_pyl_proteins">
-<code class="descclassname">pylprotpredictor.check.</code><code class="descname">check_pyl_proteins</code><span class="sig-paren">(</span><em>pot_pyl_similarity_search</em>, <em>pot_pyl_cds_filepath</em>, <em>cons_pot_pyl_seq</em>, <em>info_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#check_pyl_proteins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.check_pyl_proteins" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.check.</code><code class="descname">check_pyl_proteins</code><span class="sig-paren">(</span><em>pot_pyl_similarity_search</em>, <em>pred_cds_obj_filepath</em>, <em>cons_pred_cds_seq</em>, <em>info_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#check_pyl_proteins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.check_pyl_proteins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check predicted PYL CDS:</p>
 <ul class="simple">
 <li>Get the potential PYL CDS</li>
 <li>Parse the similarity search report</li>
-<li>Identify and extract the correct CDS sequence (the one with the lowest evalue)</li>
+<li>Identify and extract the correct CDS sequence (the one with the lowest evalue and longest alignment for potential PYL)</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1486,8 +1447,8 @@ BLAST/DIAMOND table</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>pot_pyl_similarity_search</strong> – path to similarity search report of potential PYL CDS against a reference database</li>
-<li><strong>pot_pyl_cds_filepath</strong> – path to JSON file with collection of potential PYL CDS</li>
-<li><strong>cons_pot_pyl_seq_filepath</strong> – path to a FASTA file for the conserved CDS</li>
+<li><strong>pred_cds_obj_filepath</strong> – path to generated JSON file to store the list of predicted CDS objects</li>
+<li><strong>cons_pred_cds_seq</strong> – path to a FASTA file for the conserved CDS sequences</li>
 <li><strong>info_filepath</strong> – path to a CSV file with final information about the CDS</li>
 </ul>
 </td>
@@ -1498,15 +1459,15 @@ BLAST/DIAMOND table</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.check.extract_correct_cds">
-<code class="descclassname">pylprotpredictor.check.</code><code class="descname">extract_correct_cds</code><span class="sig-paren">(</span><em>pot_pyl_cds</em>, <em>cons_pot_pyl_seq_filepath</em>, <em>info_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#extract_correct_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.extract_correct_cds" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.check.</code><code class="descname">extract_correct_cds</code><span class="sig-paren">(</span><em>pred_cds</em>, <em>cons_pred_cds_seq</em>, <em>info_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#extract_correct_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.extract_correct_cds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify and extract the correct CDS sequence</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pot_pyl_cds</strong> – dictionary of the potential PYL CDS</li>
-<li><strong>cons_pot_pyl_seq_filepath</strong> – path to a FASTA file for the conserved CDS</li>
+<li><strong>pred_cds</strong> – dictionary of the predicted CDS</li>
+<li><strong>cons_pred_cds_seq</strong> – path to a FASTA file for the conserved CDS sequences</li>
 <li><strong>info_filepath</strong> – path to a CSV file with final information about the CDS</li>
 </ul>
 </td>
@@ -1517,7 +1478,7 @@ BLAST/DIAMOND table</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.check.get_cds_obj">
-<code class="descclassname">pylprotpredictor.check.</code><code class="descname">get_cds_obj</code><span class="sig-paren">(</span><em>cds_id</em>, <em>pot_pyl_cds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#get_cds_obj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.get_cds_obj" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.check.</code><code class="descname">get_cds_obj</code><span class="sig-paren">(</span><em>cds_id</em>, <em>pred_cds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#get_cds_obj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.get_cds_obj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the CDS object given an id</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1525,7 +1486,7 @@ BLAST/DIAMOND table</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>cds_id</strong> – id of the CDS to find</li>
-<li><strong>pot_pyl_cds</strong> – dictionary of the potential PYL CDS</li>
+<li><strong>pred_cds</strong> – dictionary of the predicted CDS</li>
 </ul>
 </td>
 </tr>
@@ -1538,14 +1499,14 @@ BLAST/DIAMOND table</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.check.import_cds">
-<code class="descclassname">pylprotpredictor.check.</code><code class="descname">import_cds</code><span class="sig-paren">(</span><em>pot_pyl_cds_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#import_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.import_cds" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.check.</code><code class="descname">import_cds</code><span class="sig-paren">(</span><em>cds_obj_filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#import_cds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.import_cds" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pot_pyl_cds_filepath</strong> – path to JSON file with collection of potential PYL CDS</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cds_obj_filepath</strong> – path to JSON file with collection of CDS objects</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dictionary of the potential PYL CDS</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dictionary of the CDS objects</td>
 </tr>
 </tbody>
 </table>
@@ -1553,7 +1514,7 @@ BLAST/DIAMOND table</p>
 
 <dl class="function">
 <dt id="pylprotpredictor.check.parse_similarity_search_report">
-<code class="descclassname">pylprotpredictor.check.</code><code class="descname">parse_similarity_search_report</code><span class="sig-paren">(</span><em>pot_pyl_similarity_search</em>, <em>pot_pyl_cds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#parse_similarity_search_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.parse_similarity_search_report" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pylprotpredictor.check.</code><code class="descname">parse_similarity_search_report</code><span class="sig-paren">(</span><em>pot_pyl_similarity_search</em>, <em>pred_cds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylprotpredictor/check.html#parse_similarity_search_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pylprotpredictor.check.parse_similarity_search_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the similarity search report and add information to the list of
 potential PYL CDS</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1562,7 +1523,7 @@ potential PYL CDS</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>pot_pyl_similarity_search</strong> – path to similarity search report of potential PYL CDS against a reference database</li>
-<li><strong>pot_pyl_cds</strong> – dictionary of the potential PYL CDS</li>
+<li><strong>pred_cds</strong> – dictionary of the predicted CDS</li>
 </ul>
 </td>
 </tr>
@@ -1598,11 +1559,11 @@ potential PYL CDS</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pred_cds</strong> – </li>
-<li><strong>tag_ending_cds</strong> – </li>
-<li><strong>pot_pyl_cds</strong> – </li>
-<li><strong>final_cds_info</strong> – </li>
-<li><strong>report_filepath</strong> – </li>
+<li><strong>pred_cds</strong> – path to CSV file with predicted CDS info</li>
+<li><strong>tag_ending_cds</strong> – path to CSV file with TAG-ending CDS info</li>
+<li><strong>pot_pyl_cds</strong> – path to CSV file with potential PYL CDS info</li>
+<li><strong>final_cds_info</strong> – path to a CSV file with final information about the CDS</li>
+<li><strong>report_filepath</strong> – path to HTML file in which writing the report</li>
 </ul>
 </td>
 </tr>

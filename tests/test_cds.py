@@ -65,9 +65,9 @@ def test_find_stop_codon_pos_in_seq():
 def test_translate():
     """Test translate"""
     aa = cds.translate(records[1].seq)
-    assert aa == "MOKO*"
+    assert aa == "MOKO"
     aa = cds.translate(Seq("ATGTAGTGATAG"))
-    assert aa == "MO**"
+    assert aa == "MO*"
 
 
 def test_init_from_record():
@@ -378,11 +378,27 @@ def test_export_description():
     assert desc == "# origin_seq: scaffold_0 # strand: reverse # start: 1581 # end: 2864"
 
 
-def test_is_potential_pyl_cds():
-    """Test is_potential_pyl_cds from CDS class"""
-    assert not cds_list[0].is_potential_pyl_cds()
-    assert cds_list[3].is_potential_pyl_cds()
-    assert cds_list[4].is_potential_pyl_cds()
+def test_is_tag_ending():
+    """Test is_tag_ending from CDS class"""
+    cds_list[0].set_status("")
+    assert not cds_list[0].is_tag_ending()
+    cds_list[3].set_status("tag-ending")
+    assert cds_list[3].is_tag_ending()
+
+
+def test_is_potential_pyl():
+    """Test is_potential_pyl from CDS class"""
+    cds_list[0].set_status("")
+    assert not cds_list[0].is_potential_pyl()
+    cds_list[3].set_status("potential pyl")
+    assert cds_list[3].is_potential_pyl()
+
+
+def test_has_alternative_cds():
+    """Test has_alternative_cds from CDS class"""
+    assert not cds_list[0].has_alternative_cds()
+    assert cds_list[3].has_alternative_cds()
+    assert cds_list[4].has_alternative_cds()
 
 
 def test_export_to_dict():
@@ -423,7 +439,7 @@ def test_init_from_dict():
         assert str(new_cds.get_seq()) == str(cds_list[0].get_seq())
         assert new_cds.has_alternative_ends()
         assert new_cds.get_alternative_ends() == cds_list[0].get_alternative_ends()
-        assert not new_cds.is_potential_pyl_cds()
+        assert not new_cds.has_alternative_cds()
 
     d = cds_list[4].export_to_dict()
     for k in d:
@@ -432,7 +448,7 @@ def test_init_from_dict():
         assert new_cds.get_id() == cds_list[4].get_id()
         assert new_cds.has_alternative_ends()
         assert new_cds.get_alternative_ends() == cds_list[4].get_alternative_ends()
-        assert new_cds.is_potential_pyl_cds()
+        assert new_cds.has_alternative_cds()
 
 
 def test_add_alignment():
@@ -455,11 +471,11 @@ def test_reset_alignments():
     assert len(cds_list[0].get_alignments()) == 0
 
 
-def test_get_lowest_evalue():
-    """Test get_lowest_evalue from CDS class"""
+def test_get_lowest_evalue_alignment():
+    """Test get_lowest_evalue_alignment from CDS class"""
     cds_list[0].add_alignment(al1)
     cds_list[0].add_alignment(al2)
-    assert cds_list[0].get_lowest_evalue() == min(al1.get_evalue(), al2.get_evalue())
+    assert cds_list[0].get_lowest_evalue_alignment().get_evalue() == min(al1.get_evalue(), al2.get_evalue())
 
 
 def test_get_highest_bitscore():
@@ -506,24 +522,6 @@ def test_add_id_alignment():
     cds_list[4].get_alternative_cds()[0].get_alignments()[0].get_sseqid() == al2.get_sseqid()
 
 
-def test_identify_lowest_evalue():
-    """Test identify_lowest_evalue from CDS class"""
-    cds_list[4].reset_alignments()
-    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
-    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
-    assert cds_list[4].identify_lowest_evalue() == al2.get_evalue()
-    assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
-
-
-def test_identify_highest_bitscore():
-    """Test identify_highest_bitscore from CDS class"""
-    cds_list[4].reset_alignments()
-    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
-    cds_list[4].add_id_alignment("scaffold_1220_19-1", al2)
-    assert cds_list[4].identify_highest_bitscore() == al2.get_bitscore()
-    assert cds_list[4].get_conserved_cds().get_id() == "scaffold_1220_19-1"
-
-
 def test_identify_cons_rej_cds():
     """Test identify_cons_rej_cds from CDS class"""
     cds_list[4].reset_alignments()
@@ -535,12 +533,6 @@ def test_identify_cons_rej_cds():
 
     cds_list[3].reset_alignments()
     cds_list[3].add_id_alignment(cds_list[3].get_id(), al2)
-    cds_list[3].add_id_alignment("scaffold_1220_19-1", al1)
+    cds_list[3].add_id_alignment("scaffold_117_243-1", al1)
     cds_list[3].identify_cons_rej_cds()
     assert cds_list[3].get_conserved_cds().get_id() == cds_list[3].get_id()
-
-    cds_list[4].reset_alignments()
-    cds_list[4].add_id_alignment(cds_list[4].get_id(), al1)
-    cds_list[4].add_id_alignment("scaffold_1220_19-1", al3)
-    cds_list[4].identify_cons_rej_cds()
-    assert cds_list[4].get_conserved_cds() is None

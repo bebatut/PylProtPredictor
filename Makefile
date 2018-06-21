@@ -14,6 +14,14 @@ endif
 # Commands
 default: help
 
+init: ## install the requirements
+	python setup.py install
+.PHONY: init
+
+develop: init ## setup develop mode
+	python setup.py develop
+.PHONY: develop
+
 install-conda: ## install Miniconda
 	wget $(MINICONDA_URL) -O miniconda.sh
 	bash miniconda.sh -b
@@ -33,7 +41,7 @@ create-env: ## create conda environment
 .PHONY: create-env
 
 test: ## run the tests
-	flake8 --exclude=.git,build --ignore=E501 .
+	flake8 --exclude=.git,build,.eggs --ignore=E501 .
 	pytest --cov=pylprotpredictor tests/
 .PHONY: test
 

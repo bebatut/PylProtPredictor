@@ -3,6 +3,11 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Data import CodonTable
 from Bio.Data.CodonTable import register_ncbi_table
 
+try:
+    from pylprotpredictor import alignment
+except ImportError:
+    from . import alignment
+
 
 register_ncbi_table(
     name='PylProt CodonTable',
@@ -99,10 +104,8 @@ def translate(seq):
     :return: string with the corresponding amino acid sequence with the TAG encoded STOP are replaced by Pyl amino acid
     """
     translated_seq = seq.translate(66)
-    if translated_seq[-1] == 'O':
-        mutable_seq = translated_seq.tomutable()
-        mutable_seq[-1] = "*"
-        translated_seq = mutable_seq.toseq()
+    mutable_seq = translated_seq.tomutable()[:-1]
+    translated_seq = mutable_seq.toseq()
     return translated_seq
 
 
@@ -113,7 +116,7 @@ class CDS:
             self, seq_id="", origin_seq=None, origin_seq_id="", start=-1,
             end=-1, strand="forward", seq=None, alternative_ends=[],
             alternative_cds=[], alignments=[],
-            conserved_cds=None, rejected_cds=[]):
+            conserved_cds=None, rejected_cds=[], status=""):
         """Initiate a CDS instance"""
         self.id = seq_id
         self.origin_seq = origin_seq
@@ -127,6 +130,7 @@ class CDS:
         self.alignments = alignments
         self.conserved_cds = conserved_cds
         self.rejected_cds = rejected_cds
+        self.status = status
 
     def init_from_record(self, record):
         """Initiate a CDS instance with a SeqRecord object
@@ -150,6 +154,7 @@ class CDS:
         :param in_dict: dictionary with attribute for a CDS object
         """
         self.set_id(in_dict["id"])
+        self.set_status(in_dict["status"])
         self.set_origin_seq_id(in_dict["origin_seq_id"])
         self.set_start(in_dict["start"])
         self.set_end(in_dict["end"])
@@ -249,6 +254,20 @@ class CDS:
         """
         return self.rejected_cds
 
+    def get_status(self):
+        """Return the status
+
+        :return: string with the status of the CDS
+        """
+        return self.status
+
+    def get_stop_codon(self):
+        """Return the STOP codon of the CDS
+
+        :return: the STOP codon
+        """
+        return self.get_seq()[-3:]
+
     def get_origin_seq_size(self):
         """Return the length of the origin sequence
 
@@ -319,17 +338,19 @@ class CDS:
             description=self.export_description())
         return seq
 
-    def get_lowest_evalue(self):
-        """Return the lowest evalue for all alignments
+    def get_lowest_evalue_alignment(self):
+        """Return the alignment with the lowest evalue
 
-        :return: float
+        :return: alignment
         """
         lowest_evalue = 10
+        lowest_evalue_al = None
         for al in self.get_alignments():
             evalue = al.get_evalue()
             if evalue < lowest_evalue:
                 lowest_evalue = evalue
-        return lowest_evalue
+                lowest_evalue_al = al
+        return lowest_evalue_al
 
     def get_highest_bitscore(self):
         """Return the highest bitscore for all alignments
@@ -414,6 +435,13 @@ class CDS:
         """
         self.evalue = evalue
 
+    def set_status(self, status):
+        """Change the status
+
+        :param status: new status
+        """
+        self.status = status
+
     def set_conserved_cds(self, conserved_cds):
         """Change the conserved CDS
 
@@ -468,7 +496,21 @@ class CDS:
 
         :return: boolean
         """
-        return self.get_seq().endswith("TAG")
+        return self.get_stop_codon() == "TAG"
+
+    def is_potential_pyl(self):
+        """Test if the sequence has a status for potential pyl
+
+        :return: boolean
+        """
+        return self.get_status() == "potential pyl"
+
+    def is_tag_ending(self):
+        """Test if the sequence has a status for tag-ending
+
+        :return: boolean
+        """
+        return self.get_status() == "tag-ending"
 
     def has_alternative_ends(self):
         """Test if the list of alternative ends is not empty
@@ -477,8 +519,8 @@ class CDS:
         """
         return len(self.get_alternative_ends()) > 0
 
-    def is_potential_pyl_cds(self):
-        """Test if the CDS is a potential PYL CDS: having alternative cds
+    def has_alternative_cds(self):
+        """Test if the CDS has alternative cds
 
         :return: boolean
         """
@@ -568,63 +610,52 @@ class CDS:
         :param seq_id: id of the CDS
         :param alignment: alignment object to add
         """
+        assigned = False
         if seq_id == self.get_id():
             self.add_alignment(alignment)
+            assigned = True
         else:
             for alt_cds in self.get_alternative_cds():
                 if alt_cds.get_id() == seq_id:
                     alt_cds.add_alignment(alignment)
-
-    def identify_lowest_evalue(self):
-        """Identify which alternative CDS to converse or reject based on the
-        evalue
-        """
-        ref_evalue = self.get_lowest_evalue()
-        self.reset_rejected_cds()
-        self.set_conserved_cds(self)
-        for alt_cds in self.get_alternative_cds():
-            evalue = alt_cds.get_lowest_evalue()
-            if evalue < ref_evalue:
-                ref_evalue = evalue
-                self.add_rejected_cds(self.get_conserved_cds())
-                self.set_conserved_cds(alt_cds)
-            else:
-                self.add_rejected_cds(alt_cds)
-        return ref_evalue
-
-    def identify_highest_bitscore(self):
-        """Identify which alternative CDS to converse or reject based on the
-        bitscore
-        """
-        ref_bitscore = self.get_highest_bitscore()
-        self.reset_rejected_cds()
-        self.set_conserved_cds(self)
-        for alt_cds in self.get_alternative_cds():
-            bitscore = alt_cds.get_highest_bitscore()
-            if bitscore > ref_bitscore:
-                ref_bitscore = bitscore
-                self.add_rejected_cds(self.get_conserved_cds())
-                self.set_conserved_cds(alt_cds)
-            else:
-                self.add_rejected_cds(alt_cds)
-        return ref_bitscore
+                    assigned = True
+        if not assigned:
+            raise ValueError("Alignment for %s not assigned to %s" % (seq_id, self.get_id()))
 
     def identify_cons_rej_cds(self):
         """Identify which alternative CDS to converse or reject based on the
-        evalue or the bitscore:
+        evalue and the alignment length: Keep the sequence with a lowest evalue
+        and a longer alignment
 
-        - Extract the CDS (current and possible alternative sequence) with the lowest evalue
-        - Reset if the lowest evalue is too high and could be due to random alignment
-        - Extract the CDS (current and possible alternative sequence) with the highest bitscore
-
+        :return: better alignment
         """
-        ref_evalue = self.identify_lowest_evalue()
+        self.reset_rejected_cds()
 
-        if ref_evalue > 1e-10:
-            self.reset_rejected_cds()
-            self.set_conserved_cds(None)
-        elif self.get_conserved_cds() == self:
-            self.identify_highest_bitscore()
+        ref_al = self.get_lowest_evalue_alignment()
+
+        if ref_al is None:
+            self.set_status('potential pyl - no homologous found')
+            self.set_conserved_cds(self)
+            return alignment.Alignment()
+
+        self.set_conserved_cds(self)
+        for alt_cds in self.get_alternative_cds():
+            alt_al = alt_cds.get_lowest_evalue_alignment()
+            if alt_al is None:
+                continue
+            if alt_al.get_evalue() < ref_al.get_evalue() and alt_al.get_length() > ref_al.get_length():
+                ref_al = alt_al
+                self.add_rejected_cds(self.get_conserved_cds())
+                self.set_conserved_cds(alt_cds)
+            else:
+                self.add_rejected_cds(alt_cds)
+
+        if self.get_conserved_cds() == self:
+            self.set_status('not confirmed potential pyl')
+        else:
+            self.set_status('confirmed potential pyl')
+
+        return ref_al
 
     def export_description(self):
         """Export the description of the CDS
@@ -646,6 +677,7 @@ class CDS:
         cds_id = self.get_id()
         d = {cds_id: {
             'id': self.get_id(),
+            'status': self.get_status(),
             'origin_seq_id': self.get_origin_seq_id(),
             'start': self.get_start(),
             'end': self.get_end(),
