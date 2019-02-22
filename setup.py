@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="pylprotpredictor",
-    version="0.1.0",
+    version="1.0.1",
     author="Berenice Batut",
     author_email="berenice.batut@gmail.com",
     description=("A tool to predict CDS including Pyrrolise-using CDS"),
@@ -11,7 +11,7 @@ setup(
     keywords="",
     url="https://github.com/bebatut/PylProtPredictor ",
     packages=find_packages(),
-    scripts=['bin/pylprotpredictor'],
+    scripts=['bin/PylProtPredictor'],
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache-2.0",
