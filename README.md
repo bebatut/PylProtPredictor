@@ -3,6 +3,9 @@ Detection of pyrrolysine proteins
 
 [![CircleCI](https://circleci.com/gh/bebatut/PylProtPredictor/tree/master.svg?style=svg)](https://circleci.com/gh/bebatut/PylProtPredictor/tree/master)
 [![codecov](https://codecov.io/gh/bebatut/PylProtPredictor/branch/master/graph/badge.svg?token=6KyTn6n8Bp)](https://codecov.io/gh/bebatut/PylProtPredictor)
+[![DOI](https://zenodo.org/badge/88719042.svg)](https://zenodo.org/badge/latestdoi/88719042)
+
+
 
 # Context
 
@@ -138,4 +141,8 @@ To update it:
 - Kévin Gravouil
 - Cécile Hilpert
 - Ylana Sauvaget
+
+# Citation
+
+You can cite the latest release on [Zenodo](https://zenodo.org/record/2575708) 
 
