@@ -13,13 +13,13 @@ jobs:
           command: |
             make install-conda
       - run:
-          name: configure conda
-          command: |
-            make configure-conda
-      - run:
           name: create conda environment
           command: |
             make create-env
+      - run:
+          name: create conda environment
+          command: |
+            make init
       - run:
           name: run linting and test
           command: |
