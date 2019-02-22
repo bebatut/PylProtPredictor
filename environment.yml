@@ -5,14 +5,5 @@ channels:
 - defaults
 - conda-forge
 dependencies:
-- biopython
 - diamond
 - prodigal
-- snakemake
-- flake8
-- pandas
-- pytest
-- pytest-cov
-- codecov
-- sphinx
-- sphinx_rtd_theme

@@ -36,33 +36,33 @@ The following software are required:
 
 - Clone this repository (or get the release)
 
-```
-$ git clone https://github.com/bebatut/PylProtPredictor.git
-```
+    ```
+    $ git clone https://github.com/bebatut/PylProtPredictor.git
+    ```
 
 - Move into the directory
 
-```
-$ cd pyl_protein_prediction
-```
+    ```
+    $ cd pyl_protein_prediction
+    ```
 
 - Prepare the environment (only once)
 
-```
-$ make create-env
-```
+    ```
+    $ make create-env
+    ```
 
 - Activate the conda environment
 
-```
-$ source activate PylProtPredictor
-```
+    ```
+    $ source activate PylProtPredictor
+    ```
 
 - Build the package
 
-```
-$ make init
-```
+    ```
+    $ make init
+    ```
 
 # Usage
 

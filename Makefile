@@ -6,13 +6,34 @@ SOURCEDIR     = src/docs
 BUILDDIR      = tmp
 MINICONDA_URL = https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 MINICONDA	  = $HOME/miniconda3
+CONDA_ENV     = PylProtPredictor
 
 ifeq ($(shell uname -s),Darwin)
 	MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
 endif
 
+CONDA=$(shell which conda)
+ifeq ($(CONDA),)
+	CONDA=${HOME}/miniconda3/bin/conda
+endif
+
 # Commands
 default: help
+
+install-conda: ## install Miniconda
+	curl $(MINICONDA_URL) -o miniconda.sh
+	bash miniconda.sh -b
+.PHONY: install-conda
+
+create-env: ## create conda environment
+	if ${CONDA} env list | grep '^${CONDA_ENV}'; then \
+	    ${CONDA} env update -f environment.yml; \
+	else \
+	    ${CONDA} env create -f environment.yml; \
+	fi
+.PHONY: create-env
+
+ACTIVATE_ENV = source activate ${CONDA_ENV}
 
 init: ## install the requirements
 	python setup.py install
@@ -21,24 +42,6 @@ init: ## install the requirements
 develop: init ## setup develop mode
 	python setup.py develop
 .PHONY: develop
-
-install-conda: ## install Miniconda
-	wget $(MINICONDA_URL) -O miniconda.sh
-	bash miniconda.sh -b
-	conda config --set show_channel_urls yes --set always_yes yes
-	conda update conda conda-env
-.PHONY: install-conda
-
-configure-conda: ## configure conda channels
-	conda config --system --add channels conda-forge
-	conda config --system --add channels defaults
-	conda config --system --add channels r
-	conda config --system --add channels bioconda
-.PHONY: configure-conda
-
-create-env: ## create conda environment
-	conda env create --name PylProtPredictor --file environment.yml
-.PHONY: create-env
 
 test: ## run the tests
 	flake8 --exclude=.git,build,.eggs --ignore=E501 .
