@@ -17,8 +17,8 @@ test = data_dir / Path("test.json")
 
 info = {
     'cds_1': {'start': 694, 'end': 1938, 'strand': 'forward', 'origin_seq': 'gi|477554117|gb|CP004049.1|', 'stop_codon': 'TGA'},
-    'scaffold_0_1': {'start': 1, 'end': 543, 'strand': 'forward', 'origin_seq': 'scaffold_0', 'stop_codon': 'TGA'},
     'scaffold_0_3': {'start': 1581, 'end': 2864, 'strand': 'reverse', 'origin_seq': 'scaffold_0', 'stop_codon': 'TAA'},
+    'scaffold_0_1': {'start': 1, 'end': 543, 'strand': 'forward', 'origin_seq': 'scaffold_0', 'stop_codon': 'TGA'},
     'scaffold_117_243': {'start': 228271, 'end': 228441, 'strand': 'reverse', 'origin_seq': 'scaffold_117', 'stop_codon': 'TAG'},
     'scaffold_1220_19': {'start': 15451, 'end': 15930, 'strand': 'forward', 'origin_seq': 'scaffold_1220', 'stop_codon': 'TAG'}
 }

@@ -27,21 +27,20 @@ genome = []
 for record in SeqIO.parse(input_genome_filepath.as_posix(), "fasta"):
     genome.append(record)
 
-pred_cds = predict.extract_predicted_cds(
-    input_cds_filepath,
-    Path("pred_cds"),
-    Path("tag_ending_cds"),
-    input_scaffold_genome_filepath)
-
 
 def test_extract_predicted_cds():
     """Test extract_predicted_cds"""
-    assert filecmp.cmp("pred_cds", output_cds_filepath.as_posix())
+    pred_cds = predict.extract_predicted_cds(
+        input_cds_filepath,
+        Path("pred_cds"),
+        Path("tag_ending_cds"),
+        input_scaffold_genome_filepath)
     assert "cds_1" in pred_cds
     assert "scaffold_0_3" in pred_cds
     assert "scaffold_0_1" in pred_cds
     assert "scaffold_117_243" in pred_cds
     assert "scaffold_1220_19" in pred_cds
+    assert filecmp.cmp("pred_cds", output_cds_filepath.as_posix())
     assert filecmp.cmp("tag_ending_cds", output_tag_ending_cds_filepath.as_posix())
     os.remove('tag_ending_cds')
     os.remove('pred_cds')
@@ -58,6 +57,11 @@ def test_extract_seqs():
 
 def test_extract_potential_pyl_cds():
     """Test extract_potential_pyl_cds"""
+    pred_cds = predict.extract_predicted_cds(
+        input_cds_filepath,
+        Path("pred_cds"),
+        Path("tag_ending_cds"),
+        input_scaffold_genome_filepath)
     predict.extract_potential_pyl_cds(
         pred_cds,
         Path("pot_pyl_cds.fasta"),
